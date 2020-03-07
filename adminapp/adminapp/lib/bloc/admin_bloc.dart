@@ -28,24 +28,35 @@ class AdminBloc extends ChangeNotifier {
   Future<bool> isAuthenticated() async {
     return await Auth.checkAuth();
   }
-  Future createMember({Member member, String password}) async {
+  Future<Member> createMember({Member member, String password}) async {
     _adminMember = await Auth.createMember(member: member, memberPassword: password);
     print('AdminBloc will notify listeners that things are cool! ${_adminMember.name}');
     notifyListeners();
+    return _adminMember;
   }
-  Future createStokvel(Stokvel stokvel) async {
+  Future <Stokvel> createStokvel(Stokvel stokvel) async {
+    _adminMember = await Prefs.getMember();
+    if (_adminMember == null) {
+      throw Exception('Admin Memeber not found');
+    }
     var stokvelResult = await DataAPI.createStokvel(stokvel);
     _stokvels.add(stokvelResult);
     await DataAPI.addStokvelToMember(stokvel: stokvel, memberId: _adminMember.memberId);
     notifyListeners();
+    return stokvelResult;
   }
 
-  Future getStokvels() async {
+  Future<Member> updateMember(Member member) async {
+    return await DataAPI.updateMember(member);
+  }
+
+  Future<List<Stokvel>> getStokvels() async {
     if (_adminMember == null) {
       _adminMember = await getAdmin();
     }
     _stokvels = await ListAPI.getStokvelsAdministered(_adminMember.memberId);
     notifyListeners();
+    return _stokvels;
   }
   Future<StokvelPayment> sendStokvelPayment({Member member, String amount, Stokvel stokvel}) async {
     var seed = await Prefs.getMemberSeed();

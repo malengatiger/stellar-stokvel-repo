@@ -1,6 +1,7 @@
 
-import 'package:adminapp/bloc/AdminBloc.dart';
+import 'package:adminapp/bloc/admin_bloc.dart';
 import 'package:adminapp/ui/dashboard.dart';
+import 'package:adminapp/ui/stokvel_editor.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,7 +31,7 @@ class _SignUpState extends State<SignUp> {
     super.initState();
     emailEditor.text = "admin1@stokvel.com";
     passwordEditor.text = "stokkie123";
-    nameEditor.text = "Aubrey Admin1";
+    nameEditor.text = "Aubrey StokkieMan";
     cellEditor.text = "077 827 7368";
   }
 
@@ -245,6 +246,7 @@ class _SignUpState extends State<SignUp> {
   var isNewMember = false;
 
   _submit() async {
+    _dismissKeyboard();
     setState(() {
       isBusy = true;
     });
@@ -260,7 +262,7 @@ class _SignUpState extends State<SignUp> {
       await _adminBloc.createMember(member: member, password: passwordEditor.text);
       Navigator.pop(context, res);
       Navigator.pop(context, res);
-      Navigator.push(context, SlideRightRoute(widget: Dashboard()));
+      Navigator.push(context, SlideRightRoute(widget: StokvelEditor()));
     } catch (e) {
       debugPrint('👿 👿 👿 👿 Hey Jose, we gotta a problem: $e');
       setState(() {
@@ -268,6 +270,13 @@ class _SignUpState extends State<SignUp> {
       });
       AppSnackBar.showErrorSnackBar(
           scaffoldKey: _key, message: "Sign in failed", actionLabel: "");
+    }
+  }
+
+  void _dismissKeyboard() {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
     }
   }
 }

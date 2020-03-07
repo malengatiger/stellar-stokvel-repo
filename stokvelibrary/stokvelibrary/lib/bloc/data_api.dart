@@ -44,6 +44,7 @@ class DataAPI {
         .getDocuments();
     if (querySnapshot.documents.isNotEmpty) {
       querySnapshot.documents.first.reference.updateData(member.toJson());
+      print('💊💊💊 DataAPI: Member updated, stokvels: ${member.stokvels.length}');
     } else {
       throw Exception('Member update failed, member not found');
     }
@@ -51,14 +52,19 @@ class DataAPI {
 
   static Future createStokvel(Stokvel stokvel) async {
     var uuid = Uuid();
-    stokvel.stokvelId = uuid.toString();
+    stokvel.stokvelId = uuid.v1();
     stokvel.date = DateTime.now().toUtc().toIso8601String();
     stokvel.isActive = true;
     String status = DotEnv().env['status'];
+
+    print('💊💊💊 DataAPI: creating Stellar account for the Stokvel ...');
     var res = await Stellar.createAccount(isDevelopmentStatus: status == 'dev'? true: false );
     stokvel.accountId = res.accountResponse.accountId;
-    Prefs.setStokvelSeed(res.secretSeed);
-    await _firestore.collection('stokvels').add(stokvel.toJson());
+    Prefs.addStokvelCredential(StellarCredential(accountId: stokvel.accountId,
+        date: DateTime.now().toUtc().toIso8601String(), seed: res.secretSeed));
+
+    var mRes = await _firestore.collection('stokvels').add(stokvel.toJson());
+    print('💊💊💊 DataAPI: Stokvel added to Firestore, path: ${mRes.path}');
     return stokvel;
   }
 
@@ -105,6 +111,10 @@ class DataAPI {
       }
       member.stokvels.add(stokvel);
       querySnapshot.documents.first.reference.updateData(member.toJson());
+      print('🛎 🛎 Member updated on Firestore with added Stokvel: 🥬 ${stokvel.name} '
+          'member stokvels: 🥬 ${member.stokvels.length}');
+      await Prefs.saveMember(member);
+      return null;
     } else {
       throw Exception('Member not found');
     }

@@ -2,15 +2,13 @@
 import 'package:flutter/material.dart';
 
 class Stokvel {
-  String name, cellphone, email, date, stokvelId, accountId;
+  String name, date, stokvelId, accountId;
   bool isActive;
   Member adminMember;
 
   Stokvel(
       {this.name,
         this.stokvelId,
-        this.email,
-        this.cellphone,
         this.date, this.adminMember,
         this.isActive});
 
@@ -18,8 +16,7 @@ class Stokvel {
     name = map['name'];
     accountId = map['accountId'];
     stokvelId = map['stokvelId'];
-    cellphone = map['cellphone'];
-    email = map['email'];
+
     date = map['date'];
     isActive = map['isActive'];
     if (map['adminMember'] != null) {
@@ -32,8 +29,6 @@ class Stokvel {
       'name': name,
       'accountId': accountId,
       'stokvelId': stokvelId,
-      'cellphone': cellphone,
-      'email': email,
       'date': date,
       'isActive': isActive,
       'adminMember': adminMember == null? null: adminMember.toJson(),
@@ -156,6 +151,57 @@ class MemberPayment {
       'date': date,
       'fromMember': fromMember == null? null: fromMember.toJson(),
       'toMember': toMember == null? null: toMember.toJson(),
+    };
+    return map;
+  }
+
+}
+class StellarCredential {
+  String accountId, date, seed;
+  StellarCredential({@required this.accountId, @required this.date, @required this.seed, });
+
+  StellarCredential.fromJson(Map map) {
+    accountId = map['accountId'];
+    date = map['date'];
+    seed = map['seed'];
+
+  }
+
+  Map<String, dynamic> toJson() {
+
+    Map<String, dynamic> map = {
+      'accountId': accountId,
+      'seed': seed,
+      'date': date,
+
+    };
+    return map;
+  }
+
+}
+class StellarCredentials {
+   List<StellarCredential> credentials;
+
+  StellarCredentials(this.credentials);
+  StellarCredentials.fromJson(Map map) {
+
+    credentials = List();
+    if (map['credentials'] != null) {
+      List mm = map['credentials'];
+      mm.forEach((m) {
+        credentials.add(StellarCredential.fromJson(m));
+      });
+    }
+
+  }
+
+  Map<String, dynamic> toJson() {
+    List mList = [];
+    credentials.forEach((c) {
+      mList.add(c.toJson());
+    });
+    Map<String, dynamic> map = {
+      'credentials': mList,
     };
     return map;
   }

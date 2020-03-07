@@ -41,20 +41,28 @@ static Future<Member> getMember() async {
       return b;
     }
   }
-  static void setStokvelSeed(String seed) async {
+  static void addStokvelCredential(StellarCredential credential) async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setString('stokvelseed', seed);
-    print('🔵 🔵 🔵 Prefs: seed cached ... 🍎 🍎 ');
+    var creds = await getStokvelCredentials();
+    if (creds == null) {
+      creds = StellarCredentials([credential]);
+    } else {
+      creds.credentials.add(credential);
+    }
+    await preferences.setString('stokvelseed', jsonEncode(creds));
+    print('🔵 🔵 🔵 Prefs: Stellar credential cached ... 🍎 🍎 ');
   }
 
-  static Future<String> getStokvelSeed() async {
+  static Future<StellarCredentials> getStokvelCredentials() async {
     final preferences = await SharedPreferences.getInstance();
     var b = preferences.getString('stokvelseed');
     if (b == null) {
       return null;
     } else {
-      print('🔵 🔵 🔵 Prefs: seed retrieved: $b 🍏 🍏 ');
-      return b;
+      var mJson = jsonDecode(b);
+      var creds = StellarCredentials.fromJson(mJson);
+      print('🔵 🔵 🔵 Prefs: Credentials retrieved, creds: ${creds.credentials.length} 🍏 🍏 ');
+      return creds;
     }
   }
 
@@ -75,5 +83,5 @@ static Future<Member> getMember() async {
     }
   }
 
-
 }
+

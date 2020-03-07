@@ -1,4 +1,4 @@
-import 'package:adminapp/bloc/AdminBloc.dart';
+import 'package:adminapp/bloc/admin_bloc.dart';
 import 'package:adminapp/ui/dashboard.dart';
 import 'package:adminapp/ui/onboard.dart';
 import 'package:adminapp/ui/welcome.dart';
