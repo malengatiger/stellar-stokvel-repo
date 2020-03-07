@@ -10,11 +10,15 @@ class Auth {
   static FirebaseAuth _auth = FirebaseAuth.instance;
   static Firestore _firestore = Firestore.instance;
 
-  static Future checkAuth() async {
-    if (_auth.currentUser() != null) {
+  static Future<bool> checkAuth() async {
+    var user = await _auth.currentUser();
+    if (user != null) {
+      print(('🔶 🔶 🔶 User is already authenticated: ${user.displayName}'));
       return true;
+    } else {
+      print(('🔑 🔑 🔑 🅿️ User is not authenticated yet 🅿️ '));
+      return false;
     }
-    return false;
   }
 
   static Future<Member> createMember(Member member) async {

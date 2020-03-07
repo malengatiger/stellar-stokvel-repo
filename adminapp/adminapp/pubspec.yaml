@@ -25,4 +25,14 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
    - .env
+   - download1.jpeg
+   - download3.jpeg
+   - download4.jpeg
+   - download8.jpeg
+   - images8.jpeg
+   - images12.jpeg
+   - images14.jpeg
+   - images19.jpeg
+   - images22.jpeg
+   - images14.png
 

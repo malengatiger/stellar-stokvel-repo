@@ -1,6 +1,7 @@
 import 'package:adminapp/bloc/AdminBloc.dart';
 import 'package:adminapp/ui/dashboard.dart';
 import 'package:adminapp/ui/onboard.dart';
+import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
@@ -55,8 +56,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void _checkAuth() async {
     
     var isAuthed = await adminBloc.isAuthenticated();
+    print('$isAuthed is the result from bloc' );
     if (!isAuthed) {
-      Navigator.push(context, SlideRightRoute(widget: OnBoard()));
+      Navigator.push(context, SlideRightRoute(widget: Welcome(null)));
       return;
     } else {
       Navigator.push(context, SlideRightRoute(widget: Dashboard()));
@@ -78,12 +80,9 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              'Stokkie', style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
+
           ],
         ),
       ),
