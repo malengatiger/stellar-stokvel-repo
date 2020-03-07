@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "437915397465-l6t5r3f6h15k7clfuhuh9vhre6eulfu2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stokvel.adminapp",
+            "certificate_hash": "ed02ddd0e7e0820a41307a8872c95032d8f8c897"
+          }
+        },
+        {
           "client_id": "437915397465-tc4umgcisnc0b3ckd5uldgqsrkfotn4t.apps.googleusercontent.com",
           "client_type": 3
         }

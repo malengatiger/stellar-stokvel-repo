@@ -21,7 +21,7 @@ class PageOne extends StatelessWidget {
             Stack(
               children: <Widget>[
                 Container(
-                  color: Colors.blue,
+//                  color: Colors.blue,
                   height: 300,
                   width: double.infinity,
                   child: Opacity(
@@ -29,19 +29,6 @@ class PageOne extends StatelessWidget {
                     child: Image(
                       image: AssetImage('download1.jpeg'),
                       fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                member != null? Container(): Positioned(
-                  right: 20, top: 20,
-                  child: RaisedButton(
-                    color: Colors.indigo,
-                    onPressed: () {
-                      Navigator.push(context, SlideRightRoute(widget: SignUp()));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Sign Up/Login', style: Styles.whiteSmall,),
                     ),
                   ),
                 ),
@@ -104,7 +91,7 @@ class PageTwo extends StatelessWidget {
             Stack(
               children: <Widget>[
                 Container(
-                  color: Colors.blue,
+//                  color: Colors.blue,
                   height: 300,
                   width: double.infinity,
                   child: Opacity(
@@ -115,20 +102,7 @@ class PageTwo extends StatelessWidget {
                     ),
                   ),
                 ),
-                member != null? Container(): Positioned(
-                  right: 20, top: 20,
-                  child: RaisedButton(
-                    elevation: 16,
-                    color: Colors.indigo,
-                    onPressed: () {
-                      Navigator.push(context, SlideRightRoute(widget: SignUp()));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Sign Up/Login', style: Styles.whiteSmall,),
-                    ),
-                  ),
-                ),
+
               ],
             ),
             SizedBox(
@@ -182,7 +156,7 @@ class PageThree extends StatelessWidget {
             Stack(
               children: <Widget>[
                 Container(
-                  color: Colors.blue,
+//                  color: Colors.blue,
                   height: 300,
                   width: double.infinity,
                   child: Opacity(
@@ -193,20 +167,7 @@ class PageThree extends StatelessWidget {
                     ),
                   ),
                 ),
-                member != null? Container() : Positioned(
-                  right: 20, top: 20,
-                  child: RaisedButton(
-                    color: Colors.indigo,
-                    elevation: 16,
-                    onPressed: () {
-                      Navigator.push(context, SlideRightRoute(widget: SignUp()));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Sign Up/Login', style: Styles.whiteSmall,),
-                    ),
-                  ),
-                ),
+
               ],
             ),
             SizedBox(
@@ -260,7 +221,7 @@ class PageFour extends StatelessWidget {
             Stack(
               children: <Widget>[
                 Container(
-                  color: Colors.blue,
+//                  color: Colors.blue,
                   height: 300,
                   width: double.infinity,
                   child: Opacity(
@@ -271,20 +232,7 @@ class PageFour extends StatelessWidget {
                     ),
                   ),
                 ),
-                member != null? Container() : Positioned(
-                  right: 20, top: 40,
-                  child: RaisedButton(
-                    color: Colors.indigo,
-                    elevation: 16,
-                    onPressed: () {
-                      Navigator.push(context, SlideRightRoute(widget: SignUp()));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Sign Up/Login', style: Styles.whiteSmall,),
-                    ),
-                  ),
-                ),
+
               ],
             ),
             SizedBox(
@@ -350,20 +298,7 @@ class PageFive extends StatelessWidget {
                     ),
                   ),
                 ),
-                member != null? Container() : Positioned(
-                  right: 20, top: 40,
-                  child: RaisedButton(
-                    color: Colors.indigo,
-                    elevation: 16,
-                    onPressed: () {
 
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text('Sign Up/Login', style: Styles.whiteSmall,),
-                    ),
-                  ),
-                ),
               ],
             ),
             SizedBox(

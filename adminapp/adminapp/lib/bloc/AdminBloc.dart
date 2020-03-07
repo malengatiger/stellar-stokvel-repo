@@ -28,8 +28,9 @@ class AdminBloc extends ChangeNotifier {
   Future<bool> isAuthenticated() async {
     return await Auth.checkAuth();
   }
-  Future createMember(Member member) async {
-    _adminMember = await Auth.createMember(member);
+  Future createMember({Member member, String password}) async {
+    _adminMember = await Auth.createMember(member: member, memberPassword: password);
+    print('AdminBloc will notify listeners that things are cool! ${_adminMember.name}');
     notifyListeners();
   }
   Future createStokvel(Stokvel stokvel) async {

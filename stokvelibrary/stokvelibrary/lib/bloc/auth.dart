@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
+import 'package:uuid/uuid.dart';
 
 class Auth {
   static FirebaseAuth _auth = FirebaseAuth.instance;
@@ -21,30 +23,27 @@ class Auth {
     }
   }
 
-  static Future<Member> createMember(Member member) async {
+  static Future<Member> createMember({Member member, String memberPassword}) async {
+    print('🔷🔷🔷🔷 Auth: createMember starting ..... ');
     await DotEnv().load('.env');
     String email = DotEnv().env['email'];
     String password = DotEnv().env['password'];
     String status = DotEnv().env['status'];
-    print('🔷🔷🔷🔷 $email used for original auth bootup.');
+    print('🔷🔷🔷🔷 Auth: $email - to be used for original auth bootup..... $password');
     var authResult = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
+    print('🔷🔷🔷🔷 Auth: signInWithEmailAndPassword for superAdmin to start shit up!..... name: ${authResult.user.email}');
     if (authResult.user != null) {
       var res = await _auth.createUserWithEmailAndPassword(
-          email: member.email, password: 'needsChangingToday');
+          email: member.email, password: memberPassword);
       if (res.user != null) {
+        print('🔷🔷🔷🔷 User has been created on Firebase auth: ${res.user.email}');
         member.memberId = res.user.uid;
         await _auth.signOut();
-        await _auth.signInWithEmailAndPassword(email: member.email, password: 'needsChangingToday');
-        
-        print('🔷🔷🔷🔷 Creating Stellar account for the Member ...');
-        var mRes = await Stellar.createAccount(isDevelopmentStatus: status == "dev"? true: false );
-        member.accountId = mRes.accountResponse.accountId;
-        Prefs.setMemberSeed(mRes.secretSeed);
-        
-        print('🔷🔷🔷🔷 Caching Member to Firestore ...');
-        await _firestore.collection('members').add(member.toJson());
-        await Prefs.saveMember(member);
+        await _auth.signInWithEmailAndPassword(
+            email: member.email, password: memberPassword);
+
+        await _createStellarAccount(status, member);
         return member;
       } else {
         throw Exception('Member create failed');
@@ -54,5 +53,65 @@ class Auth {
     }
     return null;
   }
-  
+
+  static Future<Member> _createStellarAccount(
+      String status, Member member) async {
+    print('🔷🔷🔷🔷 ....... Creating Stellar account for the Member: ${member.name}...');
+    var mRes = await Stellar.createAccount(
+        isDevelopmentStatus: status == "dev" ? true : false);
+    member.accountId = mRes.accountResponse.accountId;
+    Prefs.setMemberSeed(mRes.secretSeed);
+
+    print('🔷🔷🔷🔷 ... Caching Member to Firestore ...');
+    await _firestore.collection('members').add(member.toJson());
+    await Prefs.saveMember(member);
+    return member;
+  }
+
+  static final GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
+  static Future<Member> startGoogleSignUp() async {
+    print('$emoji ........... Starting startGoogleSignUp ... 🔵 ...........');
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+    print('Auth: $emoji GoogleSignInAuthentication done, name: 🍏 '
+        '${googleSignInAccount.displayName} - ${googleSignInAccount.email}');
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    print('Auth: $emoji credential obtained: 🍏 ${credential.providerId}');
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    print('Auth: authResult obtained: 🍏 ${authResult.user.displayName} - ${authResult.user.email}');
+    final FirebaseUser user = authResult.user;
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    assert(user.uid == currentUser.uid);
+
+    print('$emoji Google SignIn returned with the following: 🔵 ');
+    print(user);
+    var uuid = Uuid();
+    var member = Member(
+        memberId: uuid.v4(),
+        email: user.email,
+        name: user.displayName,
+        isActive: true,
+        date: DateTime.now().toUtc().toIso8601String(),
+        url: user.photoUrl);
+    await DotEnv().load('.env');
+    String status = DotEnv().env['status'];
+    return await _createStellarAccount(status, member);
+   
+  }
+  static const emoji = '🔵 🔵 🔵 ';
 }
