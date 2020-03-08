@@ -5,18 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/bloc/generic_bloc.dart';
 
 void main() => runApp(MyApp());
 
+var themeIndex = 0;
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
-  var themeIndex;
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AdminBloc>.value(
           value: AdminBloc(),
+        ),
+        ChangeNotifierProvider<GenericBloc>.value(
+          value: GenericBloc(),
         ),
 
       ],

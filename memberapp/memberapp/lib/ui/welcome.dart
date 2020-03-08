@@ -71,7 +71,6 @@ class _WelcomeState extends State<Welcome> {
                     preferredSize: Size.fromHeight(0),
                     child: Container(),
                   ),
-            backgroundColor: Colors.orange,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.close),

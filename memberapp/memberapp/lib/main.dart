@@ -4,6 +4,7 @@ import 'package:member/ui/dashboard.dart';
 import 'package:member/ui/welcome.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
+import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/slide_right.dart';
 
 import 'bloc/member_bloc.dart';
@@ -20,7 +21,9 @@ class MemberApp extends StatelessWidget {
         ChangeNotifierProvider<MemberBloc>.value(
           value: MemberBloc(),
         ),
-
+        ChangeNotifierProvider<GenericBloc>.value(
+          value: GenericBloc(),
+        ),
       ],
       child: StreamBuilder<int>(
           initialData: themeIndex == null ? 0 : themeIndex,

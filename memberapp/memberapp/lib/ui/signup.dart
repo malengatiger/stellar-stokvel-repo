@@ -8,6 +8,7 @@ import 'package:member/ui/dashboard.dart';
 import 'package:member/ui/welcome.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
+import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
@@ -51,10 +52,13 @@ class _MemberSignUpState extends State<MemberSignUp> {
   }
 
   MemberBloc _memberBloc;
+  GenericBloc _genericBloc;
   var _key = GlobalKey<ScaffoldState>();
   Widget build(BuildContext context) {
     final MemberBloc bloc = Provider.of<MemberBloc>(context);
     _memberBloc = bloc;
+    final GenericBloc gBloc = Provider.of<GenericBloc>(context);
+    _genericBloc = gBloc;
     return WillPopScope(
       onWillPop: () async {
         return Future.value(false);
@@ -263,7 +267,7 @@ class _MemberSignUpState extends State<MemberSignUp> {
         stokvels: [],
       );
       var res =
-      await _memberBloc.createMember(member: member, password: passwordEditor.text);
+      await _genericBloc.createMember(member: member, password: passwordEditor.text);
       Navigator.pop(context, res);
       Navigator.pop(context, res);
       Navigator.push(context, SlideRightRoute(widget: Dashboard()));

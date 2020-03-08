@@ -12,14 +12,9 @@ class MemberBloc extends ChangeNotifier {
     getMember();
   }
 
-  Future<Member> createMember({Member member, String password}) async {
-    _member = await Auth.createMember(member: member, memberPassword: password);
-    print('MemberBloc will notify listeners that things are cool! ${_member.name}');
-    notifyListeners();
-    return _member;
-  }
   Future getMember() async {
     _member = await Prefs.getMember();
+    notifyListeners();
 
   }
   Future<bool> isAuthenticated() async {

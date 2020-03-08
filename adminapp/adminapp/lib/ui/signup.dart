@@ -1,12 +1,12 @@
 
 import 'package:adminapp/bloc/admin_bloc.dart';
-import 'package:adminapp/ui/dashboard.dart';
 import 'package:adminapp/ui/stokvel_editor.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
+import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
@@ -29,9 +29,9 @@ class _SignUpState extends State<SignUp> {
   @override
   initState() {
     super.initState();
-    emailEditor.text = "admin1@stokvel.com";
+    emailEditor.text = "admin${DateTime.now().millisecondsSinceEpoch}@stokvel.com";
     passwordEditor.text = "stokkie123";
-    nameEditor.text = "Aubrey StokkieMan";
+    nameEditor.text = "Admin StokkieMan@${getFormattedDateHourMinSec(DateTime.now().toIso8601String())}";
     cellEditor.text = "077 827 7368";
   }
 
@@ -47,10 +47,13 @@ class _SignUpState extends State<SignUp> {
   }
 
   AdminBloc _adminBloc;
+  GenericBloc _genericBloc;
   var _key = GlobalKey<ScaffoldState>();
   Widget build(BuildContext context) {
     final AdminBloc bloc = Provider.of<AdminBloc>(context);
     _adminBloc = bloc;
+    final GenericBloc gBloc = Provider.of<GenericBloc>(context);
+    _genericBloc = gBloc;
     return WillPopScope(
       onWillPop: () async {
         return Future.value(false);
@@ -187,9 +190,9 @@ class _SignUpState extends State<SignUp> {
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
-//                        if (value.isEmpty) {
-//                          return 'Please enter Admin Cellphone Number';
-//                        }
+                        if (value.isEmpty) {
+                          return 'Please enter Admin Cellphone Number';
+                        }
                         return null;
                       },
                     ),
@@ -259,7 +262,7 @@ class _SignUpState extends State<SignUp> {
         stokvels: [],
       );
       var res =
-      await _adminBloc.createMember(member: member, password: passwordEditor.text);
+      await _genericBloc.createMember(member: member, password: passwordEditor.text);
       Navigator.pop(context, res);
       Navigator.pop(context, res);
       Navigator.push(context, SlideRightRoute(widget: StokvelEditor()));
