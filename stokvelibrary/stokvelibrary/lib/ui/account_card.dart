@@ -64,6 +64,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
   @override
   Widget build(BuildContext context) {
     _genericBloc = Provider.of<GenericBloc>(context);
+    _accountResponse = _genericBloc.accountResponse;
     return Container(
       height: widget.height == null ? _getHeight() : widget.height,
       width: widget.width == null ? 400 : widget.width,
@@ -75,7 +76,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
           ):Column(
             children: <Widget>[
               Text(
-                _accountResponse == null ? '' : _accountResponse.accountId,
+                _genericBloc.accountResponse == null ? '' : _genericBloc.accountResponse.accountId,
                 style: Styles.blackBoldSmall,
               ),
               SizedBox(

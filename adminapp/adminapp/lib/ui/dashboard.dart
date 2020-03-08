@@ -9,6 +9,7 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/ui/nav_bar.dart';
 
 
 class Dashboard extends StatefulWidget {
@@ -30,8 +31,13 @@ class _DashboardState extends State<Dashboard> {
     setState(() {});
   }
 
+  _refresh() async {
+    var seed = await Prefs.getMemberSeed();
+    await _genericBloc.getAccount(seed);
+  }
   AdminBloc _adminBloc;
   GenericBloc _genericBloc;
+
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +67,10 @@ class _DashboardState extends State<Dashboard> {
                   widget: Welcome(_member),
                 ));
               },),
+            IconButton(icon: Icon(Icons.refresh),
+              onPressed: () {
+               _refresh();
+              },),
           ],
           bottom: PreferredSize(
               child: Padding(
@@ -85,6 +95,7 @@ class _DashboardState extends State<Dashboard> {
               preferredSize: Size.fromHeight(80)),
         ),
         backgroundColor: Colors.brown[100],
+        bottomNavigationBar: StokkieNavBar(),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
@@ -99,5 +110,12 @@ class _DashboardState extends State<Dashboard> {
 
   Future<bool> doNothing() async {
     return false;
+  }
+
+  void _navigate(int index) {
+    switch(index) {
+      case 0:
+        break;
+    }
   }
 }

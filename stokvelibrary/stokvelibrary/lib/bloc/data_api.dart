@@ -13,6 +13,11 @@ import 'package:uuid/uuid.dart';
 class DataAPI {
   static var _firestore = Firestore.instance;
 
+  static Future sendInvitation(
+      Invitation invitation) async {
+    await _firestore.collection('invitations').add(invitation.toJson());
+    print('Invitation for ${invitation.stokvel.name} has been added to Firestore - will launch cloud function ...');
+  }
   static Future uploadMemberPhoto({File file, Member member}) async {
     final StorageReference storageReference =
         FirebaseStorage().ref().child('photos');
