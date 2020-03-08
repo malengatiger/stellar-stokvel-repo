@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
+//import 'package:image_picker/image_picker.dart';
 
 import 'auth.dart';
 import 'data_api.dart';
@@ -15,6 +18,40 @@ class GenericBloc extends ChangeNotifier {
   AccountResponse _accountResponse;
   Firestore fs = Firestore.instance;
 
+
+  Future sendInvitationToNewUser({Invitation invitation}) async {
+    //todo - send invite by email and whatsapp? if new user - link to download app - carrying invite data;
+
+    final Email email = Email(
+      body: _getInvitationHTML(invitation),
+      subject: 'Invitation to ${invitation.stokvel.name}',
+      recipients: [invitation.email],
+      isHTML: true,
+    );
+
+    await FlutterEmailSender.send(email);
+    print('sendInvitationToNewUser: email sent to ${invitation.email}');
+  }
+  String _getInvitationHTML(Invitation invitation) {
+    //todo - create pretty invitation html .... with good links to app ....
+    return null;
+  }
+  Future sendInvitationToExistingMember({Invitation invitation, Member member}) async {
+    //todo - send invite by cloud message (stokvel_invites_stokvelId)
+
+  }
+  Future<bool> isDevelopmentStatus() async {
+    await DotEnv().load('.env');
+    var status = DotEnv().env['status'];
+    if (status == null) {
+      status = 'dev';
+    }
+    if (status == 'prod') {
+      return false;
+    } else {
+      return true;
+    }
+  }
   Future<AccountResponse> getAccount(String seed) async {
     _accountResponse = await Stellar.getAccount(seed: seed);
     notifyListeners();

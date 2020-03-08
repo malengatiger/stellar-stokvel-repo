@@ -7,6 +7,7 @@ import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/slide_right.dart';
 
 class Dashboard extends StatefulWidget {
@@ -51,7 +52,7 @@ class _DashboardState extends State<Dashboard> {
             IconButton(
               icon: Icon(Icons.apps),
               onPressed: () {
-               themeBloc.changeToRandomTheme();
+                themeBloc.changeToRandomTheme();
               },
             ),
             IconButton(
@@ -87,6 +88,15 @@ class _DashboardState extends State<Dashboard> {
                 ),
               ),
               preferredSize: Size.fromHeight(80)),
+        ),
+        backgroundColor: Colors.brown[100],
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+            children: <Widget>[
+              MemberAccountCard(),
+            ],
+          ),
         ),
       ),
     );

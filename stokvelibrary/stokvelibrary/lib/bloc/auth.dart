@@ -23,6 +23,7 @@ class Auth {
     }
   }
 
+  //todo - CACHE encrypted seed and store in Firestore - in case user loses phone
   static Future<Member> createMember({Member member, String memberPassword}) async {
     print('🔷🔷🔷🔷 Auth: createMember starting ..... ');
     await DotEnv().load('.env');

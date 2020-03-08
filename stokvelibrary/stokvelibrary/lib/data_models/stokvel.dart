@@ -207,3 +207,29 @@ class StellarCredentials {
   }
 
 }
+
+class Invitation {
+  String email, date;
+  Stokvel stokvel;
+  Invitation({@required this.email, @required this.date, @required this.stokvel, });
+
+  Invitation.fromJson(Map map) {
+    email = map['email'];
+    date = map['date'];
+    if (map['stokvel'] != null) {
+      stokvel = Stokvel.fromJson(map['stokvel']);
+    }
+
+  }
+
+  Map<String, dynamic> toJson() {
+
+    Map<String, dynamic> map = {
+      'email': email,
+      'date': date,
+      'stokvel': stokvel == null? null: stokvel.toJson(),
+    };
+    return map;
+  }
+
+}

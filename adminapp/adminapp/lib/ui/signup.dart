@@ -29,12 +29,18 @@ class _SignUpState extends State<SignUp> {
   @override
   initState() {
     super.initState();
-    emailEditor.text = "admin${DateTime.now().millisecondsSinceEpoch}@stokvel.com";
-    passwordEditor.text = "stokkie123";
-    nameEditor.text = "Admin StokkieMan@${getFormattedDateHourMinSec(DateTime.now().toIso8601String())}";
-    cellEditor.text = "077 827 7368";
+   _setForm();
   }
 
+  _setForm() async {
+    bool isDevelopment = await _genericBloc.isDevelopmentStatus();
+    if (isDevelopment) {
+      emailEditor.text = "admin${DateTime.now().millisecondsSinceEpoch}@stokvel.com";
+      passwordEditor.text = "stokkie123";
+      nameEditor.text = "StokkieMan${getFormattedDateHourMinSec(DateTime.now().toIso8601String())}";
+      cellEditor.text = "077 827 7368";
+    }
+  }
   _startGoogleSignUp() async {
     try {
       var member = await Auth.startGoogleSignUp();

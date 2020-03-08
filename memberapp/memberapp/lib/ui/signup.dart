@@ -33,13 +33,16 @@ class _MemberSignUpState extends State<MemberSignUp> {
   @override
   initState() {
     super.initState();
+    _setForm();
+  }
+
+  _setForm() async {
     //todo - REMOVE after DEVELOPMENT
     emailEditor.text = "member${_random.nextInt(999999)}@stokvel.com";
     passwordEditor.text = "stokkie123";
-    nameEditor.text = "Member ${getFormattedDateHourMinSec(DateTime.now().toIso8601String())}";
+    nameEditor.text = "Member${getFormattedDateHourMinSec(DateTime.now().toIso8601String())}";
     cellEditor.text = "065 591 7675";
   }
-
   _startGoogleSignUp() async {
     try {
       var member = await Auth.startGoogleSignUp();
