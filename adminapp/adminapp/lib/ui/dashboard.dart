@@ -79,7 +79,11 @@ class _DashboardState extends State<Dashboard> {
                   children: <Widget>[
                     Row(mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        Text('Registered Stokvels'),
+                        Text('Administrator', style: Styles.whiteBoldMedium,),
+                        SizedBox(
+                          width: 80,
+                        ),
+                        Text('Stokvels'),
                         SizedBox(
                           width: 12,
                         ),

@@ -3,15 +3,17 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_sms/flutter_sms_platform.dart';
 //import 'package:flutter_launch/flutter_launch.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:contacts_service/contacts_service.dart';
-
+import 'package:flutter_sms/flutter_sms.dart';
 import 'auth.dart';
 import 'data_api.dart';
 import 'list_api.dart';
@@ -24,10 +26,34 @@ class GenericBloc extends ChangeNotifier {
 
   Future getContacts() async {
     // Get all contacts on device
+    ServiceStatus serviceStatus = await PermissionHandler().checkServiceStatus(PermissionGroup.contacts);
+    int status = serviceStatus.value;
+    print('👽 PermissionHandler service status: $status');
+    if (status == ServiceStatus.disabled.value) {
+      print('👽 PermissionHandler service status is DISABLED .. openAppSettings ...');
+      var isOK = await PermissionHandler().openAppSettings();
+      print('👽 PermissionHandler openAppSettings returned: 🍯 $isOK');
+    }
+    await _requestContactsPermission();
+
+    print('👽 PermissionHandler starting 🍯 ContactsService ... getContacts ...');
     Iterable<Contact> contacts = await ContactsService.getContacts();
     print('👽 👽 👽 getContacts found ${contacts.toList().length} contacts on device');
     return contacts.toList();
 
+  }
+
+  Future _requestContactsPermission() async {
+    print('👽 PermissionHandler service status is enabled. checking permission for contacts ...');
+    PermissionStatus permissionStatus = await PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+    if (permissionStatus.value != PermissionStatus.granted.value) {
+      print('👽 PermissionHandler permission for contacts to be requested ...');
+      var permissions = await PermissionHandler().requestPermissions([PermissionGroup.contacts]);
+      var mStatus = permissions[PermissionGroup.contacts];
+      if (mStatus.value != PermissionStatus.granted.value) {
+        throw Exception('Contacts permission denied');
+      }
+    }
   }
   Future sendInvitationViaEmail({Invitation invitation}) async {
     _setInvitationMessage(invitation);
@@ -38,8 +64,23 @@ class GenericBloc extends ChangeNotifier {
       isHTML: true,
     );
     await FlutterEmailSender.send(email);
-    print('💚 💚 sendInvitationToNewUser: email sent to  🥬 ${invitation.email}');
+    print('💚 💚 sendInvitationViaEmail: email sent to  🥬 ${invitation.email}');
   }
+
+  Future sendInvitationViaSMS({Invitation invitation}) async {
+    _setInvitationMessage(invitation);
+    var msg = 'Invitation to ${invitation.stokvel.name}';
+    var smsPlatform = FlutterSmsPlatform.instance;
+    var canSend = await smsPlatform.canSendSMS();
+    if (canSend) {
+      var res = await smsPlatform.sendSMS(message: msg, recipients: [invitation.cellphone]);
+      print(res);
+      print('💚 💚 sendInvitationViaSMS: sms sent to  🥬 ${invitation.cellphone}');
+    } else {
+      throw Exception('Unable to send SMS');
+    }
+  }
+
 
   Future sendInvitationToExistingMember(
       {Invitation invitation}) async {
@@ -66,7 +107,7 @@ class GenericBloc extends ChangeNotifier {
 
   String _buildInvitationHTML(Invitation invitation) {
     //todo - create pretty invitation html .... with good links to app ....
-    return '<h1>${invitation.stokvel.name}</h1>';
+    return '<h1>${invitation.stokvel.name}</h1><p>You are cordially invited to join our stokvel so we can start shit together!</p>';
   }
 
   Future<File> getImage() async {
@@ -127,9 +168,10 @@ class GenericBloc extends ChangeNotifier {
     getCachedMember();
   }
 
-  Future getCachedMember() async {
+  Future<Member> getCachedMember() async {
     _member = await Prefs.getMember();
     notifyListeners();
+    return _member;
   }
 
   Future<bool> isAuthenticated() async {
@@ -212,4 +254,9 @@ class GenericBloc extends ChangeNotifier {
     _stokvelPayments = filtered;
     notifyListeners();
   }
+  Future<List<Stokvel>> getStokvelsAdministered(String memberId) async {
+    return await ListAPI.getStokvelsAdministered(memberId);
+  }
+
 }
+
