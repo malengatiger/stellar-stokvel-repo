@@ -130,8 +130,15 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
 
   @override
   onMemberScan(Member member) {
-    print('🤟🤟🤟 Member scanned and updated on Firestore ...now has  🌶 ${member.stokvels.length} stokvels 🌶 ');
+    print('🤟🤟🤟 Dashboard: Member scanned and updated on Firestore ...now has  🌶 ${member.stokvels.length} stokvels 🌶 ');
     prettyPrint(member.toJson(), '🤟🤟🤟 member scanned and updated, check stokvels in member rec');
     return null;
+  }
+
+  @override
+  onMemberAlreadyInStokvel(Member member) {
+    print('💦 💦 💦 Dashboard: Member scanned is already a member. they have '
+        '🌶 ${member.stokvels.length} stokvels 🌶 💦 💦 💦 ');
+    prettyPrint(member.toJson(), '💦 💦 💦 member, check data ...');
   }
 }

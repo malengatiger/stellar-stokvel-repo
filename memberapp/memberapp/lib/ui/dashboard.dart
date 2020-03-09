@@ -7,6 +7,7 @@ import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
@@ -21,7 +22,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   Member _member;
-
+  var _key = GlobalKey<ScaffoldState>();
   @override
   initState() {
     super.initState();
@@ -30,11 +31,29 @@ class _DashboardState extends State<Dashboard> {
 
   _getMember() async {
     _member = await Prefs.getMember();
+
     setState(() {});
   }
   _refresh() async {
+    print('🌶  🌶  🌶  🌶  .... Refreshing data ..............');
     var seed = await Prefs.getMemberSeed();
-    _genericBloc.getAccount(seed);
+    if (seed != null) {
+      try {
+        setState(() {
+          isBusy = true;
+        });
+        await _genericBloc.getAccount(seed);
+        _member = await _genericBloc.getMember(_member.memberId);
+        setState(() {
+          setState(() {
+            isBusy = false;
+          });
+        });
+      } catch (e) {
+        print(e);
+        AppSnackBar.showErrorSnackBar(scaffoldKey: _key, message: 'Data refresh failed');
+      }
+    }
   }
 
   GenericBloc _genericBloc = GenericBloc();
@@ -52,12 +71,12 @@ class _DashboardState extends State<Dashboard> {
       onWillPop: () {
         return doNothing();
       },
-      child: Scaffold(
+      child: Scaffold(key: _key,
         appBar: AppBar(
           leading: Container(),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.scanner),
+              icon: Icon(Icons.camera),
               onPressed: _startQRcode,
             ),
             IconButton(

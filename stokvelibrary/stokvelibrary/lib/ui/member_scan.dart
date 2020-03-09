@@ -16,7 +16,11 @@ class Scanner extends StatefulWidget {
   final Stokvel stokvel;
   final ScannerListener scannerListener;
 
-  const Scanner({Key key, @required this.type, @required this.scannerListener, @required this.stokvel})
+  const Scanner(
+      {Key key,
+      @required this.type,
+      @required this.scannerListener,
+      @required this.stokvel})
       : super(key: key);
 
   @override
@@ -43,17 +47,23 @@ class _ScannerState extends State<Scanner> {
       appBar: AppBar(
         title: Text('Member Scan'),
         elevation: 0,
-        bottom: PreferredSize(preferredSize: Size.fromHeight(200),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: <Widget>[
-              Text('You can scan QR codes on new and existing members cellphones to invite people to your Stokvel or to process payments between members and the Stokvel',
-              style: Styles.whiteSmall,),
-              SizedBox(height: 24,),
-            ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(200),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  'You can scan QR codes on new and existing members cellphones to invite people to your Stokvel or to process payments between members and the Stokvel',
+                  style: Styles.whiteSmall,
+                ),
+                SizedBox(
+                  height: 24,
+                ),
+              ],
+            ),
           ),
-        ),),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: Icon(Icons.camera),
@@ -65,11 +75,15 @@ class _ScannerState extends State<Scanner> {
         onPressed: _startScan,
         backgroundColor: Theme.of(context).accentColor,
       ),
-      body: isScanned? _buildImage() : Center(
-        child: Text('${widget.stokvel.name}', style: Styles.blackBoldMedium,),
-        ),
-      );
-
+      body: isScanned
+          ? _buildImage()
+          : Center(
+              child: Text(
+                '${widget.stokvel.name}',
+                style: Styles.blackBoldMedium,
+              ),
+            ),
+    );
   }
 
   bool isScanned = false;
@@ -93,21 +107,37 @@ class _ScannerState extends State<Scanner> {
             if (member.stokvels == null) {
               member.stokvels = [];
             }
-            member.stokvels.add(widget.stokvel);
-            setState(() {
-              isBusy = true;
+            //check if stokvel already exists
+            var isFound = false;
+            member.stokvels.forEach((m) {
+              if (m.stokvelId == widget.stokvel.stokvelId) {
+                isFound = true;
+              }
             });
-            await _genericBloc.updateMember(member);
-            setState(() {
-              isBusy = false;
-            });
-            AppSnackBar.showSnackBar(
-                scaffoldKey: _key,
-                message: 'Member welcomed to Stokvel',
-                textColor: Colors.lightGreen,
-                backgroundColor: Colors.black);
+            if (isFound) {
+              print('🌶🌶🌶🌶 Scanned member is already good. 🌶 No need to be scanned again!🌶 ');
+              AppSnackBar.showErrorSnackBar(
+                  scaffoldKey: _key,
+                  message: '🌶 Member is already in the Stokvel');
+              widget.scannerListener.onMemberAlreadyInStokvel(member);
+              return;
+            } else {
+              setState(() {
+                isBusy = true;
+              });
+              member.stokvels.add(widget.stokvel);
+              await _genericBloc.updateMember(member);
+              setState(() {
+                isBusy = false;
+              });
+              AppSnackBar.showSnackBar(
+                  scaffoldKey: _key,
+                  message: 'Member welcomed to Stokvel',
+                  textColor: Colors.lightGreen,
+                  backgroundColor: Colors.black);
+              widget.scannerListener.onMemberScan(member);
+            }
           }
-          widget.scannerListener.onMemberScan(member);
           //Navigator.pop(context);
         } catch (e) {
           print(e);
@@ -183,4 +213,5 @@ class _ScannerState extends State<Scanner> {
 
 abstract class ScannerListener {
   onMemberScan(Member member);
+  onMemberAlreadyInStokvel(Member member);
 }

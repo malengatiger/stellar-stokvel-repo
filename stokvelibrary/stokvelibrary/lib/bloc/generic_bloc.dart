@@ -13,7 +13,7 @@ import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:contacts_service/contacts_service.dart';
-import 'package:flutter_sms/flutter_sms.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'auth.dart';
 import 'data_api.dart';
 import 'list_api.dart';
@@ -23,6 +23,65 @@ class GenericBloc extends ChangeNotifier {
   List<Stokvel> _stokvels = List();
   AccountResponse _accountResponse;
   Firestore fs = Firestore.instance;
+  FirebaseMessaging fcm = FirebaseMessaging();
+
+  Future configureFCM() async {
+    
+    print(
+        '✳️ ✳️ ✳️ ✳️ GenericBloc:_configureFCM: CONFIGURE FCM: ✳️ ✳️ ✳️ ✳️  ');
+    fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        String messageType = message['data']['type'];
+        print(
+            "\n\n️♻️♻️♻️️♻️♻️♻️  ✳️ ✳️ ✳️ ✳️ GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
+        switch (messageType) {
+          case 'stokvels':
+            print(
+                "✳️ ✳️ FCM onMessage messageType: 🍎 STOKVELS arrived 🍎");
+            _processStokvels(message);
+            break;
+          case 'members':
+            print(
+                "✳️ ✳️ FCM onMessage messageType: 🍎 MEMBERS arrived 🍎");
+            _processMembers(message);
+            break;
+
+          case 'memberPayments':
+            print(
+                "✳️ ✳️ FCM onMessage messageType: 🍎 MEMBER PAYMENTS arrived 🍎");
+            _processMemberPayments(message);
+            break;
+          case 'stokvelPayments':
+            print(
+                "✳️ ✳️ FCM onMessage messageType: 🍎 COMMUTER_FENCE_DWELL_EVENTS arrived 🍎");
+            _processStokvelPayments(message);
+            break;
+
+        }
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print(
+            "️♻️♻️♻️️♻️♻️♻️ onLaunch:  🧩 triggered by FCM message: $message  🧩 ");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print(
+            "️♻️♻️♻️️♻️♻️♻️ App onResume  🧩 triggered by FCM message: $message  🧩 ");
+      },
+    );
+    fcm.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+    fcm.onIosSettingsRegistered.listen((IosNotificationSettings settings) {
+      print("IosNotificationSettings Settings registered: $settings");
+    });
+    fcm.getToken().then((String token) {
+      assert(token != null);
+      print(
+          '♻️♻️♻️️♻️♻️️ MarshalBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
+    });
+    subscribeToFCM();
+
+    return null;
+  }
 
   Future getContacts() async {
     // Get all contacts on device
@@ -169,8 +228,9 @@ class GenericBloc extends ChangeNotifier {
   Member _member;
 
   GenericBloc() {
-    print('🅿️ GenericBloc constructor ... 🅿️ 🅿️ ');
+    print('🅿️ 🅿️  🎽 🎽 🎽 🎽  GenericBloc constructor ... 🅿️ 🅿️ ');
     getCachedMember();
+    configureFCM();
   }
 
   Future<Member> getCachedMember() async {
@@ -261,6 +321,27 @@ class GenericBloc extends ChangeNotifier {
   }
   Future<List<Stokvel>> getStokvelsAdministered(String memberId) async {
     return await ListAPI.getStokvelsAdministered(memberId);
+  }
+
+  void _processStokvels(Map<String, dynamic> message) {}
+
+  void _processMembers(Map<String, dynamic> message) {}
+
+  void _processMemberPayments(Map<String, dynamic> message) {}
+
+  void _processStokvelPayments(Map<String, dynamic> message) {}
+
+  Future subscribeToFCM() async {
+    List<String> topics = List();
+    topics.add('stokvels');
+    topics.add('members');
+    topics.add('memberPayments');
+    topics.add('stokvelPayments');
+    for (var t in topics) {
+      await fcm.subscribeToTopic(t);
+      print(
+          'GenericBloc: 💜 💜 Subscribed to FCM topic: 🍎  $t ✳️ ');
+    }
   }
 
 }
