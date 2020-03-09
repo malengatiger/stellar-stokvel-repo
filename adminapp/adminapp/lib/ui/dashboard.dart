@@ -9,15 +9,18 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:provider/provider.dart';
 import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/ui/member_scan.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 
 
 class Dashboard extends StatefulWidget {
   @override
   _DashboardState createState() => _DashboardState();
+
+
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<Dashboard> implements ScannerListener {
   Member _member;
 
   @override
@@ -35,26 +38,34 @@ class _DashboardState extends State<Dashboard> {
     var seed = await Prefs.getMemberSeed();
     await _genericBloc.getAccount(seed);
   }
-  AdminBloc _adminBloc;
   GenericBloc _genericBloc;
 
+  _startScanner() async {
+
+    if (_member.stokvels.length == 1) {
+      Navigator.push(context, SlideRightRoute(
+        widget: Scanner(stokvel: _member.stokvels.first, scannerListener: this, type: SCAN_MEMBER,)
+      ));
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    final AdminBloc bloc = Provider.of<AdminBloc>(context);
-    _adminBloc = bloc;
-    final GenericBloc gBloc = Provider.of<GenericBloc>(context);
-    _genericBloc = gBloc;
+    _genericBloc = Provider.of<GenericBloc>(context);
     return WillPopScope(
       onWillPop: () {
         return doNothing();
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_member == null ? '' : _member.name,
-          style: Styles.whiteBoldSmall,),
+
           leading: Container(),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.perm_contact_calendar),
+              onPressed: _startScanner,
+            ),
             IconButton(
               icon: Icon(Icons.apps),
               onPressed: () {
@@ -116,10 +127,11 @@ class _DashboardState extends State<Dashboard> {
     return false;
   }
 
-  void _navigate(int index) {
-    switch(index) {
-      case 0:
-        break;
-    }
+
+  @override
+  onMemberScan(Member member) {
+    print('🤟🤟🤟 Member scanned and updated on Firestore ...now has  🌶 ${member.stokvels.length} stokvels 🌶 ');
+    prettyPrint(member.toJson(), '🤟🤟🤟 member scanned and updated, check stokvels in member rec');
+    return null;
   }
 }

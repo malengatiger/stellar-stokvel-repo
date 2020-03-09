@@ -44,6 +44,19 @@ class ListAPI {
     });
     return mList;
   }
+  static Future<Member> getMember(String memberId) async {
+    var querySnapshot = await _firestore.collection('members')
+        .where('memberId',
+        isEqualTo: memberId).limit(1).getDocuments();
+    var mList = List<Member>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(Member.fromJson(doc.data));
+    });
+    if (mList.isNotEmpty) {
+      return mList.first;
+    }
+    return null;
+  }
 
 
 }

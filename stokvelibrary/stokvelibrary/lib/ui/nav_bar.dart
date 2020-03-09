@@ -27,7 +27,7 @@ class StokkieNavBar extends StatelessWidget {
       }
     }
      final List<BottomNavigationBarItem> _items = List();
-     _items.add(BottomNavigationBarItem(icon: Icon(Icons.email), title: Text('Send Invitation')));
+     _items.add(BottomNavigationBarItem(icon: Icon(Icons.email), title: Text('Invitations')));
      _items.add(BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), title: Text('Statements')));
      _items.add(BottomNavigationBarItem(icon: Icon(Icons.send), title: Text('Send Money')));
     return BottomNavigationBar(items: _items, onTap: _navigate,);

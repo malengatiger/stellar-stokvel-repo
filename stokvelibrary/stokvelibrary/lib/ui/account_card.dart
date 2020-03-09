@@ -4,6 +4,7 @@ import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:stokvelibrary/snack.dart';
 
 class MemberAccountCard extends StatefulWidget {
   final double height, width;
@@ -16,47 +17,52 @@ class MemberAccountCard extends StatefulWidget {
 
 class _MemberAccountCardState extends State<MemberAccountCard> {
   String _seed;
-  GenericBloc _genericBloc;
+  GenericBloc _genericBloc = GenericBloc();
   AccountResponse _accountResponse;
   bool isBusy = false;
   @override
   void initState() {
     super.initState();
-    _getAccountSeed();
+    _refreshAccount();
   }
 
-  _getAccountSeed() async {
+  _refreshAccount() async {
     setState(() {
       isBusy = true;
     });
-    _seed = await Prefs.getMemberSeed();
-    _accountResponse = await _genericBloc.getAccount(_seed);
-
-    _accountResponse.balances.forEach((a) {
-      _rows.add(DataRow(cells: [
-        DataCell(a.assetType == 'native'
-            ? Text(
-                'XLM',
-                style: Styles.greyLabelSmall,
-              )
-            : Text(
-                a.assetType,
-                style: Styles.blackBoldSmall,
-              )),
-        DataCell(Text(getFormattedAmount(a.balance, context), style: Styles.tealBoldMedium,)),
-      ]));
-    });
-    setState(() {
-      isBusy = false;
-    });
+    try {
+      _seed = await Prefs.getMemberSeed();
+      _accountResponse = await _genericBloc.getAccount(_seed);
+      _rows.clear();
+      _accountResponse.balances.forEach((a) {
+        _rows.add(DataRow(cells: [
+          DataCell(a.assetType == 'native'
+              ? Text(
+            'XLM',
+            style: Styles.greyLabelSmall,
+          )
+              : Text(
+            a.assetType,
+            style: Styles.blackBoldSmall,
+          )),
+          DataCell(Text(getFormattedAmount(a.balance, context),
+            style: Styles.tealBoldMedium,)),
+        ]));
+      });
+      setState(() {
+        isBusy = false;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   var _rows = List<DataRow>();
   double _getHeight() {
     if (_accountResponse == null) {
-      return 260;
+      return 280;
     }
-    var height = _accountResponse.balances.length * 160.0;
+    var height = _accountResponse.balances.length * 180.0;
     height += 100;
     return height;
   }
@@ -64,7 +70,9 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
   @override
   Widget build(BuildContext context) {
     _genericBloc = Provider.of<GenericBloc>(context);
-    _accountResponse = _genericBloc.accountResponse;
+    if (_accountResponse == null) {
+      _refreshAccount();
+    }
     return Container(
       height: widget.height == null ? _getHeight() : widget.height,
       width: widget.width == null ? 400 : widget.width,
@@ -76,7 +84,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
           ):Column(
             children: <Widget>[
               Text(
-                _genericBloc.accountResponse == null ? '' : _genericBloc.accountResponse.accountId,
+                _accountResponse == null ? '' : _accountResponse.accountId,
                 style: Styles.blackBoldSmall,
               ),
               SizedBox(

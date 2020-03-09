@@ -30,6 +30,9 @@ dependencies:
   circular_profile_avatar: ^1.0.6
   autocomplete_textfield: ^1.7.3
   flutter_sms: ^2.0.0+2
+  getflutter: ^1.0.9
+  qrscan: ^0.2.17
+  qr_flutter:
 
 
 dev_dependencies:

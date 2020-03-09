@@ -13,11 +13,12 @@ import 'package:uuid/uuid.dart';
 class DataAPI {
   static var _firestore = Firestore.instance;
 
-  static Future sendInvitation(
-      Invitation invitation) async {
+  static Future sendInvitation(Invitation invitation) async {
     await _firestore.collection('invitations').add(invitation.toJson());
-    print('Invitation for ${invitation.stokvel.name} has been added to Firestore - will launch cloud function ...');
+    print(
+        'Invitation for ${invitation.stokvel.name} has been added to Firestore - will launch cloud function ...');
   }
+
   static Future uploadMemberPhoto({File file, Member member}) async {
     final StorageReference storageReference =
         FirebaseStorage().ref().child('photos');
@@ -39,7 +40,6 @@ class DataAPI {
     } else {
       throw Exception('Photo upload failed');
     }
-   
   }
 
   static Future updateMember(Member member) async {
@@ -49,7 +49,8 @@ class DataAPI {
         .getDocuments();
     if (querySnapshot.documents.isNotEmpty) {
       querySnapshot.documents.first.reference.updateData(member.toJson());
-      print('💊💊💊 DataAPI: Member updated, stokvels: ${member.stokvels.length}');
+      print(
+          '💊💊💊 DataAPI: Member updated, stokvels: ${member.stokvels.length}');
     } else {
       throw Exception('Member update failed, member not found');
     }
@@ -63,17 +64,20 @@ class DataAPI {
     String status = DotEnv().env['status'];
 
     print('💊💊💊 DataAPI: creating Stellar account for the Stokvel ...');
-    var res = await Stellar.createAccount(isDevelopmentStatus: status == 'dev'? true: false );
+    var res = await Stellar.createAccount(
+        isDevelopmentStatus: status == 'dev' ? true : false);
     stokvel.accountId = res.accountResponse.accountId;
-    Prefs.addStokvelCredential(StellarCredential(accountId: stokvel.accountId,
-        date: DateTime.now().toUtc().toIso8601String(), seed: res.secretSeed));
+    Prefs.addStokvelCredential(StellarCredential(
+        accountId: stokvel.accountId,
+        date: DateTime.now().toUtc().toIso8601String(),
+        seed: res.secretSeed));
 
     var mRes = await _firestore.collection('stokvels').add(stokvel.toJson());
     print('💊💊💊 DataAPI: Stokvel added to Firestore, path: ${mRes.path}');
     return stokvel;
   }
 
-  static Future<StokvelPayment>  addStokvelPayment(
+  static Future<StokvelPayment> addStokvelPayment(
       {@required StokvelPayment payment, @required String seed}) async {
     var res = await Stellar.sendPayment(
         seed: seed,
@@ -116,7 +120,8 @@ class DataAPI {
       }
       member.stokvels.add(stokvel);
       querySnapshot.documents.first.reference.updateData(member.toJson());
-      print('🛎 🛎 Member updated on Firestore with added Stokvel: 🥬 ${stokvel.name} '
+      print(
+          '🛎 🛎 Member updated on Firestore with added Stokvel: 🥬 ${stokvel.name} '
           'member stokvels: 🥬 ${member.stokvels.length}');
       await Prefs.saveMember(member);
       return null;

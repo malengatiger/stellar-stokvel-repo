@@ -84,7 +84,7 @@ class _SendInvitationState extends State<SendInvitation> {
       appBar: AppBar(
         title: Text('Send Invitation'),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(300),
+          preferredSize: Size.fromHeight(340),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -126,13 +126,21 @@ class _SendInvitationState extends State<SendInvitation> {
                     ? Container()
                     : TextField(
                         style: Styles.blackMedium,
+                        controller: _textController,
                         decoration: InputDecoration(
                             suffix: IconButton(
                               icon: Icon(
                                 Icons.close,
                                 color: Colors.pink,
                               ),
-                              onPressed: _dismissKeyboard,
+                              onPressed: () {
+                                _dismissKeyboard();
+                                setState(() {
+                                  _textController.text = '';
+                                  filteredContacts.clear();
+                                });
+
+                              },
                             ),
                             hintText: '  Find Contact '),
                         onChanged: (val) {
@@ -140,6 +148,17 @@ class _SendInvitationState extends State<SendInvitation> {
                           _filterContacts();
                         },
                       ),
+                SizedBox(height: 16,),
+                RaisedButton(
+                  color: Theme.of(context).primaryColor,
+                  elevation: 8,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Scan to Invite', style: Styles.whiteSmall,),
+                  ),
+                  onPressed: _startScan,
+                ),
+                SizedBox(height: 12,),
               ],
             ),
           ),
@@ -175,7 +194,7 @@ class _SendInvitationState extends State<SendInvitation> {
             ),
     );
   }
-
+  var _textController = TextEditingController();
   void _submitInvitation({Contact contact, String email}) async {
     if (selectedStokvel == null) {
       AppSnackBar.showErrorSnackBar(
@@ -248,14 +267,22 @@ class _SendInvitationState extends State<SendInvitation> {
                 ),
               ),
               actions: <Widget>[
-                RaisedButton(
-                  child: Text(
-                    'Use SMS',
-                    style: Styles.whiteSmall,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    color: Colors.blue,
+                    elevation: 4.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Use SMS',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                    onPressed: () {
+                      _sendViaSMS(contact);
+                    },
                   ),
-                  onPressed: () {
-                    _sendViaSMS(contact);
-                  },
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
@@ -278,7 +305,7 @@ class _SendInvitationState extends State<SendInvitation> {
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        'Send Invitation',
+                        'Use eMail',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -340,11 +367,18 @@ class _SendInvitationState extends State<SendInvitation> {
   }
 
   void _onDropDownChanged(Stokvel value) {
-    selectedStokvel = value;
+    setState(() {
+      selectedStokvel = value;
+    });
+
     print('Stokvel selected : ${selectedStokvel.name}');
   }
 
   void _onTextChanged(String value) {
     print('🧩 $value');
+  }
+
+  void _startScan() {
+    print('Scan the other person ....');
   }
 }

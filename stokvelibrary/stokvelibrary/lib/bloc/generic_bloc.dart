@@ -131,8 +131,13 @@ class GenericBloc extends ChangeNotifier {
   AccountResponse get accountResponse => _accountResponse;
   Future<AccountResponse> getAccount(String seed) async {
     _accountResponse = await Stellar.getAccount(seed: seed);
+    print('🍎 GenericBloc 🍎  - account response from Stellar Network 🍎 balances: ${_accountResponse.balances.length}');
     notifyListeners();
     return _accountResponse;
+  }
+
+  Future<Member> getMember(String memberId) async {
+    return await ListAPI.getMember(memberId);
   }
 
   Future<List<Member>> getStokvelMembers(String stokvelId) async {

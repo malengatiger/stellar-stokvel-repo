@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/ui/member_qrcode.dart';
+import 'package:stokvelibrary/ui/member_scan.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 
 
@@ -35,26 +37,29 @@ class _DashboardState extends State<Dashboard> {
     _genericBloc.getAccount(seed);
   }
 
-  MemberBloc _memberBloc;
-  GenericBloc _genericBloc;
+  GenericBloc _genericBloc = GenericBloc();
+  _startQRcode() {
+    print('starting qr code ....');
+    Navigator.push(context, SlideRightRoute(
+      widget: MemberQRCode(),
+    ));
+  }
   @override
   Widget build(BuildContext context) {
-    final MemberBloc bloc = Provider.of<MemberBloc>(context);
-    _memberBloc = bloc;
-    final GenericBloc gBloc = Provider.of<GenericBloc>(context);
-    _genericBloc = gBloc;
+
+    _genericBloc  = Provider.of<GenericBloc>(context);
     return WillPopScope(
       onWillPop: () {
         return doNothing();
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            _member == null ? '' : _member.name,
-            style: Styles.whiteBoldSmall,
-          ),
           leading: Container(),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.scanner),
+              onPressed: _startQRcode,
+            ),
             IconButton(
               icon: Icon(Icons.apps),
               onPressed: () {
