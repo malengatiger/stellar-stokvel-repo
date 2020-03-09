@@ -9,22 +9,22 @@ export const ping = functions.https.onRequest((request, response) => {
 export const memberCreated = functions.firestore.document(`members/{memberId}`)
     .onWrite((snapshot, context) => {
         console.log(`🔵 🔵 🔵 memberCreated: ${snapshot.after}`);
-        Messaging.sendMemberCreated(snapshot.after)
+        return Messaging.sendMemberCreated(snapshot.after)
     });
 
 export const stokvelCreated = functions.firestore.document(`stokvels/{stokvelId}`)
     .onWrite((snapshot, context) => {
         console.log(`🔵 🔵 🔵 stokvelCreated: ${snapshot.after}`);
-        Messaging.sendStokvelCreated(snapshot.after)
+        return Messaging.sendStokvelCreated(snapshot.after)
     });
 export const stokvelPaymentCreated = functions.firestore.document(`stokvelPayments/{stokvelId}`)
     .onWrite((snapshot, context) => {
         console.log(`🔵 🔵 🔵 stokvelPaymentCreated: ${snapshot.after}`);
-        Messaging.sendStokvelCreated(snapshot.after)
+        return Messaging.sendStokvelCreated(snapshot.after)
 
     });
 export const memberPaymentCreated = functions.firestore.document(`memberPayments/{memberId}`)
     .onWrite((snapshot, context) => {
         console.log(`🔵 🔵 🔵 memberPaymentCreated: ${snapshot.after}`);
-        Messaging.sendMemberPaymentCreated(snapshot.after)
+        return Messaging.sendMemberPaymentCreated(snapshot.after)
     });

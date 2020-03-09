@@ -27,6 +27,7 @@ class Messaging {
         console.log(
             `🎽 🎽  stokvel created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
         );
+        return result
     }
     public static async sendMemberCreated(data: any, ): Promise<any> {
         console.log(data)
@@ -48,6 +49,7 @@ class Messaging {
         console.log(
             `🎽 🎽  member created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
         );
+        return result
     }
     public static async sendStokvelPaymentCreated(data: any, ): Promise<any> {
         const options: any = {
@@ -68,6 +70,7 @@ class Messaging {
         console.log(
             `😍 stokvelPayment created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
         );
+        return result
     }
     public static async sendMemberPaymentCreated(data: any, ): Promise<any> {
         console.log(data)
@@ -89,6 +92,7 @@ class Messaging {
         console.log(
             `😍 memberPayment created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
         );
+        return result
     }
    
 }
