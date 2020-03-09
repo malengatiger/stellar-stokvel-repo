@@ -19,6 +19,7 @@ class MemberQRCode extends StatefulWidget {
 
 class MemberQRCodeState extends State<MemberQRCode> {
   Member _member;
+  bool isBusy = false;
 
   @override
   initState() {
@@ -27,10 +28,19 @@ class MemberQRCodeState extends State<MemberQRCode> {
   }
 
   _getMember() async {
+    setState(() {
+      isBusy = true;
+    });
     _member = await Prefs.getMember();
     if (_member == null) {
       throw Exception('Member not cached');
     }
+    setState(() {
+      isBusy = false;
+    });
+    encodedString = '${_member.memberId}@${_member.name}';
+    print('String to encode and use to build qrcode: 🍎 $encodedString');
+    encodedString = base64.encode(utf8.encode(encodedString));
     setState(() {
 
     });
@@ -71,12 +81,10 @@ class MemberQRCodeState extends State<MemberQRCode> {
         });
   }
 
+  String encodedString;
   @override
   Widget build(BuildContext context) {
-    
-    String encodedString = '${_member.memberId}@${_member.name}';
-    print('String to encode and use to build qrcode: 🍎 $encodedString');
-    encodedString = base64.encode(utf8.encode(encodedString));
+
     return WillPopScope(
       onWillPop: () => doNothing(),
       child: Scaffold(
@@ -90,7 +98,11 @@ class MemberQRCodeState extends State<MemberQRCode> {
               )
             ],
           ),
-          body: Container(
+          body: isBusy? Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 4,
+            ),
+          ) : Container(
               padding: const EdgeInsets.only(
                   left: 10, right: 10, bottom: 10, top: 20),
               child: Column(

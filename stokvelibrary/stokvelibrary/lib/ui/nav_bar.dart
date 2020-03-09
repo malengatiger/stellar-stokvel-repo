@@ -4,7 +4,12 @@ import 'package:stokvelibrary/ui/send_invitation.dart';
 import 'package:stokvelibrary/ui/send_money.dart';
 import 'package:stokvelibrary/ui/statements.dart';
 
+const TYPE_ADMIN = 'admin', TYPE_MEMBER = 'member';
 class StokkieNavBar extends StatelessWidget {
+  final String type;
+
+  StokkieNavBar(this.type);
+
   @override
   Widget build(BuildContext context) {
     void _navigate(int index) {

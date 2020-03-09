@@ -2,12 +2,13 @@
 import * as admin from 'firebase-admin';
 
 const app = admin.initializeApp()
-console.log(`🌽 🌽 🌽 Firebase initialized. ${app.name} ${app.options}`)
+console.log(`🌽 🌽 🌽 Firebase initialized. 🎽 ${app.name} 🎽 ${app.options}`)
 const msg = admin.messaging();
 
 class Messaging {
     
     public static async sendStokvelCreated(data: any, ): Promise<any> {
+        console.log(data)
         const options: any = {
             priority: "high",
             timeToLive: 60 * 60,
@@ -15,7 +16,7 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Stokvel added to Network`,
-                body: data.name,
+                body: JSON.stringify(data),
             },
             data: {
                 stokvel: JSON.stringify(data)
@@ -24,10 +25,11 @@ class Messaging {
         const topic = 'stokvels';
         const result = await msg.sendToTopic(topic, payload, options);
         console.log(
-            `😍 stokvel created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
+            `🎽 🎽  stokvel created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
         );
     }
     public static async sendMemberCreated(data: any, ): Promise<any> {
+        console.log(data)
         const options: any = {
             priority: "high",
             timeToLive: 60 * 60,
@@ -35,16 +37,16 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Member added to Network`,
-                body: data.name,
+                body: JSON.stringify(data),
             },
             data: {
-                stokvel: JSON.stringify(data)
+                member: JSON.stringify(data)
             },
         };
         const topic = 'members';
         const result = await msg.sendToTopic(topic, payload, options);
         console.log(
-            `😍 stokvel created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
+            `🎽 🎽  member created: FCM message sent: 😍 topic: ${topic} : result: 🍎🍎 ${JSON.stringify(result)} 🍎🍎`,
         );
     }
     public static async sendStokvelPaymentCreated(data: any, ): Promise<any> {
@@ -55,7 +57,7 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Stokvel has been paid`,
-                body: data.amount,
+                body: JSON.stringify(data),
             },
             data: {
                 stokvel: JSON.stringify(data)
@@ -68,6 +70,7 @@ class Messaging {
         );
     }
     public static async sendMemberPaymentCreated(data: any, ): Promise<any> {
+        console.log(data)
         const options: any = {
             priority: "high",
             timeToLive: 60 * 60,
@@ -75,7 +78,7 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Member Payment added to Network`,
-                body: data.amount,
+                body: JSON.stringify(data),
             },
             data: {
                 stokvel: JSON.stringify(data)

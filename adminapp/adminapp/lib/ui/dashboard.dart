@@ -110,7 +110,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
               preferredSize: Size.fromHeight(80)),
         ),
         backgroundColor: Colors.brown[100],
-        bottomNavigationBar: StokkieNavBar(),
+        bottomNavigationBar: StokkieNavBar(TYPE_ADMIN),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
@@ -132,7 +132,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
   onMemberScan(Member member) {
     print('🤟🤟🤟 Dashboard: Member scanned and updated on Firestore ...now has  🌶 ${member.stokvels.length} stokvels 🌶 ');
     prettyPrint(member.toJson(), '🤟🤟🤟 member scanned and updated, check stokvels in member rec');
-    return null;
+    _refresh();
   }
 
   @override

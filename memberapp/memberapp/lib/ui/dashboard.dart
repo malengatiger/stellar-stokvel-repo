@@ -130,7 +130,7 @@ class _DashboardState extends State<Dashboard> {
               preferredSize: Size.fromHeight(80)),
         ),
         backgroundColor: Colors.brown[100],
-        bottomNavigationBar: StokkieNavBar(),
+        bottomNavigationBar: StokkieNavBar(TYPE_MEMBER),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
