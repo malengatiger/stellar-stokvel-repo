@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
@@ -39,7 +40,7 @@ class _ScannerState extends State<Scanner> {
 
   var _key = GlobalKey<ScaffoldState>();
   bool isBusy = false;
-  GenericBloc _genericBloc = GenericBloc();
+  GenericBloc genericBloc;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,20 +103,21 @@ class _ScannerState extends State<Scanner> {
 
       if (widget.type == SCAN_MEMBER) {
         try {
-          var member = await _genericBloc.getMember(parts[0]);
+          var member = await genericBloc.getMember(parts[0]);
           if (member != null) {
-            if (member.stokvels == null) {
-              member.stokvels = [];
+            if (member.stokvelIds == null) {
+              member.stokvelIds = [];
             }
             //check if stokvel already exists
             var isFound = false;
-            member.stokvels.forEach((m) {
-              if (m.stokvelId == widget.stokvel.stokvelId) {
+            member.stokvelIds.forEach((m) {
+              if (m == widget.stokvel.stokvelId) {
                 isFound = true;
               }
             });
             if (isFound) {
-              print('🌶🌶🌶🌶 Scanned member is already good. 🌶 No need to be scanned again!🌶 ');
+              print(
+                  '🌶🌶🌶🌶 Scanned member is already good. 🌶 No need to be scanned again!🌶 ');
               AppSnackBar.showErrorSnackBar(
                   scaffoldKey: _key,
                   message: '🌶 Member is already in the Stokvel');
@@ -125,8 +127,8 @@ class _ScannerState extends State<Scanner> {
               setState(() {
                 isBusy = true;
               });
-              member.stokvels.add(widget.stokvel);
-              await _genericBloc.updateMember(member);
+              member.stokvelIds.add(widget.stokvel.stokvelId);
+              await genericBloc.updateMember(member);
               setState(() {
                 isBusy = false;
               });

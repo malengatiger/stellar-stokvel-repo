@@ -1,0 +1,39 @@
+name: adminapp
+description: A new Flutter project.
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^0.1.3
+  stokvelibrary:
+    path: ../../stellar-stokvel-repo/stokvelibrary/stokvelibrary
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+
+
+  uses-material-design: true
+
+  assets:
+    - .env
+    - download1.jpeg
+    - download3.jpeg
+    - download4.jpeg
+    - download8.jpeg
+    - images8.jpeg
+    - images12.jpeg
+    - images14.jpeg
+    - images19.jpeg
+    - images22.jpeg
+    - images14.png
+

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/functions.dart';
-import 'package:stokvelibrary/snack.dart';
 
 class MemberAccountCard extends StatefulWidget {
   final double height, width;
@@ -17,7 +15,6 @@ class MemberAccountCard extends StatefulWidget {
 
 class _MemberAccountCardState extends State<MemberAccountCard> {
   String _seed;
-  GenericBloc _genericBloc = GenericBloc();
   AccountResponse _accountResponse;
   bool isBusy = false;
   @override
@@ -32,7 +29,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     });
     try {
       _seed = await Prefs.getMemberSeed();
-      _accountResponse = await _genericBloc.getAccount(_seed);
+      _accountResponse = await genericBloc.getAccount(_seed);
       _rows.clear();
       _accountResponse.balances.forEach((a) {
         _rows.add(DataRow(cells: [
@@ -69,7 +66,6 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
 
   @override
   Widget build(BuildContext context) {
-    _genericBloc = Provider.of<GenericBloc>(context);
     if (_accountResponse == null) {
       _refreshAccount();
     }

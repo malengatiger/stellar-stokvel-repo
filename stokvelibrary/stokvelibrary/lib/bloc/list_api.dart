@@ -22,6 +22,7 @@ class ListAPI {
     querySnapshot.documents.forEach((doc) {
       mList.add(Member.fromJson(doc.data));
     });
+    print('🔵 🔵 ListAPI: getStokvelMembers found 🔵 ${mList.length} 🔵 members');
     return mList;
   }
 

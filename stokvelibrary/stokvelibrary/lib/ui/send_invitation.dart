@@ -1,7 +1,5 @@
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
@@ -16,7 +14,6 @@ class SendInvitation extends StatefulWidget {
 
 class _SendInvitationState extends State<SendInvitation> {
   var _key = GlobalKey<ScaffoldState>();
-  GenericBloc _genericBloc = GenericBloc();
   List<Contact> _contacts = List();
   List<Stokvel> _stokvels = [];
   bool isBusy = false;
@@ -37,10 +34,10 @@ class _SendInvitationState extends State<SendInvitation> {
       isBusy = true;
     });
     try {
-      _member = await _genericBloc.getCachedMember();
-      _contacts = await _genericBloc.getContacts();
+      _member = await genericBloc.getCachedMember();
+      _contacts = await genericBloc.getContacts();
       print('🥦🥦🥦🥦🥦 ${_contacts.length} contacts returned to UI');
-      _stokvels = await _genericBloc.getStokvelsAdministered(_member.memberId);
+      _stokvels = await genericBloc.getStokvelsAdministered(_member.memberId);
       print('🥦🥦🥦🥦🥦 ${_stokvels.length} stokvels returned to UI');
     } catch (e) {
       print(e);
@@ -78,7 +75,6 @@ class _SendInvitationState extends State<SendInvitation> {
 
   @override
   Widget build(BuildContext context) {
-    _genericBloc = Provider.of<GenericBloc>(context);
     return Scaffold(
       key: _key,
       appBar: AppBar(
@@ -228,7 +224,8 @@ class _SendInvitationState extends State<SendInvitation> {
         isBusy = true;
       });
       try {
-        var res = await _genericBloc.sendInvitationViaEmail(invitation: invite);
+        var res = await genericBloc.sendInvitationViaEmail(invitation: invite);
+        await genericBloc.addInvitation(invite);
         print(res);
       } catch (e) {
         print(e);
@@ -326,7 +323,8 @@ class _SendInvitationState extends State<SendInvitation> {
         date: DateTime.now().toUtc().toIso8601String(),
         stokvel: selectedStokvel, email: null);
     try {
-      await _genericBloc.sendInvitationViaSMS(invitation: invite);
+      await genericBloc.sendInvitationViaSMS(invitation: invite);
+      await genericBloc.addInvitation(invite);
       print('Looks like we good with the SMS');
     } catch (e) {
       print(e);

@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -10,7 +11,7 @@ import 'package:uuid/uuid.dart';
 
 class Auth {
   static FirebaseAuth _auth = FirebaseAuth.instance;
-  static Firestore _firestore = Firestore.instance;
+  static Firestore fs = Firestore.instance;
 
   static Future<bool> checkAuth() async {
     var user = await _auth.currentUser();
@@ -23,22 +24,37 @@ class Auth {
     }
   }
 
+  static Future<bool> signInAnon() async {
+    var user = await _auth.signInAnonymously();
+    if (user != null) {
+      print(('🔶 🔶 🔶 User signed In Anonymously: ${user.toString()}'));
+      return true;
+    } else {
+      print(('🔑 🔑 🔑 🅿️ User is not authenticated yet 🅿️ '));
+      return false;
+    }
+  }
+
   //todo - CACHE encrypted seed and store in Firestore - in case user loses phone
-  static Future<Member> createMember({Member member, String memberPassword}) async {
+  static Future<Member> createMember(
+      {Member member, String memberPassword}) async {
     print('🔷🔷🔷🔷 Auth: createMember starting ..... ');
     await DotEnv().load('.env');
     String email = DotEnv().env['email'];
     String password = DotEnv().env['password'];
     String status = DotEnv().env['status'];
-    print('🔷🔷🔷🔷 Auth: $email - to be used for original auth bootup..... $password');
+    print(
+        '🔷🔷🔷🔷 Auth: $email - to be used for original auth bootup..... $password');
     var authResult = await _auth.signInWithEmailAndPassword(
         email: email, password: password);
-    print('🔷🔷🔷🔷 Auth: signInWithEmailAndPassword for superAdmin to start shit up!..... name: ${authResult.user.email}');
+    print(
+        '🔷🔷🔷🔷 Auth: signInWithEmailAndPassword for superAdmin to start shit up!..... name: ${authResult.user.email}');
     if (authResult.user != null) {
       var res = await _auth.createUserWithEmailAndPassword(
           email: member.email, password: memberPassword);
       if (res.user != null) {
-        print('🔷🔷🔷🔷 User has been created on Firebase auth: ${res.user.email}');
+        print(
+            '🔷🔷🔷🔷 User has been created on Firebase auth: ${res.user.email}');
         member.memberId = res.user.uid;
         await _auth.signOut();
         await _auth.signInWithEmailAndPassword(
@@ -57,14 +73,15 @@ class Auth {
 
   static Future<Member> _createStellarAccount(
       String status, Member member) async {
-    print('🔷🔷🔷🔷 ....... Creating Stellar account for the Member: ${member.name}...');
+    print(
+        '🔷🔷🔷🔷 ....... Creating Stellar account for the Member: ${member.name}...');
     var mRes = await Stellar.createAccount(
         isDevelopmentStatus: status == "dev" ? true : false);
     member.accountId = mRes.accountResponse.accountId;
     Prefs.setMemberSeed(mRes.secretSeed);
 
     print('🔷🔷🔷🔷 ... Caching Member to Firestore ...');
-    await _firestore.collection('members').add(member.toJson());
+    await fs.collection('members').add(member.toJson());
     await Prefs.saveMember(member);
     return member;
   }
@@ -91,7 +108,8 @@ class Auth {
 
     print('Auth: $emoji credential obtained: 🍏 ${credential.providerId}');
     final AuthResult authResult = await _auth.signInWithCredential(credential);
-    print('Auth: authResult obtained: 🍏 ${authResult.user.displayName} - ${authResult.user.email}');
+    print(
+        'Auth: authResult obtained: 🍏 ${authResult.user.displayName} - ${authResult.user.email}');
     final FirebaseUser user = authResult.user;
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
@@ -112,7 +130,7 @@ class Auth {
     await DotEnv().load('.env');
     String status = DotEnv().env['status'];
     return await _createStellarAccount(status, member);
-   
   }
+
   static const emoji = '🔵 🔵 🔵 ';
 }

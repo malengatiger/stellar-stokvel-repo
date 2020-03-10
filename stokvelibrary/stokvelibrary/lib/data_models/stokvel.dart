@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class Stokvel {
@@ -7,10 +6,7 @@ class Stokvel {
   Member adminMember;
 
   Stokvel(
-      {this.name,
-        this.stokvelId,
-        this.date, this.adminMember,
-        this.isActive});
+      {this.name, this.stokvelId, this.date, this.adminMember, this.isActive});
 
   Stokvel.fromJson(Map map) {
     name = map['name'];
@@ -31,24 +27,27 @@ class Stokvel {
       'stokvelId': stokvelId,
       'date': date,
       'isActive': isActive,
-      'adminMember': adminMember == null? null: adminMember.toJson(),
+      'adminMember': adminMember == null ? null : adminMember.toJson(),
     };
     return map;
   }
 }
+
 class Member {
   String name, cellphone, email, date, memberId, accountId, url;
   bool isActive;
-  List<Stokvel> stokvels;
+  List<String> stokvelIds;
 
   Member(
       {this.name,
-        this.memberId,
-        this.email,
-        this.cellphone,
-        this.date, this.url,
-        this.stokvels, this.accountId,
-        this.isActive});
+      this.memberId,
+      this.email,
+      this.cellphone,
+      this.date,
+      this.url,
+      this.accountId,
+      this.stokvelIds,
+      this.isActive});
 
   Member.fromJson(Map map) {
     name = map['name'];
@@ -59,20 +58,17 @@ class Member {
     email = map['email'];
     date = map['date'];
     isActive = map['isActive'];
-    stokvels = List();
-    if (map['stokvels'] != null) {
-      List mm = map['stokvels'];
+
+    stokvelIds = [];
+    if (map['stokvelIds'] != null) {
+      List mm = map['stokvelIds'];
       mm.forEach((m) {
-        stokvels.add(Stokvel.fromJson(m));
+        stokvelIds.add(m as String);
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    var stokvelsJson = List();
-    stokvels.forEach((s) {
-      stokvelsJson.add(s.toJson());
-    });
     Map<String, dynamic> map = {
       'name': name,
       'url': url,
@@ -81,18 +77,25 @@ class Member {
       'cellphone': cellphone,
       'email': email,
       'date': date,
-      'stokvels': stokvelsJson,
+      'stokvelIds': stokvelIds == null ? [] : stokvelIds,
       'isActive': isActive,
     };
     return map;
   }
 }
+
 class StokvelPayment {
-   Member member;
-   Stokvel stokvel;
-   String amount, date, seed, stellarHash;
-   
-  StokvelPayment({this.member, this.amount, this.date, this.seed, this.stellarHash, this.stokvel});
+  Member member;
+  Stokvel stokvel;
+  String amount, date, seed, stellarHash;
+
+  StokvelPayment(
+      {this.member,
+      this.amount,
+      this.date,
+      this.seed,
+      this.stellarHash,
+      this.stokvel});
 
   StokvelPayment.fromJson(Map map) {
     amount = map['amount'];
@@ -109,24 +112,29 @@ class StokvelPayment {
   }
 
   Map<String, dynamic> toJson() {
-    
     Map<String, dynamic> map = {
       'amount': amount,
       'seed': seed,
       'stellarHash': stellarHash,
       'date': date,
-      'member': member == null? null: member.toJson(),
-      'stokvel': stokvel == null? null: stokvel.toJson(),
+      'member': member == null ? null : member.toJson(),
+      'stokvel': stokvel == null ? null : stokvel.toJson(),
     };
     return map;
   }
-
 }
+
 class MemberPayment {
   Member fromMember, toMember;
   String amount, date, seed, stellarHash;
 
-  MemberPayment({@required this.fromMember, @required this.toMember, @required this.amount, @required this.date, this.seed, this.stellarHash});
+  MemberPayment(
+      {@required this.fromMember,
+      @required this.toMember,
+      @required this.amount,
+      @required this.date,
+      this.seed,
+      this.stellarHash});
 
   MemberPayment.fromJson(Map map) {
     amount = map['amount'];
@@ -143,48 +151,91 @@ class MemberPayment {
   }
 
   Map<String, dynamic> toJson() {
-
     Map<String, dynamic> map = {
       'amount': amount,
       'seed': seed,
       'stellarHash': stellarHash,
       'date': date,
-      'fromMember': fromMember == null? null: fromMember.toJson(),
-      'toMember': toMember == null? null: toMember.toJson(),
+      'fromMember': fromMember == null ? null : fromMember.toJson(),
+      'toMember': toMember == null ? null : toMember.toJson(),
     };
     return map;
   }
-
 }
+
+class Invitation {
+  String email, date, cellphone, memberId, message, invitationId;
+  Stokvel stokvel;
+  Invitation(
+      {@required this.email,
+      @required this.date,
+      @required this.stokvel,
+      this.memberId,
+      this.cellphone,
+      this.invitationId});
+
+  Invitation.fromJson(Map map) {
+    email = map['email'];
+    date = map['date'];
+    invitationId = map['invitationId'];
+    message = map['message'];
+    cellphone = map['cellphone'];
+    memberId = map['memberId'];
+    if (map['stokvel'] != null) {
+      stokvel = Stokvel.fromJson(map['stokvel']);
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'email': email,
+      'date': date,
+      'invitationId': invitationId,
+      'cellphone': cellphone,
+      'message': message,
+      'memberId': memberId,
+      'stokvel': stokvel == null ? null : stokvel.toJson(),
+    };
+    return map;
+  }
+}
+
 class StellarCredential {
-  String accountId, date, seed;
-  StellarCredential({@required this.accountId, @required this.date, @required this.seed, });
+  String accountId, date, seed, cryptKey, fortunaKey;
+  StellarCredential({
+    @required this.accountId,
+    @required this.date,
+    @required this.cryptKey,
+    this.fortunaKey,
+    @required this.seed,
+  });
 
   StellarCredential.fromJson(Map map) {
     accountId = map['accountId'];
     date = map['date'];
     seed = map['seed'];
-
+    cryptKey = map['cryptKey'];
+    fortunaKey = map['fortunaKey'];
   }
 
   Map<String, dynamic> toJson() {
-
     Map<String, dynamic> map = {
       'accountId': accountId,
       'seed': seed,
       'date': date,
-
+      'cryptKey': cryptKey,
+      'fortunaKey': fortunaKey,
     };
     return map;
   }
-
 }
+
 class StellarCredentials {
-   List<StellarCredential> credentials;
+  List<StellarCredential> credentials;
 
   StellarCredentials(this.credentials);
-  StellarCredentials.fromJson(Map map) {
 
+  StellarCredentials.fromJson(Map map) {
     credentials = List();
     if (map['credentials'] != null) {
       List mm = map['credentials'];
@@ -192,51 +243,74 @@ class StellarCredentials {
         credentials.add(StellarCredential.fromJson(m));
       });
     }
-
+    print('Inside fromJson: 🌼 ${credentials.length}, is this incrementing??');
   }
 
   Map<String, dynamic> toJson() {
     List mList = [];
+
     credentials.forEach((c) {
       mList.add(c.toJson());
     });
+
     Map<String, dynamic> map = {
       'credentials': mList,
     };
+    print('Inside toJson: 🌼 ${credentials.length}, is this incrementing??');
     return map;
   }
-
 }
 
-class Invitation {
-  String email, date, cellphone, memberId, message;
-  Stokvel stokvel;
-  Invitation({@required this.email, @required this.date,
-    @required this.stokvel, this.memberId, this.cellphone});
+class Stokvels {
+  List<Stokvel> stokvels;
+  Stokvels(this.stokvels);
 
-  Invitation.fromJson(Map map) {
-    email = map['email'];
-    date = map['date'];
-    message = map['message'];
-    cellphone = map['cellphone'];
-    memberId = map['memberId'];
-    if (map['stokvel'] != null) {
-      stokvel = Stokvel.fromJson(map['stokvel']);
+  Stokvels.fromJson(Map map) {
+    stokvels = List();
+    if (map['stokvels'] != null) {
+      List mm = map['stokvels'];
+      mm.forEach((m) {
+        stokvels.add(Stokvel.fromJson(m));
+      });
     }
-
   }
-
   Map<String, dynamic> toJson() {
+    List mList = [];
+
+    stokvels.forEach((c) {
+      mList.add(c.toJson());
+    });
 
     Map<String, dynamic> map = {
-      'email': email,
-      'date': date,
-      'cellphone': cellphone,
-      'message': message,
-      'memberId': memberId,
-      'stokvel': stokvel == null? null: stokvel.toJson(),
+      'stokvels': mList,
     };
     return map;
   }
+}
 
+class Members {
+  List<Member> members;
+  Members(this.members);
+
+  Members.fromJson(Map map) {
+    members = List();
+    if (map['members'] != null) {
+      List mm = map['members'];
+      mm.forEach((m) {
+        members.add(Member.fromJson(m));
+      });
+    }
+  }
+  Map<String, dynamic> toJson() {
+    List mList = [];
+
+    members.forEach((c) {
+      mList.add(c.toJson());
+    });
+
+    Map<String, dynamic> map = {
+      'members': mList,
+    };
+    return map;
+  }
 }

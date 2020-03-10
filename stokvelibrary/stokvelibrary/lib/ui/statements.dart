@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 
 class Statements extends StatefulWidget {
@@ -9,7 +8,6 @@ class Statements extends StatefulWidget {
 
 class _StatementsState extends State<Statements> {
   var _key = GlobalKey<ScaffoldState>();
-  GenericBloc _genericBloc;
 
   @override
   void initState() {
@@ -26,7 +24,6 @@ class _StatementsState extends State<Statements> {
   }
   @override
   Widget build(BuildContext context) {
-    _genericBloc = Provider.of<GenericBloc>(context);
     return Scaffold(key: _key,
       appBar: AppBar(
         title: Text('Statements'),

@@ -1,32 +1,64 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:contacts_service/contacts_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_sms/flutter_sms_platform.dart';
-//import 'package:flutter_launch/flutter_launch.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
+import 'package:stokvelibrary/bloc/auth.dart';
+import 'package:stokvelibrary/bloc/data_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
-import 'package:contacts_service/contacts_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'auth.dart';
-import 'data_api.dart';
+
 import 'list_api.dart';
 
-class GenericBloc extends ChangeNotifier {
+GenericBloc genericBloc = GenericBloc();
+
+class GenericBloc {
   List<Member> _members = List();
   List<Stokvel> _stokvels = List();
+  List<StellarCredential> _creds = [];
+  List<MemberPayment> _memberPayments = [];
+  List<StokvelPayment> _stokvelPayments = [];
+  List<Contact> _contacts = [];
+
   AccountResponse _accountResponse;
-  Firestore fs = Firestore.instance;
   FirebaseMessaging fcm = FirebaseMessaging();
+  StreamController<List<Member>> _memberController =
+      StreamController.broadcast();
+  StreamController<List<Stokvel>> _stokvelController =
+      StreamController.broadcast();
+  StreamController<List<StellarCredential>> _credController =
+      StreamController.broadcast();
+  StreamController<List<MemberPayment>> _memberPaymentController =
+      StreamController.broadcast();
+  StreamController<List<StokvelPayment>> _stokvelPaymentController =
+      StreamController.broadcast();
+  StreamController<List<Contact>> _contactController =
+      StreamController.broadcast();
+
+  Stream<List<Member>> get memberStream => _memberController.stream;
+  Stream<List<Stokvel>> get stokvelStream => _stokvelController.stream;
+  Stream<List<StellarCredential>> get credStream => _credController.stream;
+  Stream<List<MemberPayment>> get memberPaymentStream =>
+      _memberPaymentController.stream;
+  Stream<List<Contact>> get contactStream => _contactController.stream;
+
+  void close() {
+    _memberPaymentController.close();
+    _memberController.close();
+    _stokvelPaymentController.close();
+    _stokvelController.close();
+    _credController.close();
+    _contactController.close();
+  }
 
   Future configureFCM() async {
-    
     print(
         '✳️ ✳️ ✳️ ✳️ GenericBloc:_configureFCM: CONFIGURE FCM: ✳️ ✳️ ✳️ ✳️  ');
     fcm.configure(
@@ -36,13 +68,11 @@ class GenericBloc extends ChangeNotifier {
             "\n\n️♻️♻️♻️️♻️♻️♻️  ✳️ ✳️ ✳️ ✳️ GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
         switch (messageType) {
           case 'stokvels':
-            print(
-                "✳️ ✳️ FCM onMessage messageType: 🍎 STOKVELS arrived 🍎");
+            print("✳️ ✳️ FCM onMessage messageType: 🍎 STOKVELS arrived 🍎");
             _processStokvels(message);
             break;
           case 'members':
-            print(
-                "✳️ ✳️ FCM onMessage messageType: 🍎 MEMBERS arrived 🍎");
+            print("✳️ ✳️ FCM onMessage messageType: 🍎 MEMBERS arrived 🍎");
             _processMembers(message);
             break;
 
@@ -56,7 +86,6 @@ class GenericBloc extends ChangeNotifier {
                 "✳️ ✳️ FCM onMessage messageType: 🍎 COMMUTER_FENCE_DWELL_EVENTS arrived 🍎");
             _processStokvelPayments(message);
             break;
-
         }
       },
       onLaunch: (Map<String, dynamic> message) async {
@@ -75,8 +104,7 @@ class GenericBloc extends ChangeNotifier {
     });
     fcm.getToken().then((String token) {
       assert(token != null);
-      print(
-          '♻️♻️♻️️♻️♻️️ MarshalBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
+      print('♻️♻️♻️️♻️♻️️ MarshalBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
     });
     subscribeToFCM();
 
@@ -85,35 +113,44 @@ class GenericBloc extends ChangeNotifier {
 
   Future getContacts() async {
     // Get all contacts on device
-    ServiceStatus serviceStatus = await PermissionHandler().checkServiceStatus(PermissionGroup.contacts);
+    ServiceStatus serviceStatus =
+        await PermissionHandler().checkServiceStatus(PermissionGroup.contacts);
     int status = serviceStatus.value;
     print('👽 PermissionHandler service status: $status');
     if (status == ServiceStatus.disabled.value) {
-      print('👽 PermissionHandler service status is DISABLED .. openAppSettings ...');
+      print(
+          '👽 PermissionHandler service status is DISABLED .. openAppSettings ...');
       var isOK = await PermissionHandler().openAppSettings();
       print('👽 PermissionHandler openAppSettings returned: 🍯 $isOK');
     }
     await _requestContactsPermission();
 
-    print('👽 PermissionHandler starting 🍯 ContactsService ... getContacts ...');
+    print(
+        '👽 PermissionHandler starting 🍯 ContactsService ... getContacts ...');
     Iterable<Contact> contacts = await ContactsService.getContacts();
-    print('👽 👽 👽 getContacts found ${contacts.toList().length} contacts on device');
-    return contacts.toList();
-
+    print(
+        '👽 👽 👽 getContacts found ${contacts.toList().length} contacts on device');
+    _contacts = contacts.toList();
+    _contactController.sink.add(contacts);
+    return _contacts;
   }
 
   Future _requestContactsPermission() async {
-    print('👽 PermissionHandler service status is enabled. checking permission for contacts ...');
-    PermissionStatus permissionStatus = await PermissionHandler().checkPermissionStatus(PermissionGroup.contacts);
+    print(
+        '👽 PermissionHandler service status is enabled. checking permission for contacts ...');
+    PermissionStatus permissionStatus = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.contacts);
     if (permissionStatus.value != PermissionStatus.granted.value) {
       print('👽 PermissionHandler permission for contacts to be requested ...');
-      var permissions = await PermissionHandler().requestPermissions([PermissionGroup.contacts]);
+      var permissions = await PermissionHandler()
+          .requestPermissions([PermissionGroup.contacts]);
       var mStatus = permissions[PermissionGroup.contacts];
       if (mStatus.value != PermissionStatus.granted.value) {
         throw Exception('Contacts permission denied');
       }
     }
   }
+
   Future sendInvitationViaEmail({Invitation invitation}) async {
     _setInvitationMessage(invitation);
     final Email email = Email(
@@ -123,7 +160,8 @@ class GenericBloc extends ChangeNotifier {
       isHTML: true,
     );
     await FlutterEmailSender.send(email);
-    print('💚 💚 sendInvitationViaEmail: email sent to  🥬 ${invitation.email}');
+    print(
+        '💚 💚 sendInvitationViaEmail: email sent to  🥬 ${invitation.email}');
   }
 
   Future sendInvitationViaSMS({Invitation invitation}) async {
@@ -132,22 +170,22 @@ class GenericBloc extends ChangeNotifier {
     var smsPlatform = FlutterSmsPlatform.instance;
     var canSend = await smsPlatform.canSendSMS();
     if (canSend) {
-      var res = await smsPlatform.sendSMS(message: msg, recipients: [invitation.cellphone]);
+      var res = await smsPlatform
+          .sendSMS(message: msg, recipients: [invitation.cellphone]);
       print(res);
-      print('💚 💚 sendInvitationViaSMS: sms sent to  🥬 ${invitation.cellphone}');
+      print(
+          '💚 💚 sendInvitationViaSMS: sms sent to  🥬 ${invitation.cellphone}');
     } else {
       throw Exception('Unable to send SMS');
     }
   }
 
-
-  Future sendInvitationToExistingMember(
-      {Invitation invitation}) async {
+  Future sendInvitationToExistingMember({Invitation invitation}) async {
     _setInvitationMessage(invitation);
     await DataAPI.sendInvitation(invitation);
-    print('💚 💚 sendInvitationToExistingMember: data will be sent via cloud message to 🍎 ${invitation.memberId}');
+    print(
+        '💚 💚 sendInvitationToExistingMember: data will be sent via cloud message to 🍎 ${invitation.memberId}');
     return null;
-
   }
 
   Future sendInvitationViaWhatsapp(Invitation invitation) async {
@@ -159,7 +197,7 @@ class GenericBloc extends ChangeNotifier {
   }
 
   void _setInvitationMessage(Invitation invitation) {
-     if (invitation.message == null) {
+    if (invitation.message == null) {
       invitation.message = _buildInvitationHTML(invitation);
     }
   }
@@ -190,8 +228,8 @@ class GenericBloc extends ChangeNotifier {
   AccountResponse get accountResponse => _accountResponse;
   Future<AccountResponse> getAccount(String seed) async {
     _accountResponse = await Stellar.getAccount(seed: seed);
-    print('🍎 GenericBloc 🍎  - account response from Stellar Network 🍎 balances: ${_accountResponse.balances.length}');
-    notifyListeners();
+    print(
+        '🍎 GenericBloc 🍎  - account response from Stellar Network 🍎 balances: ${_accountResponse.balances.length}');
     return _accountResponse;
   }
 
@@ -200,42 +238,22 @@ class GenericBloc extends ChangeNotifier {
   }
 
   Future<List<Member>> getStokvelMembers(String stokvelId) async {
-    var shot = await fs.collection('members').where('stokvels',
-        arrayContains: {'stokvelId': stokvelId}).getDocuments();
+    _members = await ListAPI.getStokvelMembers(stokvelId);
     _members.clear();
-    shot.documents.forEach((doc) {
-      _members.add(Member.fromJson(doc.data));
-    });
-    _members.sort((a, b) => a.name.compareTo(b.name));
-    notifyListeners();
+    _memberController.sink.add(_members);
     return _members;
   }
-
-  Future<List<Stokvel>> getStokvels({int limit = 1000}) async {
-    var shot = await fs.collection('members').limit(limit).getDocuments();
-    _stokvels.clear();
-    shot.documents.forEach((doc) {
-      _stokvels.add(Stokvel.fromJson(doc.data));
-    });
-    notifyListeners();
-    return _stokvels;
-  }
-
-  var _stokvelMembers = List<Member>();
-  var _stokvelPayments = List<StokvelPayment>();
-  var _membersPayments = List<MemberPayment>();
 
   Member _member;
 
   GenericBloc() {
     print('🅿️ 🅿️  🎽 🎽 🎽 🎽  GenericBloc constructor ... 🅿️ 🅿️ ');
     getCachedMember();
-    configureFCM();
+//    configureFCM();
   }
 
   Future<Member> getCachedMember() async {
     _member = await Prefs.getMember();
-    notifyListeners();
     return _member;
   }
 
@@ -245,27 +263,23 @@ class GenericBloc extends ChangeNotifier {
 
   Future<Member> createMember({Member member, String password}) async {
     _member = await Auth.createMember(member: member, memberPassword: password);
-    print(
-        'AdminBloc will notify listeners that things are cool! ${_member.name}');
-    notifyListeners();
     return _member;
   }
 
-  Future<Stokvel> createStokvel(Stokvel stokvel) async {
-    _member = await Prefs.getMember();
-    if (_member == null) {
-      throw Exception('Admin Member not found');
-    }
-    var stokvelResult = await DataAPI.createStokvel(stokvel);
+  Future<Stokvel> createStokvel({Stokvel stokvel, Member member}) async {
+    var stokvelResult =
+        await DataAPI.createStokvelNewAdmin(stokvel: stokvel, member: member);
     _stokvels.add(stokvelResult);
-    await DataAPI.addStokvelToMember(
-        stokvel: stokvel, memberId: _member.memberId);
-    notifyListeners();
+
     return stokvelResult;
   }
 
   Future<Member> updateMember(Member member) async {
     return await DataAPI.updateMember(member);
+  }
+
+  Future addInvitation(Invitation invite) async {
+    return await DataAPI.addInvitation(invite);
   }
 
   Future<StokvelPayment> sendStokvelPayment(
@@ -283,7 +297,7 @@ class GenericBloc extends ChangeNotifier {
     );
     var res = await DataAPI.addStokvelPayment(payment: payment, seed: seed);
     _stokvelPayments.add(res);
-    notifyListeners();
+
     return res;
   }
 
@@ -299,8 +313,9 @@ class GenericBloc extends ChangeNotifier {
         amount: amount,
         date: DateTime.now().toUtc().toIso8601String());
     var res = await DataAPI.addMemberPayment(payment: payment, seed: seed);
-    _membersPayments.add(res);
-    notifyListeners();
+    _memberPayments.add(res);
+    _memberPaymentController.sink.add(_memberPayments);
+
     return res;
   }
 
@@ -317,8 +332,10 @@ class GenericBloc extends ChangeNotifier {
     });
     filtered.addAll(_stokvelPaymnts);
     _stokvelPayments = filtered;
-    notifyListeners();
+    _stokvelPaymentController.sink.add(_stokvelPayments);
+    return _stokvelPayments;
   }
+
   Future<List<Stokvel>> getStokvelsAdministered(String memberId) async {
     return await ListAPI.getStokvelsAdministered(memberId);
   }
@@ -339,10 +356,7 @@ class GenericBloc extends ChangeNotifier {
     topics.add('stokvelPayments');
     for (var t in topics) {
       await fcm.subscribeToTopic(t);
-      print(
-          'GenericBloc: 💜 💜 Subscribed to FCM topic: 🍎  $t ✳️ ');
+      print('GenericBloc: 💜 💜 Subscribed to FCM topic: 🍎  $t ✳️ ');
     }
   }
-
 }
-
