@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:mobmongo/carrier.dart';
 import 'package:mobmongo/mobmongo.dart';
-import 'package:flutter/services.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 
 import '../functions.dart';
@@ -112,8 +112,8 @@ class LocalDBAPI {
 
     var start = DateTime.now();
 
-    Carrier ca =
-        Carrier(db: databaseName, collection: 'stokvels', data: stokvel.toJson());
+    Carrier ca = Carrier(
+        db: databaseName, collection: 'stokvels', data: stokvel.toJson());
     var res = await MobMongo.insert(ca);
     print('🦠  Result of stokvel insert: 🍎 $res 🍎 ');
 
@@ -125,14 +125,15 @@ class LocalDBAPI {
   }
 
   static Future<int> addCredential(
-      {@required StellarCredential credential}) async {
+      {@required StokkieCredential credential}) async {
     await _connectToLocalDB();
-    prettyPrint(credential.toJson(), "STOKVEL CREDENTIAL TO BE ADDED TO local DB");
+    prettyPrint(
+        credential.toJson(), "STOKVEL CREDENTIAL TO BE ADDED TO local DB");
 
     var start = DateTime.now();
 
-    Carrier ca =
-        Carrier(db: databaseName, collection: 'creds', data: credential.toJson());
+    Carrier ca = Carrier(
+        db: databaseName, collection: 'creds', data: credential.toJson());
     var res = await MobMongo.insert(ca);
     print('🦠  Result of cred insert: 🍎 $res 🍎 ');
 

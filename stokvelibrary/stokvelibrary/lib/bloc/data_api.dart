@@ -128,7 +128,7 @@ class DataAPI {
 
     String status = DotEnv().env['status'];
 
-    StellarCredential cred = await _doStokvel(status, stokvel);
+    StokkieCredential cred = await _doStokvel(status, stokvel);
 
     await _doMember(status, member);
 
@@ -138,7 +138,7 @@ class DataAPI {
   }
 
   static Future _writeBatch(
-      Stokvel stokvel, Member member, StellarCredential cred) async {
+      Stokvel stokvel, Member member, StokkieCredential cred) async {
     print('💊💊💊 DataAPI: creating Firestore batch write ...');
     try {
       _firestore = Firestore.instance;
@@ -178,7 +178,7 @@ class DataAPI {
     return member;
   }
 
-  static Future<StellarCredential> _doStokvel(
+  static Future<StokkieCredential> _doStokvel(
       String status, Stokvel stokvel) async {
     print('💊💊💊 DataAPI: creating Stellar account for the Stokvel ...');
     var stokvelAccountResponse = await Stellar.createAccount(
@@ -188,7 +188,7 @@ class DataAPI {
         '💊💊💊 DataAPI: STOKVEL accountId has been set 🌎 🌎 🌎 ${stokvel.accountId} 🌎 ...');
 
     //todo - store this credential on Firestore - ENCRYPT seed
-    var cred = StellarCredential(
+    var cred = StokkieCredential(
         accountId: stokvel.accountId,
         date: DateTime.now().toUtc().toIso8601String(),
         seed: stokvelAccountResponse.secretSeed);

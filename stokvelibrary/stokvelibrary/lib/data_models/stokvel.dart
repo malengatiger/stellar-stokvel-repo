@@ -200,9 +200,9 @@ class Invitation {
   }
 }
 
-class StellarCredential {
+class StokkieCredential {
   String accountId, date, seed, cryptKey, fortunaKey;
-  StellarCredential({
+  StokkieCredential({
     @required this.accountId,
     @required this.date,
     @required this.cryptKey,
@@ -210,7 +210,7 @@ class StellarCredential {
     @required this.seed,
   });
 
-  StellarCredential.fromJson(Map map) {
+  StokkieCredential.fromJson(Map map) {
     accountId = map['accountId'];
     date = map['date'];
     seed = map['seed'];
@@ -231,7 +231,7 @@ class StellarCredential {
 }
 
 class StellarCredentials {
-  List<StellarCredential> credentials;
+  List<StokkieCredential> credentials;
 
   StellarCredentials(this.credentials);
 
@@ -240,7 +240,7 @@ class StellarCredentials {
     if (map['credentials'] != null) {
       List mm = map['credentials'];
       mm.forEach((m) {
-        credentials.add(StellarCredential.fromJson(m));
+        credentials.add(StokkieCredential.fromJson(m));
       });
     }
     print('Inside fromJson: 🌼 ${credentials.length}, is this incrementing??');
@@ -310,6 +310,58 @@ class Members {
 
     Map<String, dynamic> map = {
       'members': mList,
+    };
+    return map;
+  }
+}
+
+class MemberPayments {
+  List<MemberPayment> memberPayments;
+  MemberPayments(this.memberPayments);
+
+  MemberPayments.fromJson(Map map) {
+    memberPayments = List();
+    if (map['memberPayments'] != null) {
+      List mm = map['memberPayments'];
+      mm.forEach((m) {
+        memberPayments.add(MemberPayment.fromJson(m));
+      });
+    }
+  }
+  Map<String, dynamic> toJson() {
+    List mList = [];
+    memberPayments.forEach((c) {
+      mList.add(c.toJson());
+    });
+
+    Map<String, dynamic> map = {
+      'memberPayments': mList,
+    };
+    return map;
+  }
+}
+
+class StokvelPayments {
+  List<StokvelPayment> stokvelPayments;
+  StokvelPayments(this.stokvelPayments);
+
+  StokvelPayments.fromJson(Map map) {
+    stokvelPayments = List();
+    if (map['stokvelPayments'] != null) {
+      List mm = map['stokvelPayments'];
+      mm.forEach((m) {
+        stokvelPayments.add(StokvelPayment.fromJson(m));
+      });
+    }
+  }
+  Map<String, dynamic> toJson() {
+    List mList = [];
+    stokvelPayments.forEach((c) {
+      mList.add(c.toJson());
+    });
+
+    Map<String, dynamic> map = {
+      'stokvelPayments': mList,
     };
     return map;
   }

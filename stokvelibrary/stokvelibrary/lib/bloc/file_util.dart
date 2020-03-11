@@ -11,7 +11,7 @@ class FileUtil {
       stokvelPath = 'stokvelss2c.txt',
       memberPath = 'members2c.txt';
 
-  static addCredential(StellarCredential credential) async {
+  static addCredential(StokkieCredential credential) async {
     await _prepareDirPath(credPath);
     var credentials = await getCredentials();
     if (credentials == null) {
@@ -22,9 +22,6 @@ class FileUtil {
     await _writeFile(mJson);
     print(
         '🌎 StellarCredential just added to file has ${credentials.credentials.length} credentials ...');
-
-    //todo check file
-    await getCredentials();
   }
 
   static Future<StellarCredentials> getCredentials() async {
@@ -52,9 +49,6 @@ class FileUtil {
     await _writeFile(mJson);
     print(
         '🌎 addStokvel: Stokvel just added to file; now has ${stokvels.stokvels.length} stokvels ...');
-
-    //todo check file
-    await getStokvels();
   }
 
   static Future<Stokvels> getStokvels() async {
@@ -82,9 +76,6 @@ class FileUtil {
     await _writeFile(mJson);
     print(
         '🌎 addMember: Stokvel just added to file; now has ${members.members.length} members ...');
-
-    //todo check file
-    await getMembers();
   }
 
   static Future<Members> getMembers() async {
@@ -99,6 +90,60 @@ class FileUtil {
     print(
         ' 🌎 getMembers: Cache file has 🍎 ${members.members.length} Members ...');
     return members;
+  }
+
+  static addMemberPayment(MemberPayment memberPayment) async {
+    await _prepareDirPath(memberPath);
+    var members = await getMemberPayments();
+    if (members == null) {
+      members = MemberPayments([]);
+    }
+    members.memberPayments.add(memberPayment);
+    var mJson = jsonEncode(members.toJson());
+    await _writeFile(mJson);
+    print(
+        '🌎 addMemberPayment: memberPayment just added to file; now has ${members.memberPayments.length} members ...');
+  }
+
+  static Future<MemberPayments> getMemberPayments() async {
+    await _prepareDirPath(memberPath);
+    var string = await _readFile();
+    if (string == null) {
+      print('🔆 ............. No MemberPayments file found');
+      return null;
+    }
+    var mJson = jsonDecode(string);
+    var payments = MemberPayments.fromJson(mJson);
+    print(
+        ' 🌎 getMemberPayments: Cache file has 🍎 ${payments.memberPayments.length} MemberPayments ...');
+    return payments;
+  }
+
+  static addStokvelPayment(StokvelPayment skotvelPayment) async {
+    await _prepareDirPath(memberPath);
+    var payments = await getStokvelPayments();
+    if (payments == null) {
+      payments = StokvelPayments([]);
+    }
+    payments.stokvelPayments.add(skotvelPayment);
+    var mJson = jsonEncode(payments.toJson());
+    await _writeFile(mJson);
+    print(
+        '🌎 addStokvelPayment: StokvelPayment just added to file; now has ${payments.stokvelPayments.length} payments ...');
+  }
+
+  static Future<StokvelPayments> getStokvelPayments() async {
+    await _prepareDirPath(memberPath);
+    var string = await _readFile();
+    if (string == null) {
+      print('🔆 ............. No SkotvelPayments file found');
+      return null;
+    }
+    var mJson = jsonDecode(string);
+    var payments = StokvelPayments.fromJson(mJson);
+    print(
+        ' 🌎 getSkotvelPayments: Cache file has 🍎 ${payments.stokvelPayments.length} StokvelPayments ...');
+    return payments;
   }
 
   static Future _prepareDirPath(String path) async {

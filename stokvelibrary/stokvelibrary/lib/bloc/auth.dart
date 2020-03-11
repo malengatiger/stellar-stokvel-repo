@@ -4,8 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:stellarplugin/stellarplugin.dart';
-import 'package:stokvelibrary/bloc/prefs.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:uuid/uuid.dart';
 
@@ -59,31 +58,22 @@ class Auth {
         await _auth.signOut();
         await _auth.signInWithEmailAndPassword(
             email: member.email, password: memberPassword);
-
-        await _createStellarAccount(status, member);
-        return member;
+        var mm = await makerBloc.createMemberAccount(member);
+        return mm;
       } else {
         throw Exception('Member create failed');
       }
     } else {
       throw Exception('Firebase Admin user not found');
     }
-    return null;
   }
 
   static Future<Member> _createStellarAccount(
       String status, Member member) async {
     print(
         '🔷🔷🔷🔷 ....... Creating Stellar account for the Member: ${member.name}...');
-    var mRes = await Stellar.createAccount(
-        isDevelopmentStatus: status == "dev" ? true : false);
-    member.accountId = mRes.accountResponse.accountId;
-    Prefs.setMemberSeed(mRes.secretSeed);
-
-    print('🔷🔷🔷🔷 ... Caching Member to Firestore ...');
-    await fs.collection('members').add(member.toJson());
-    await Prefs.saveMember(member);
-    return member;
+    var mm = await makerBloc.createMemberAccount(member);
+    return mm;
   }
 
   static final GoogleSignIn googleSignIn = GoogleSignIn(

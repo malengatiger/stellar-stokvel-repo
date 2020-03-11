@@ -1,14 +1,16 @@
-import 'package:adminapp/bloc/maker.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:uuid/uuid.dart';
+
+import 'dashboard.dart';
 
 /// Administrator Signup
 class SignUp extends StatefulWidget {
@@ -311,11 +313,9 @@ class _SignUpState extends State<SignUp> {
       setState(() {
         isBusy = false;
       });
-
-//      Navigator.pop(context);
-//      Navigator.pop(context);
-//      Navigator.push(context, SlideRightRoute(
-//          widget: StokvelEditor(member: member,)));
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.push(context, SlideRightRoute(widget: Dashboard()));
     } catch (e) {
       debugPrint(
           '👿 👿 👿 👿 Hey Jose, we gotta a BIG problem, Senor!!: 👿 👿 $e');

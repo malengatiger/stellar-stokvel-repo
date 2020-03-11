@@ -27,24 +27,29 @@ class Prefs {
     return user;
   }
 
-  static void setMemberSeed(String seed) async {
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setString('seed', seed);
-    print('🔵 🔵 🔵 Prefs: seed cached ... 🍎 🍎 ');
+  static Future saveCredential(StokkieCredential credential) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    Map jsonx = credential.toJson();
+    var jx = json.encode(jsonx);
+    prefs.setString('credential', jx);
+    print("🌽 🌽 🌽 Prefs.StokkieCredential  SAVED: 🌽");
+    return null;
   }
 
-  static Future<String> getMemberSeed() async {
-    final preferences = await SharedPreferences.getInstance();
-    var b = preferences.getString('seed');
-    if (b == null) {
+  static Future<StokkieCredential> getCredential() async {
+    var prefs = await SharedPreferences.getInstance();
+    var string = prefs.getString('credential');
+    if (string == null) {
       return null;
-    } else {
-      print('🔵 🔵 🔵 Prefs: seed retrieved: $b 🍏 🍏 ');
-      return b;
     }
+    var jx = json.decode(string);
+    var cred = new StokkieCredential.fromJson(jx);
+    print("🌽 🌽 🌽 Prefs.StokkieCredential 🧩 retrieved");
+    return cred;
   }
 
-  static void addStokvelCredential(StellarCredential credential) async {
+  static void addStokvelCredential(StokkieCredential credential) async {
     print('🔵 🔵 🔵 Prefs: adding Stellar credential ...');
     final preferences = await SharedPreferences.getInstance();
     var creds = await getStokvelCredentials();

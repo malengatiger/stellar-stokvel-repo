@@ -1,6 +1,7 @@
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
@@ -19,6 +20,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> implements ScannerListener {
   Member _member;
   var _key = GlobalKey<ScaffoldState>();
+  bool isBusy = false;
   @override
   initState() {
     super.initState();
@@ -31,12 +33,22 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
   }
 
   _refresh() async {
-    var seed = await Prefs.getMemberSeed();
-    if (seed != null) {
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      var seed = await makerBloc.getDecryptedCredential();
       await genericBloc.getAccount(seed);
-    } else {
+      setState(() {
+        isBusy = false;
+      });
+    } catch (e) {
+      setState(() {
+        isBusy = false;
+      });
       AppSnackBar.showErrorSnackBar(
-          scaffoldKey: _key, message: 'Problems, Jack! Seed is null');
+          scaffoldKey: _key,
+          message: 'Problems, Houston! Credential not found');
     }
   }
 

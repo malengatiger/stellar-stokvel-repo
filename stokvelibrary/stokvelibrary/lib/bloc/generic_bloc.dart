@@ -16,13 +16,14 @@ import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 
 import 'list_api.dart';
+import 'maker.dart';
 
 GenericBloc genericBloc = GenericBloc();
 
 class GenericBloc {
   List<Member> _members = List();
   List<Stokvel> _stokvels = List();
-  List<StellarCredential> _creds = [];
+  List<StokkieCredential> _creds = [];
   List<MemberPayment> _memberPayments = [];
   List<StokvelPayment> _stokvelPayments = [];
   List<Contact> _contacts = [];
@@ -33,7 +34,7 @@ class GenericBloc {
       StreamController.broadcast();
   StreamController<List<Stokvel>> _stokvelController =
       StreamController.broadcast();
-  StreamController<List<StellarCredential>> _credController =
+  StreamController<List<StokkieCredential>> _credController =
       StreamController.broadcast();
   StreamController<List<MemberPayment>> _memberPaymentController =
       StreamController.broadcast();
@@ -44,7 +45,7 @@ class GenericBloc {
 
   Stream<List<Member>> get memberStream => _memberController.stream;
   Stream<List<Stokvel>> get stokvelStream => _stokvelController.stream;
-  Stream<List<StellarCredential>> get credStream => _credController.stream;
+  Stream<List<StokkieCredential>> get credStream => _credController.stream;
   Stream<List<MemberPayment>> get memberPaymentStream =>
       _memberPaymentController.stream;
   Stream<List<Contact>> get contactStream => _contactController.stream;
@@ -284,7 +285,7 @@ class GenericBloc {
 
   Future<StokvelPayment> sendStokvelPayment(
       {Member member, String amount, Stokvel stokvel}) async {
-    var seed = await Prefs.getMemberSeed();
+    var seed = await makerBloc.getDecryptedCredential();
     if (seed == null) {
       throw Exception('Seed not found');
     }
@@ -303,7 +304,7 @@ class GenericBloc {
 
   Future<StokvelPayment> sendMemberToMemberPayment(
       {Member fromMember, Member toMember, String amount}) async {
-    var seed = await Prefs.getMemberSeed();
+    var seed = await makerBloc.getDecryptedCredential();
     if (seed == null) {
       throw Exception('Seed not found');
     }
