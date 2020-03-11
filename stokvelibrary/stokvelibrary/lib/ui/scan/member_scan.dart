@@ -5,48 +5,50 @@ import 'package:flutter/services.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/snack.dart';
 
-const SCAN_MEMBER = 'scanMember',
-    SCAN_MEMBER_PAYMENT = 'memberPayment',
-    SCAN_STOKVEL_PAYMENT = 'stokvelPayment';
-
-class Scanner extends StatefulWidget {
-  final String type;
+class MemberScanner extends StatefulWidget {
   final String stokvelId;
   final ScannerListener scannerListener;
 
-  const Scanner(
-      {Key key,
-      @required this.type,
-      @required this.scannerListener,
-      @required this.stokvelId})
-      : super(key: key);
+  const MemberScanner({
+    Key key,
+    @required this.scannerListener,
+    @required this.stokvelId,
+  }) : super(key: key);
 
   @override
-  _ScannerState createState() => _ScannerState();
+  _MemberScannerState createState() => _MemberScannerState();
 }
 
-class _ScannerState extends State<Scanner> {
+class _MemberScannerState extends State<MemberScanner> {
   var barcode = "";
   var newNumber;
   Stokvel _stokvel;
+  Member _member;
 
   @override
   initState() {
     super.initState();
-    assert(widget.type != null);
+    assert(widget.stokvelId != null);
+    _getStokkie();
   }
 
   void _getStokkie() async {
-    _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
+    if (widget.stokvelId != null) {
+      _member = await Prefs.getMember();
+    } else {
+      _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
+    }
     setState(() {});
   }
 
   var _key = GlobalKey<ScaffoldState>();
-  bool isBusy = false;
+  bool isBusy = false, isStokvelPayment = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,72 +105,45 @@ class _ScannerState extends State<Scanner> {
       var decoded = base64.decode(barcode);
       String stringTitle = utf8.decode(decoded);
       print(
-          '👌👌👌 stringTitle: $stringTitle 👌👌👌 will print decoded object; widget.type : ${widget.type}');
+          '👌👌👌 stringTitle: $stringTitle 👌👌👌 will print decoded object; ');
       var parts = stringTitle.split('@');
       print(parts);
 
-      if (widget.type == SCAN_MEMBER) {
-        try {
-          var member = await genericBloc.getMember(parts[0]);
-          if (member != null) {
-            if (member.stokvelIds == null) {
-              member.stokvelIds = [];
-            }
-            //check if stokvel already exists
-            var isFound = false;
-            member.stokvelIds.forEach((m) {
-              if (m == widget.stokvelId) {
-                isFound = true;
-              }
-            });
-            if (isFound) {
-              print(
-                  '🌶🌶🌶🌶 Scanned member is already good. 🌶 No need to be scanned again!🌶 ');
-              AppSnackBar.showErrorSnackBar(
-                  scaffoldKey: _key,
-                  message: '🌶 Member is already in the Stokvel');
-              widget.scannerListener.onMemberAlreadyInStokvel(member);
-              return;
-            } else {
-              setState(() {
-                isBusy = true;
-              });
-              member.stokvelIds.add(widget.stokvelId);
-              await genericBloc.updateMember(member);
-              setState(() {
-                isBusy = false;
-              });
-              AppSnackBar.showSnackBar(
-                  scaffoldKey: _key,
-                  message: 'Member welcomed to Stokvel',
-                  textColor: Colors.lightGreen,
-                  backgroundColor: Colors.black);
-              widget.scannerListener.onMemberScan(member);
-            }
+      var member = await genericBloc.getMember(parts[0]);
+      if (member != null) {
+        if (member.stokvelIds == null) {
+          member.stokvelIds = [];
+        }
+        //check if stokvel already exists
+        var isFound = false;
+        member.stokvelIds.forEach((m) {
+          if (m == widget.stokvelId) {
+            isFound = true;
           }
-          //Navigator.pop(context);
-        } catch (e) {
-          print(e);
+        });
+        if (isFound) {
+          print(
+              '🌶🌶🌶🌶 Scanned member is already good. 🌶 No need to be scanned again!🌶 ');
           AppSnackBar.showErrorSnackBar(
-              scaffoldKey: _key, message: 'Unable to scan');
-        }
-      }
-      if (widget.type == SCAN_MEMBER_PAYMENT) {
-        try {
-          print('will process a MEMBER payment here ...................');
-        } catch (e) {
-          print(e);
-          AppSnackBar.showErrorSnackBar(
-              scaffoldKey: _key, message: 'Unable to scan');
-        }
-      }
-      if (widget.type == SCAN_STOKVEL_PAYMENT) {
-        try {
-          print('will process a STOKVEL payment here ...................');
-        } catch (e) {
-          print(e);
-          AppSnackBar.showErrorSnackBar(
-              scaffoldKey: _key, message: 'Unable to scan');
+              scaffoldKey: _key,
+              message: '🌶 Member is already in the Stokvel');
+          widget.scannerListener.onMemberAlreadyInStokvel(member);
+          return;
+        } else {
+          setState(() {
+            isBusy = true;
+          });
+          member.stokvelIds.add(widget.stokvelId);
+          await genericBloc.updateMember(member);
+          setState(() {
+            isBusy = false;
+          });
+          AppSnackBar.showSnackBar(
+              scaffoldKey: _key,
+              message: 'Member welcomed to Stokvel',
+              textColor: Colors.lightGreen,
+              backgroundColor: Colors.black);
+          widget.scannerListener.onMemberScan(member);
         }
       }
     } on PlatformException catch (e) {

@@ -45,7 +45,8 @@ class Prefs {
     }
     var jx = json.decode(string);
     var cred = new StokkieCredential.fromJson(jx);
-    print("🌽 🌽 🌽 Prefs.StokkieCredential 🧩 retrieved");
+    print(
+        "🌽 🌽 🌽 Prefs.StokkieCredential 🧩 credential retrieved: ${cred.accountId}");
     return cred;
   }
 

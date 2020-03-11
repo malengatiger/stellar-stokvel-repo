@@ -12,6 +12,7 @@ import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
 import 'package:stokvelibrary/bloc/data_api.dart';
+import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 
@@ -28,7 +29,7 @@ class GenericBloc {
   List<StokvelPayment> _stokvelPayments = [];
   List<Contact> _contacts = [];
 
-  AccountResponse _accountResponse;
+  List<AccountResponse> _accountResponses = List();
   FirebaseMessaging fcm = FirebaseMessaging();
   StreamController<List<Member>> _memberController =
       StreamController.broadcast();
@@ -42,6 +43,8 @@ class GenericBloc {
       StreamController.broadcast();
   StreamController<List<Contact>> _contactController =
       StreamController.broadcast();
+  StreamController<List<AccountResponse>> _accountResponseController =
+      StreamController.broadcast();
 
   Stream<List<Member>> get memberStream => _memberController.stream;
   Stream<List<Stokvel>> get stokvelStream => _stokvelController.stream;
@@ -49,6 +52,8 @@ class GenericBloc {
   Stream<List<MemberPayment>> get memberPaymentStream =>
       _memberPaymentController.stream;
   Stream<List<Contact>> get contactStream => _contactController.stream;
+  Stream<List<AccountResponse>> get accountResponseStream =>
+      _accountResponseController.stream;
 
   void close() {
     _memberPaymentController.close();
@@ -57,6 +62,7 @@ class GenericBloc {
     _stokvelController.close();
     _credController.close();
     _contactController.close();
+    _accountResponseController.close();
   }
 
   Future configureFCM() async {
@@ -131,8 +137,11 @@ class GenericBloc {
     Iterable<Contact> contacts = await ContactsService.getContacts();
     print(
         '👽 👽 👽 getContacts found ${contacts.toList().length} contacts on device');
-    _contacts = contacts.toList();
-    _contactController.sink.add(contacts);
+    var mapped = contacts.toList();
+    mapped.forEach((m) {
+      _contacts.add(m);
+    });
+    _contactController.sink.add(_contacts);
     return _contacts;
   }
 
@@ -226,16 +235,21 @@ class GenericBloc {
     }
   }
 
-  AccountResponse get accountResponse => _accountResponse;
   Future<AccountResponse> getAccount(String seed) async {
-    _accountResponse = await Stellar.getAccount(seed: seed);
-    print(
-        '🍎 GenericBloc 🍎  - account response from Stellar Network 🍎 balances: ${_accountResponse.balances.length}');
-    return _accountResponse;
+    var accountResponse = await Stellar.getAccount(seed: seed);
+    _accountResponses.add(accountResponse);
+    _accountResponseController.sink.add(_accountResponses);
+    print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
+        'balances: ${accountResponse.balances.length} responses in list: ${_accountResponses.length}');
+
+    return accountResponse;
   }
 
   Future<Member> getMember(String memberId) async {
-    return await ListAPI.getMember(memberId);
+    var member = await ListAPI.getMember(memberId);
+    await FileUtil.addMember(member);
+    await Prefs.saveMember(member);
+    return member;
   }
 
   Future<List<Member>> getStokvelMembers(String stokvelId) async {
@@ -250,7 +264,6 @@ class GenericBloc {
   GenericBloc() {
     print('🅿️ 🅿️  🎽 🎽 🎽 🎽  GenericBloc constructor ... 🅿️ 🅿️ ');
     getCachedMember();
-//    configureFCM();
   }
 
   Future<Member> getCachedMember() async {

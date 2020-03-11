@@ -3,13 +3,16 @@ import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/ui/scan/payment_scan.dart';
 
 class SendMoney extends StatefulWidget {
   @override
   _SendMoneyState createState() => _SendMoneyState();
 }
 
-class _SendMoneyState extends State<SendMoney> {
+class _SendMoneyState extends State<SendMoney>
+    implements PaymentScannerListener {
   var _key = GlobalKey<ScaffoldState>();
   var _members = List<Member>();
   var _stokvels = List<Stokvel>();
@@ -84,18 +87,20 @@ class _SendMoneyState extends State<SendMoney> {
                   SizedBox(
                     height: 20,
                   ),
-                  RaisedButton(
-                    color: Theme.of(context).primaryColor,
-                    elevation: 8,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Scan to Pay Member',
-                        style: Styles.whiteSmall,
-                      ),
-                    ),
-                    onPressed: _startScanToPay,
-                  ),
+                  isStokvelPayment
+                      ? Container()
+                      : RaisedButton(
+                          color: Theme.of(context).primaryColor,
+                          elevation: 8,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'Scan to Pay Member',
+                              style: Styles.whiteSmall,
+                            ),
+                          ),
+                          onPressed: _startScanToPay,
+                        ),
                   SizedBox(
                     height: 20,
                   ),
@@ -165,7 +170,6 @@ class _SendMoneyState extends State<SendMoney> {
     setState(() {
       isStokvelPayment = value;
     });
-
     if (!isStokvelPayment && _stokvel != null) {
       _getStokvelMembers(_stokvel.stokvelId);
     } else {
@@ -173,5 +177,45 @@ class _SendMoneyState extends State<SendMoney> {
     }
   }
 
-  void _startScanToPay() {}
+  void _startScanToPay() {
+    if (isStokvelPayment) {
+      Navigator.push(
+          context,
+          SlideRightRoute(
+              widget: PaymentScanner(
+            type: SCAN_STOKVEL_PAYMENT,
+            scannerListener: this,
+            memberId: null,
+            stokvelId: _stokvel.stokvelId,
+          )));
+    } else {
+      Navigator.push(
+          context,
+          SlideRightRoute(
+              widget: PaymentScanner(
+            type: SCAN_MEMBER_PAYMENT,
+            scannerListener: this,
+            memberId: _member.memberId,
+            stokvelId: null,
+          )));
+    }
+  }
+
+  @override
+  onPaymentError(String message) {
+    // TODO: implement onPaymentError
+    return null;
+  }
+
+  @override
+  omMemberPayment(MemberPayment memberPayment) {
+    // TODO: implement omMemberPayment
+    return null;
+  }
+
+  @override
+  onStokvelPayment(StokvelPayment stokvelPayment) {
+    // TODO: implement onStokvelPayment
+    return null;
+  }
 }

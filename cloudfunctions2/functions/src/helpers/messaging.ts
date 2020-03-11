@@ -1,14 +1,13 @@
 
 import * as admin from 'firebase-admin';
 
-const app = admin.initializeApp()
-console.log(`🌽 🌽 🌽 Firebase initialized. 🎽 ${app.name} 🎽 ${app.options}`)
+admin.initializeApp()
+// console.log(`🌽 🌽 🌽 Firebase initialized. 🎽 ${app.name} 🎽 ${app.options}`)
 const msg = admin.messaging();
 
 class Messaging {
     
     public static async sendStokvelCreated(data: any, ): Promise<any> {
-        console.log(data)
         const options: any = {
             priority: "high",
             timeToLive: 60 * 60,
@@ -16,10 +15,10 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Stokvel added to Network`,
-                body: JSON.stringify(data),
+                body: '',
             },
             data: {
-                stokvel: JSON.stringify(data)
+                type: 'stokvel'
             },
         };
         const topic = 'stokvels';
@@ -30,7 +29,6 @@ class Messaging {
         return result
     }
     public static async sendMemberCreated(data: any, ): Promise<any> {
-        console.log(data)
         const options: any = {
             priority: "high",
             timeToLive: 60 * 60,
@@ -38,10 +36,10 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Member added to Network`,
-                body: JSON.stringify(data),
+                body: '',
             },
             data: {
-                member: JSON.stringify(data)
+                type: 'member'
             },
         };
         const topic = 'members';
@@ -58,11 +56,11 @@ class Messaging {
         };
         const payload: any = {
             notification: {
-                title: `Stokvel has been paid`,
-                body: JSON.stringify(data),
+                title: `Stokvel Payment added to Network`,
+                body: '',
             },
             data: {
-                stokvel: JSON.stringify(data)
+                type: 'stokvelPayment'
             },
         };
         const topic = 'stokvelPayments';
@@ -73,7 +71,6 @@ class Messaging {
         return result
     }
     public static async sendMemberPaymentCreated(data: any, ): Promise<any> {
-        console.log(data)
         const options: any = {
             priority: "high",
             timeToLive: 60 * 60,
@@ -81,10 +78,10 @@ class Messaging {
         const payload: any = {
             notification: {
                 title: `Member Payment added to Network`,
-                body: JSON.stringify(data),
+                body: '',
             },
             data: {
-                stokvel: JSON.stringify(data)
+                type: 'memberPayment'
             },
         };
         const topic = 'memberPayments';

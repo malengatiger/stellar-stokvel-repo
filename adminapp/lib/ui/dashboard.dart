@@ -1,5 +1,6 @@
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
+import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
@@ -9,8 +10,8 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
-import 'package:stokvelibrary/ui/member_scan.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
+import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -29,27 +30,27 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
 
   _getMember() async {
     _member = await Prefs.getMember();
+//    _refresh();
     genericBloc.configureFCM();
     setState(() {});
   }
 
   _refresh() async {
-    setState(() {
-      isBusy = true;
-    });
+    print('  🔵 🔵 🔵 Dashboard: _refresh data ...................');
     try {
+      setState(() {
+        isBusy = true;
+      });
       var seed = await makerBloc.getDecryptedCredential();
       await genericBloc.getAccount(seed);
       setState(() {
         isBusy = false;
       });
     } catch (e) {
-      setState(() {
-        isBusy = false;
-      });
+      print(e);
       AppSnackBar.showErrorSnackBar(
           scaffoldKey: _key,
-          message: 'Problems, Houston! Credential not found');
+          message: 'Problems! Credential not found or other shit');
     }
   }
 
@@ -58,10 +59,9 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
       Navigator.push(
           context,
           SlideRightRoute(
-              widget: Scanner(
+              widget: MemberScanner(
             stokvelId: _member.stokvelIds.first,
             scannerListener: this,
-            type: SCAN_MEMBER,
           )));
     }
   }
@@ -73,6 +73,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         return doNothing();
       },
       child: Scaffold(
+        key: _key,
         appBar: AppBar(
           leading: Container(),
           actions: <Widget>[
@@ -111,12 +112,25 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
+                        isBusy
+                            ? Container(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 4,
+                                  backgroundColor: Colors.black,
+                                ),
+                              )
+                            : Container(),
+                        SizedBox(
+                          width: 24,
+                        ),
                         Text(
                           'Administrator',
                           style: Styles.whiteBoldMedium,
                         ),
                         SizedBox(
-                          width: 80,
+                          width: 60,
                         ),
                         Text('Stokvels'),
                         SizedBox(
@@ -141,7 +155,14 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
           padding: const EdgeInsets.all(8.0),
           child: ListView(
             children: <Widget>[
-              MemberAccountCard(),
+              StreamBuilder<List<AccountResponse>>(
+                  stream: genericBloc.accountResponseStream,
+                  builder: (context, snapshot) {
+                    return MemberAccountCard(
+                      accountResponse:
+                          snapshot.data == null ? null : snapshot.data.last,
+                    );
+                  }),
             ],
           ),
         ),

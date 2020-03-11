@@ -1,13 +1,15 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
+import 'package:stokvelibrary/functions.dart';
 
 class ListAPI {
   static var _firestore = Firestore.instance;
 
   static Future<List<Stokvel>> getStokvelsAdministered(String memberId) async {
-    var querySnapshot = await _firestore.collection('stokvels').where('adminMember.memberId',isEqualTo: memberId).getDocuments();
+    var querySnapshot = await _firestore
+        .collection('stokvels')
+        .where('adminMember.memberId', isEqualTo: memberId)
+        .getDocuments();
     var mList = List<Stokvel>();
     querySnapshot.documents.forEach((doc) {
       mList.add(Stokvel.fromJson(doc.data));
@@ -22,42 +24,60 @@ class ListAPI {
     querySnapshot.documents.forEach((doc) {
       mList.add(Member.fromJson(doc.data));
     });
-    print('🔵 🔵 ListAPI: getStokvelMembers found 🔵 ${mList.length} 🔵 members');
+    print(
+        '🔵 🔵 ListAPI: getStokvelMembers found 🔵 ${mList.length} 🔵 members');
     return mList;
   }
 
-  static Future<List<StokvelPayment>> getStokvelPayments(String stokvelId) async {
-    var querySnapshot = await _firestore.collection('stokvelPayments').where('stokvelId',
-        isEqualTo: stokvelId).limit(200).getDocuments();
+  static Future<List<StokvelPayment>> getStokvelPayments(
+      String stokvelId) async {
+    var querySnapshot = await _firestore
+        .collection('stokvelPayments')
+        .where('stokvelId', isEqualTo: stokvelId)
+        .limit(200)
+        .getDocuments();
     var mList = List<StokvelPayment>();
     querySnapshot.documents.forEach((doc) {
       mList.add(StokvelPayment.fromJson(doc.data));
     });
     return mList;
   }
+
   static Future<List<StokvelPayment>> getMemberPayments(String memberId) async {
-    var querySnapshot = await _firestore.collection('memberPayments')
-        .orderBy('date',descending: true).where('memberId',
-        isEqualTo: memberId).limit(200).getDocuments();
+    var querySnapshot = await _firestore
+        .collection('memberPayments')
+        .orderBy('date', descending: true)
+        .where('memberId', isEqualTo: memberId)
+        .limit(200)
+        .getDocuments();
     var mList = List<StokvelPayment>();
     querySnapshot.documents.forEach((doc) {
       mList.add(StokvelPayment.fromJson(doc.data));
     });
     return mList;
   }
+
   static Future<Member> getMember(String memberId) async {
-    var querySnapshot = await _firestore.collection('members')
-        .where('memberId',
-        isEqualTo: memberId).limit(1).getDocuments();
+    print('ListAPI: 💜 💜 getMember: $memberId');
+    var querySnapshot = await _firestore
+        .collection('members')
+        .where('memberId', isEqualTo: memberId)
+        .limit(1)
+        .getDocuments();
+
+    print(
+        'ListAPI: 💜 💜 getMember: ${querySnapshot.documents.length} members found');
     var mList = List<Member>();
     querySnapshot.documents.forEach((doc) {
       mList.add(Member.fromJson(doc.data));
     });
+
     if (mList.isNotEmpty) {
+      print(
+          'ListAPI: 💜 💜 getMember: member found ${mList.first.name}, returnin ....');
+      prettyPrint(mList.first.toJson(), 'Member returned from Firestore');
       return mList.first;
     }
     return null;
   }
-
-
 }
