@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
+import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
@@ -14,14 +15,14 @@ const SCAN_MEMBER = 'scanMember',
 
 class Scanner extends StatefulWidget {
   final String type;
-  final Stokvel stokvel;
+  final String stokvelId;
   final ScannerListener scannerListener;
 
   const Scanner(
       {Key key,
       @required this.type,
       @required this.scannerListener,
-      @required this.stokvel})
+      @required this.stokvelId})
       : super(key: key);
 
   @override
@@ -31,6 +32,7 @@ class Scanner extends StatefulWidget {
 class _ScannerState extends State<Scanner> {
   var barcode = "";
   var newNumber;
+  Stokvel _stokvel;
 
   @override
   initState() {
@@ -38,9 +40,13 @@ class _ScannerState extends State<Scanner> {
     assert(widget.type != null);
   }
 
+  void _getStokkie() async {
+    _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
+    setState(() {});
+  }
+
   var _key = GlobalKey<ScaffoldState>();
   bool isBusy = false;
-  GenericBloc genericBloc;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +86,7 @@ class _ScannerState extends State<Scanner> {
           ? _buildImage()
           : Center(
               child: Text(
-                '${widget.stokvel.name}',
+                '${_stokvel == null ? '' : _stokvel.name}',
                 style: Styles.blackBoldMedium,
               ),
             ),
@@ -111,7 +117,7 @@ class _ScannerState extends State<Scanner> {
             //check if stokvel already exists
             var isFound = false;
             member.stokvelIds.forEach((m) {
-              if (m == widget.stokvel.stokvelId) {
+              if (m == widget.stokvelId) {
                 isFound = true;
               }
             });
@@ -127,7 +133,7 @@ class _ScannerState extends State<Scanner> {
               setState(() {
                 isBusy = true;
               });
-              member.stokvelIds.add(widget.stokvel.stokvelId);
+              member.stokvelIds.add(widget.stokvelId);
               await genericBloc.updateMember(member);
               setState(() {
                 isBusy = false;

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:member/ui/dashboard.dart';
 import 'package:member/ui/welcome.dart';
+import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/slide_right.dart';
-
-import 'bloc/member_bloc.dart';
 
 void main() => runApp(MemberApp());
 var themeIndex;
@@ -43,13 +42,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _checkAuth() async {
-    var isAuthed = await MemberBloc().isAuthenticated();
-    print('🔵 🔵 $isAuthed is the result from bloc');
-    if (!isAuthed) {
-      Navigator.push(context, SlideRightRoute(widget: Welcome(null)));
-      return;
-    } else {
+    var cred = await Prefs.getCredential();
+    if (cred != null) {
       Navigator.push(context, SlideRightRoute(widget: Dashboard()));
+    } else {
+      Navigator.push(context, SlideRightRoute(widget: Welcome(null)));
     }
   }
 

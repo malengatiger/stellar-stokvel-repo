@@ -9,6 +9,7 @@ import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:uuid/uuid.dart';
 
 MakerBloc makerBloc = MakerBloc();
 
@@ -62,6 +63,8 @@ class MakerBloc {
     var memberAccountResponse =
         await Stellar.createAccount(isDevelopmentStatus: isDevelopmentStatus);
     member.accountId = memberAccountResponse.accountResponse.accountId;
+    var uuid = Uuid();
+    member.memberId = uuid.v1();
     print('$em2 DataAPI: MEMBER accountId has been set ${member.accountId}...');
     Prefs.addMemberAccountResponseBag(memberAccountResponse);
     await FileUtil.addMember(member);
@@ -122,6 +125,8 @@ class MakerBloc {
 
     var memberAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     member.accountId = memberAccount.accountResponse.accountId;
+    var uuid = Uuid();
+    member.memberId = uuid.v1();
     prettyPrint(memberAccount.toJson(), '🔑 🔑 🔑 Member Account 🔑 🔑 🔑');
 
     print('🍏 🍏 ACCOUNTS from Stellar seem OK 🍏 🍏 🍏 🍏 🍏 🍏 ');
@@ -166,7 +171,6 @@ class MakerBloc {
     await Prefs.saveMember(member);
     await Prefs.saveCredential(memberCredential);
 
-//    makerBloc.testCached();
     print(
         '🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵  🍎 Trying to write to Firestore without shitting the bed !  🍎  🔵  🔵  🔵  🔵  🔵  🔵  🔵  🔵 ');
     await writeCredential(stokvelCredential);

@@ -28,7 +28,7 @@ class _DashboardState extends State<Dashboard> {
 
   _getMember() async {
     _member = await Prefs.getMember();
-
+    genericBloc.configureFCM();
     setState(() {});
   }
 
@@ -40,8 +40,8 @@ class _DashboardState extends State<Dashboard> {
         setState(() {
           isBusy = true;
         });
-        await _genericBloc.getAccount(seed);
-        _member = await _genericBloc.getMember(_member.memberId);
+        await genericBloc.getAccount(seed);
+        _member = await genericBloc.getMember(_member.memberId);
         setState(() {
           setState(() {
             isBusy = false;
@@ -55,7 +55,6 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  GenericBloc _genericBloc = GenericBloc();
   _startQRcode() {
     print('starting qr code ....');
     Navigator.push(

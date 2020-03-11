@@ -1,7 +1,7 @@
 import 'package:adminapp/ui/dashboard.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
-import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/slide_right.dart';
 
@@ -45,13 +45,11 @@ class _AdminHomeState extends State<AdminHome> {
   }
 
   void _checkAuth() async {
-    var isAuthed = await genericBloc.isAuthenticated();
-    print('$isAuthed is the result from bloc');
-    if (!isAuthed) {
-      Navigator.push(context, SlideRightRoute(widget: Welcome(null)));
-      return;
-    } else {
+    var cred = await Prefs.getCredential();
+    if (cred != null) {
       Navigator.push(context, SlideRightRoute(widget: Dashboard()));
+    } else {
+      Navigator.push(context, SlideRightRoute(widget: Welcome(null)));
     }
   }
 

@@ -29,6 +29,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
 
   _getMember() async {
     _member = await Prefs.getMember();
+    genericBloc.configureFCM();
     setState(() {});
   }
 
@@ -53,11 +54,16 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
   }
 
   _startScanner() async {
-//    if (_member.stokvels.length == 1) {
-//      Navigator.push(context, SlideRightRoute(
-//        widget: Scanner(stokvel: _member.stokvels.first, scannerListener: this, type: SCAN_MEMBER,)
-//      ));
-//    }
+    if (_member.stokvelIds.length == 1) {
+      Navigator.push(
+          context,
+          SlideRightRoute(
+              widget: Scanner(
+            stokvelId: _member.stokvelIds.first,
+            scannerListener: this,
+            type: SCAN_MEMBER,
+          )));
+    }
   }
 
   @override
@@ -71,7 +77,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
           leading: Container(),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.perm_contact_calendar),
+              icon: Icon(Icons.camera),
               onPressed: _startScanner,
             ),
             IconButton(

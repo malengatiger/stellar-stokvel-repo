@@ -77,7 +77,7 @@ class _SignUpState extends State<SignUp> {
         key: _key,
         appBar: AppBar(
           leading: Container(),
-          title: Text('Skottie Member',
+          title: Text('Stokkie Member',
               style: TextStyle(
                   fontFamily: GoogleFonts.acme().toString(),
                   fontSize: 24,
@@ -286,8 +286,8 @@ class _SignUpState extends State<SignUp> {
                               padding: const EdgeInsets.all(12.0),
                               child: Text(
                                 isNewMember
-                                    ? 'Sign Up to Skottie'
-                                    : 'Log In to Skottie',
+                                    ? 'Sign Up to Stokkie'
+                                    : 'Log In to Stokkie',
                                 style: Styles.whiteSmall,
                               ),
                             ),

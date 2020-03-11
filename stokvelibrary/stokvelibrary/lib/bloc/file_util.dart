@@ -51,6 +51,17 @@ class FileUtil {
         '🌎 addStokvel: Stokvel just added to file; now has ${stokvels.stokvels.length} stokvels ...');
   }
 
+  static Future<Stokvel> getStokvelById(String stokvelId) async {
+    Stokvels mList = await getStokvels();
+    Stokvel found;
+    mList.stokvels.forEach((k) {
+      if ((stokvelId == k.stokvelId)) {
+        found = k;
+      }
+    });
+    return found;
+  }
+
   static Future<Stokvels> getStokvels() async {
     await _prepareDirPath(stokvelPath);
     var string = await _readFile();
