@@ -5,13 +5,13 @@ import 'package:stellarplugin/data_models/account_response_bag.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 
 class Prefs {
-  static Future saveMember(Member user) async {
+  static Future saveMember(Member member) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    Map jsonx = user.toJson();
+    Map jsonx = member.toJson();
     var jx = json.encode(jsonx);
     prefs.setString('user', jx);
-    print("🌽 🌽 🌽 Prefs.user  SAVED: 🌽 ${user.toJson()}");
+    print("🌽 🌽 🌽 Prefs.saveMember  SAVED: 🌽 ${member.toJson()}");
     return null;
   }
 
@@ -23,7 +23,7 @@ class Prefs {
     }
     var jx = json.decode(string);
     var user = new Member.fromJson(jx);
-    print("🌽 🌽 🌽 Prefs.getUser 🧩  ${user.toJson()} retrieved");
+    print("🌽 🌽 🌽 Prefs.getMember 🧩  ${user.toJson()} retrieved");
     return user;
   }
 

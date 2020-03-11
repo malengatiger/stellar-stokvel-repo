@@ -1,10 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:member/ui/dashboard.dart';
 import 'package:member/ui/welcome.dart';
-import 'package:provider/provider.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
-import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/slide_right.dart';
 
 import 'bloc/member_bloc.dart';
@@ -13,32 +10,21 @@ void main() => runApp(MemberApp());
 var themeIndex;
 
 class MemberApp extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<MemberBloc>.value(
-          value: MemberBloc(),
-        ),
-        ChangeNotifierProvider<GenericBloc>.value(
-          value: GenericBloc(),
-        ),
-      ],
-      child: StreamBuilder<int>(
-          initialData: themeIndex == null ? 0 : themeIndex,
-          stream: themeBloc.newThemeStream,
-          builder: (context, snapShot) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              title: 'Anchor',
-              theme: snapShot.data == null
-                  ? ThemeUtil.getTheme(themeIndex: themeIndex)
-                  : ThemeUtil.getTheme(themeIndex: snapShot.data),
-              home: MyHomePage(),
-            );
-          }),
-    );
+    return StreamBuilder<int>(
+        initialData: themeIndex == null ? 0 : themeIndex,
+        stream: themeBloc.newThemeStream,
+        builder: (context, snapShot) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Anchor',
+            theme: snapShot.data == null
+                ? ThemeUtil.getTheme(themeIndex: themeIndex)
+                : ThemeUtil.getTheme(themeIndex: snapShot.data),
+            home: MyHomePage(),
+          );
+        });
   }
 }
 
@@ -50,16 +36,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   void initState() {
     super.initState();
     _checkAuth();
   }
-  void _checkAuth() async {
 
+  void _checkAuth() async {
     var isAuthed = await MemberBloc().isAuthenticated();
-    print('🔵 🔵 $isAuthed is the result from bloc' );
+    print('🔵 🔵 $isAuthed is the result from bloc');
     if (!isAuthed) {
       Navigator.push(context, SlideRightRoute(widget: Welcome(null)));
       return;
@@ -70,7 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -79,13 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Stokkie', style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900),
+              'Stokkie',
+              style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900),
             ),
-
           ],
         ),
       ),

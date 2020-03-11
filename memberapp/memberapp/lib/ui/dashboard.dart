@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:member/bloc/member_bloc.dart';
 import 'package:member/ui/welcome.dart';
+import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
-import 'package:provider/provider.dart';
-import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
-import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
-import 'package:stokvelibrary/ui/member_scan.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
-
 
 class Dashboard extends StatefulWidget {
   @override
@@ -34,9 +31,10 @@ class _DashboardState extends State<Dashboard> {
 
     setState(() {});
   }
+
   _refresh() async {
     print('🌶  🌶  🌶  🌶  .... Refreshing data ..............');
-    var seed = await Prefs.getMemberSeed();
+    var seed = await makerBloc.getDecryptedCredential();
     if (seed != null) {
       try {
         setState(() {
@@ -51,7 +49,8 @@ class _DashboardState extends State<Dashboard> {
         });
       } catch (e) {
         print(e);
-        AppSnackBar.showErrorSnackBar(scaffoldKey: _key, message: 'Data refresh failed');
+        AppSnackBar.showErrorSnackBar(
+            scaffoldKey: _key, message: 'Data refresh failed');
       }
     }
   }
@@ -59,19 +58,21 @@ class _DashboardState extends State<Dashboard> {
   GenericBloc _genericBloc = GenericBloc();
   _startQRcode() {
     print('starting qr code ....');
-    Navigator.push(context, SlideRightRoute(
-      widget: MemberQRCode(),
-    ));
+    Navigator.push(
+        context,
+        SlideRightRoute(
+          widget: MemberQRCode(),
+        ));
   }
+
   @override
   Widget build(BuildContext context) {
-
-    _genericBloc  = Provider.of<GenericBloc>(context);
     return WillPopScope(
       onWillPop: () {
         return doNothing();
       },
-      child: Scaffold(key: _key,
+      child: Scaffold(
+        key: _key,
         appBar: AppBar(
           leading: Container(),
           actions: <Widget>[
@@ -110,7 +111,10 @@ class _DashboardState extends State<Dashboard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        Text('Member', style: Styles.whiteBoldMedium,),
+                        Text(
+                          'Member',
+                          style: Styles.whiteBoldMedium,
+                        ),
                         SizedBox(
                           width: 80,
                         ),
@@ -119,7 +123,9 @@ class _DashboardState extends State<Dashboard> {
                           width: 12,
                         ),
                         Text(
-                          _member == null ? '0' : '${_member.stokvels.length}',
+                          _member == null
+                              ? '0'
+                              : '${_member.stokvelIds.length}',
                           style: Styles.blackBoldLarge,
                         ),
                       ],

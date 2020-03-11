@@ -72,7 +72,7 @@ class MakerBloc {
     assert(fortunaKey != null);
     assert(cryptKey != null);
 
-    var e = encrypt(
+    var encryptedSeed = encrypt(
         seed: memberAccountResponse.secretSeed,
         fortunaKey: fortunaKey,
         cryptKey: cryptKey);
@@ -81,10 +81,14 @@ class MakerBloc {
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
-        seed: e);
+        seed: encryptedSeed);
 
     await FileUtil.addCredential(memberCredential);
     await Prefs.saveMember(member);
+    await Prefs.saveCredential(memberCredential);
+    await writeCredential(memberCredential);
+    await writeMember(member);
+
     print('🍏 🍏 MEMBER ACCOUNT from Stellar added 🍏 🍏 🍏 🍏 🍏 🍏 ');
     return member;
   }
