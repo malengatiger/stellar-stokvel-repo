@@ -39,15 +39,15 @@ class Member {
   List<String> stokvelIds;
 
   Member(
-      {this.name,
-      this.memberId,
-      this.email,
-      this.cellphone,
-      this.date,
-      this.url,
-      this.accountId,
-      this.stokvelIds,
-      this.isActive});
+      {@required this.name,
+      @required this.memberId,
+      @required this.email,
+      @required this.cellphone,
+      @required this.date,
+      @required this.url,
+      @required this.accountId,
+      @required this.stokvelIds,
+      @required this.isActive});
 
   Member.fromJson(Map map) {
     name = map['name'];
@@ -90,12 +90,12 @@ class StokvelPayment {
   String amount, date, seed, stellarHash;
 
   StokvelPayment(
-      {this.member,
-      this.amount,
-      this.date,
-      this.seed,
-      this.stellarHash,
-      this.stokvel});
+      {@required this.member,
+      @required this.amount,
+      @required this.date,
+      @required this.seed,
+      @required this.stellarHash,
+      @required this.stokvel});
 
   StokvelPayment.fromJson(Map map) {
     amount = map['amount'];

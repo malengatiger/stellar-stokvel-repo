@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_sms/flutter_sms_platform.dart';
@@ -248,7 +249,6 @@ class GenericBloc {
   Future<Member> getMember(String memberId) async {
     var member = await ListAPI.getMember(memberId);
     await FileUtil.addMember(member);
-    await Prefs.saveMember(member);
     return member;
   }
 
@@ -256,6 +256,7 @@ class GenericBloc {
     _members = await ListAPI.getStokvelMembers(stokvelId);
     _members.clear();
     _memberController.sink.add(_members);
+    print(' 🔵  🔵 returning members found: ${_members.length}');
     return _members;
   }
 
@@ -297,10 +298,12 @@ class GenericBloc {
   }
 
   Future<StokvelPayment> sendStokvelPayment(
-      {Member member, String amount, Stokvel stokvel}) async {
+      {@required Member member,
+      @required String amount,
+      @required Stokvel stokvel}) async {
     var seed = await makerBloc.getDecryptedCredential();
     if (seed == null) {
-      throw Exception('Seed not found');
+      throw Exception('Seed not found, cannot do payment');
     }
     var payment = StokvelPayment(
       member: member,
@@ -308,8 +311,10 @@ class GenericBloc {
       date: DateTime.now().toUtc().toIso8601String(),
       seed: seed,
       stokvel: stokvel,
+      stellarHash: null,
     );
-    var res = await DataAPI.addStokvelPayment(payment: payment, seed: seed);
+    var res =
+        await DataAPI.sendStokvelPaymentToStellar(payment: payment, seed: seed);
     _stokvelPayments.add(res);
 
     return res;
@@ -319,14 +324,15 @@ class GenericBloc {
       {Member fromMember, Member toMember, String amount}) async {
     var seed = await makerBloc.getDecryptedCredential();
     if (seed == null) {
-      throw Exception('Seed not found');
+      throw Exception('Seed not found, MemberToMemberPayment cannot be made');
     }
     var payment = MemberPayment(
         fromMember: fromMember,
         toMember: toMember,
         amount: amount,
         date: DateTime.now().toUtc().toIso8601String());
-    var res = await DataAPI.addMemberPayment(payment: payment, seed: seed);
+    var res =
+        await DataAPI.sendMemberPaymentToStellar(payment: payment, seed: seed);
     _memberPayments.add(res);
     _memberPaymentController.sink.add(_memberPayments);
 

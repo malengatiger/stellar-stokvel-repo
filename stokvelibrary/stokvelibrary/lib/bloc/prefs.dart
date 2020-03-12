@@ -10,21 +10,21 @@ class Prefs {
 
     Map jsonx = member.toJson();
     var jx = json.encode(jsonx);
-    prefs.setString('user', jx);
+    prefs.setString('member', jx);
     print("🌽 🌽 🌽 Prefs.saveMember  SAVED: 🌽 ${member.toJson()}");
     return null;
   }
 
   static Future<Member> getMember() async {
     var prefs = await SharedPreferences.getInstance();
-    var string = prefs.getString('user');
+    var string = prefs.getString('member');
     if (string == null) {
       return null;
     }
     var jx = json.decode(string);
-    var user = new Member.fromJson(jx);
-    print("🌽 🌽 🌽 Prefs.getMember 🧩  ${user.toJson()} retrieved");
-    return user;
+    var member = new Member.fromJson(jx);
+    print("🌽 🌽 🌽 Prefs.getMember 🧩  ${member.toJson()} retrieved");
+    return member;
   }
 
   static Future saveCredential(StokkieCredential credential) async {

@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
-
-import 'contact_card.dart';
+import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
 class SendInvitation extends StatefulWidget {
   @override
   _SendInvitationState createState() => _SendInvitationState();
 }
 
-class _SendInvitationState extends State<SendInvitation> {
+class _SendInvitationState extends State<SendInvitation>
+    implements ScannerListener {
   var _key = GlobalKey<ScaffoldState>();
   List<Contact> _contacts = List();
   List<Stokvel> _stokvels = [];
@@ -135,7 +136,6 @@ class _SendInvitationState extends State<SendInvitation> {
                                   _textController.text = '';
                                   filteredContacts.clear();
                                 });
-
                               },
                             ),
                             hintText: '  Find Contact '),
@@ -144,17 +144,24 @@ class _SendInvitationState extends State<SendInvitation> {
                           _filterContacts();
                         },
                       ),
-                SizedBox(height: 16,),
+                SizedBox(
+                  height: 16,
+                ),
                 RaisedButton(
                   color: Theme.of(context).primaryColor,
                   elevation: 8,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text('Scan to Invite', style: Styles.whiteSmall,),
+                    child: Text(
+                      'Scan to Invite',
+                      style: Styles.whiteSmall,
+                    ),
                   ),
                   onPressed: _startScan,
                 ),
-                SizedBox(height: 12,),
+                SizedBox(
+                  height: 12,
+                ),
               ],
             ),
           ),
@@ -190,6 +197,7 @@ class _SendInvitationState extends State<SendInvitation> {
             ),
     );
   }
+
   var _textController = TextEditingController();
   void _submitInvitation({Contact contact, String email}) async {
     if (selectedStokvel == null) {
@@ -321,14 +329,16 @@ class _SendInvitationState extends State<SendInvitation> {
     var invite = Invitation(
         cellphone: contact.phones.toList().elementAt(0).value,
         date: DateTime.now().toUtc().toIso8601String(),
-        stokvel: selectedStokvel, email: null);
+        stokvel: selectedStokvel,
+        email: null);
     try {
       await genericBloc.sendInvitationViaSMS(invitation: invite);
       await genericBloc.addInvitation(invite);
       print('Looks like we good with the SMS');
     } catch (e) {
       print(e);
-      AppSnackBar.showErrorSnackBar(scaffoldKey: _key, message: 'SMS send failed');
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'SMS send failed');
     }
     setState(() {
       isBusy = false;
@@ -377,6 +387,26 @@ class _SendInvitationState extends State<SendInvitation> {
   }
 
   void _startScan() {
-    print('Scan the other person ....');
+    print('👽 👽 👽 Scan the person to invite ....');
+    Navigator.push(
+        context,
+        SlideRightRoute(
+            widget: MemberScanner(
+                scannerListener: this, stokvelId: selectedStokvel.stokvelId)));
+  }
+
+  @override
+  onMemberAlreadyInStokvel(Member member) {
+    prettyPrint(member.toJson(),
+        "🌽  🌽 Member ALREADY exists in Stokvel ...👌🏾👌🏾👌🏾");
+    return null;
+  }
+
+  @override
+  onMemberScan(Member member) {
+    print('SendInvitation: onMemberScan .... ');
+    prettyPrint(
+        member.toJson(), "👌🏾👌🏾👌🏾 Member just scanned ...👌🏾👌🏾👌🏾");
+    return null;
   }
 }

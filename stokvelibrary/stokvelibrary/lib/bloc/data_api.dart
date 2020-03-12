@@ -198,7 +198,7 @@ class DataAPI {
     return cred;
   }
 
-  static Future<StokvelPayment> addStokvelPayment(
+  static Future<StokvelPayment> sendStokvelPaymentToStellar(
       {@required StokvelPayment payment, @required String seed}) async {
     var res = await Stellar.sendPayment(
         seed: seed,
@@ -213,7 +213,7 @@ class DataAPI {
     return payment;
   }
 
-  static Future addMemberPayment(
+  static Future sendMemberPaymentToStellar(
       {@required MemberPayment payment, @required String seed}) async {
     var res = await Stellar.sendPayment(
         seed: seed,

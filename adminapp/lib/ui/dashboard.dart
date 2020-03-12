@@ -10,6 +10,7 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
+import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
@@ -66,6 +67,10 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
     }
   }
 
+  _startQRcode() async {
+    Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -77,6 +82,10 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         appBar: AppBar(
           leading: Container(),
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.person),
+              onPressed: _startQRcode,
+            ),
             IconButton(
               icon: Icon(Icons.camera),
               onPressed: _startScanner,

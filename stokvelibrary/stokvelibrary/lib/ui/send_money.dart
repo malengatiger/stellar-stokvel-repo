@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/scan/payment_scan.dart';
 
 class SendMoney extends StatefulWidget {
@@ -22,33 +24,181 @@ class _SendMoneyState extends State<SendMoney>
   @override
   void initState() {
     super.initState();
-    _getStokvels();
+    _getMember();
   }
 
-  _getStokvels() async {
-    _member = await Prefs.getMember();
-//    _stokvels = _member.stokvels;
-    setState(() {});
-  }
-
-  _getStokvelMembers(String stokvelId) async {
-    print('🧩 🧩 _getStokvelMembers: 🧩 $stokvelId - ${_stokvel.name}');
+  _getMember() async {
     setState(() {
       isBusy = true;
     });
-    _members = await genericBloc.getStokvelMembers(stokvelId);
+    try {
+      _member = await Prefs.getMember();
+
+      if (_member.stokvelIds == null || _member.stokvelIds.isEmpty) {
+        _displayNoStokvelDialog();
+      } else {
+        for (var id in _member.stokvelIds) {
+          var stokvel = await ListAPI.getStokvelById(id);
+          _stokvels.add(stokvel);
+        }
+        _buildDropDown();
+      }
+      if (_member != null) {
+        await _getStokvelMembers();
+      }
+    } catch (e) {
+      print(e);
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Data retrieval failed');
+    }
     setState(() {
       isBusy = false;
     });
   }
 
+  _displayNoStokvelDialog() {
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text("Stokvel Unavailable",
+                  style: Styles.blackBoldMedium),
+              content: Container(
+                height: 200.0,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      'Your account does not belong to any Stokvels yet. You may start your own Stokvel or be invited to one.',
+                      style: Styles.blackMedium,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    color: Colors.blue,
+                    elevation: 4.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Close',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                    onPressed: _close,
+                  ),
+                ),
+              ],
+            ));
+  }
+
+  _getStokvelMembers() async {
+    print('🧩 🧩 .................... _getStokvelMembers: 🧩 ');
+    setState(() {
+      isBusy = true;
+    });
+    _members = [];
+    for (var stokvelId in _member.stokvelIds) {
+      var members = await genericBloc.getStokvelMembers(stokvelId);
+      print(
+          '🧩 🧩 .................... _getStokvelMembers: 🧩  found: ${members.length}');
+      members.forEach((m) {
+        if (m.memberId != _member.memberId) {
+          _members.add(m);
+        }
+      });
+      _members.sort((a, b) => a.name.compareTo(b.name));
+    }
+    print('SendMoney:  🔵 members found: ${_members.length}');
+    if (_member.stokvelIds.length == 1) {
+      _stokvel = await ListAPI.getStokvelById(_member.stokvelIds.first);
+      prettyPrint(
+          _stokvel.toJson(), "🧡 🧡 🧡  stokvel retrieved from Firestore");
+    }
+
+    setState(() {
+      isBusy = false;
+    });
+  }
+
+  _buildDropDown() {
+    _stokvels.forEach((s) {
+      items.add(DropdownMenuItem(child: Text(s.name)));
+    });
+  }
+
   bool isBusy = false, isStokvelPayment = true;
+
+  void _displayStokvelPaymentDialog() {
+    print('🧩 🧩 ........ _displayStokvelPaymentDialog ..... ');
+  }
+
+  void _onSwitchChanged(bool value) {
+    setState(() {
+      isStokvelPayment = value;
+    });
+  }
+
+  void _startScanToPay() {
+    if (isStokvelPayment) {
+      Navigator.push(
+          context,
+          SlideRightRoute(
+              widget: PaymentScanner(
+            type: SCAN_STOKVEL_PAYMENT,
+            scannerListener: this,
+            memberId: null,
+            amount: amountController.text,
+            stokvelId: _stokvel.stokvelId,
+          )));
+    } else {
+      Navigator.push(
+          context,
+          SlideRightRoute(
+              widget: PaymentScanner(
+            type: SCAN_MEMBER_PAYMENT,
+            scannerListener: this,
+            amount: amountController.text,
+            memberId: _member.memberId,
+            stokvelId: _stokvel.stokvelId,
+          )));
+    }
+  }
+
+  _refresh() async {
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      if (_member != null) {
+        _members = await _getStokvelMembers();
+      }
+    } catch (e) {
+      print(e);
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Data refresh failed');
+    }
+    setState(() {
+      isBusy = false;
+    });
+  }
+
+  List<DropdownMenuItem<Stokvel>> items = [];
+  var amountController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _key,
       appBar: AppBar(
         title: Text('Send Money'),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.refresh), onPressed: _refresh),
+        ],
         bottom: PreferredSize(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -62,8 +212,26 @@ class _SendMoneyState extends State<SendMoney>
                     style: Styles.whiteSmall,
                   ),
                   SizedBox(
-                    height: 40,
+                    height: 28,
                   ),
+                  isBusy
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                backgroundColor: Colors.black,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 0,
+                            ),
+                          ],
+                        )
+                      : Container(),
                   Row(
                     children: <Widget>[
                       Text(
@@ -80,125 +248,129 @@ class _SendMoneyState extends State<SendMoney>
                       ),
                       Text(
                         isStokvelPayment ? 'Stokvel' : 'Member',
-                        style: Styles.blackBoldLarge,
+                        style: Styles.blackBoldMedium,
                       ),
                     ],
                   ),
                   SizedBox(
                     height: 20,
                   ),
-                  isStokvelPayment
+                  _stokvel == null
                       ? Container()
-                      : RaisedButton(
-                          color: Theme.of(context).primaryColor,
-                          elevation: 8,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              'Scan to Pay Member',
-                              style: Styles.whiteSmall,
-                            ),
-                          ),
-                          onPressed: _startScanToPay,
+                      : Text(
+                          _stokvel.name,
+                          style: Styles.whiteBoldMedium,
                         ),
                   SizedBox(
                     height: 20,
                   ),
+//                  DropdownButton(items: items, onChanged: onStokvelChanged),
+                  _stokvel == null
+                      ? Container()
+                      : TextField(
+                          style: Styles.blackBoldMedium,
+                          controller: amountController,
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
+                          decoration: InputDecoration(
+                            labelText: 'Amount',
+                            hintText: 'Enter Amount',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                  isStokvelPayment
+                      ? Container()
+                      : Column(
+                          children: <Widget>[
+                            SizedBox(
+                              height: 12,
+                            ),
+                            RaisedButton(
+                              color: Theme.of(context).primaryColor,
+                              elevation: 8,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  'Scan to Pay Member',
+                                  style: Styles.whiteSmall,
+                                ),
+                              ),
+                              onPressed: _startScanToPay,
+                            ),
+                          ],
+                        ),
+                  SizedBox(
+                    height: 8,
+                  ),
                 ],
               ),
             ),
-            preferredSize: Size.fromHeight(300)),
+            preferredSize: Size.fromHeight(400)),
       ),
       backgroundColor: Colors.brown[100],
-      body: isStokvelPayment
-          ? ListView.builder(
-              itemCount: _stokvels.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      _stokvel = _stokvels.elementAt(index);
-                      _displayStokvelPaymentDialog();
-                    },
-                    child: Card(
-                      elevation: 2,
-                      color: getRandomPastelColor(),
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.apps,
-                          color: getRandomColor(),
-                        ),
-                        title: Text(
-                          _stokvels.elementAt(index).name,
-                          style: Styles.blackBoldMedium,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              })
-          : ListView.builder(
-              itemCount: _members.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 2,
-                    color: getRandomPastelColor(),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.person,
-                        color: getRandomColor(),
-                      ),
-                      title: Text(
-                        _members.elementAt(index).name,
-                        style: Styles.blackBoldMedium,
-                      ),
-                    ),
-                  ),
-                );
-              }),
+      body: isBusy
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : isStokvelPayment ? _buildStokvelList() : _buildMemberList(),
     );
   }
 
-  void _displayStokvelPaymentDialog() {
-    print('🧩 🧩 _displayStokvelPaymentDialog ..... ');
+  ListView _buildMemberList() {
+    if (_members == null) {
+      _members = [];
+    }
+    return ListView.builder(
+        itemCount: _members.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              elevation: 2,
+              color: getRandomPastelColor(),
+              child: ListTile(
+                leading: Icon(
+                  Icons.person,
+                  color: getRandomColor(),
+                ),
+                title: Text(
+                  _members.elementAt(index).name,
+                  style: Styles.blackBoldSmall,
+                ),
+              ),
+            ),
+          );
+        });
   }
 
-  void _onSwitchChanged(bool value) {
-    setState(() {
-      isStokvelPayment = value;
-    });
-    if (!isStokvelPayment && _stokvel != null) {
-      _getStokvelMembers(_stokvel.stokvelId);
-    } else {
-      _displayStokvelPaymentDialog();
-    }
-  }
-
-  void _startScanToPay() {
-    if (isStokvelPayment) {
-      Navigator.push(
-          context,
-          SlideRightRoute(
-              widget: PaymentScanner(
-            type: SCAN_STOKVEL_PAYMENT,
-            scannerListener: this,
-            memberId: null,
-            stokvelId: _stokvel.stokvelId,
-          )));
-    } else {
-      Navigator.push(
-          context,
-          SlideRightRoute(
-              widget: PaymentScanner(
-            type: SCAN_MEMBER_PAYMENT,
-            scannerListener: this,
-            memberId: _member.memberId,
-            stokvelId: null,
-          )));
-    }
+  ListView _buildStokvelList() {
+    return ListView.builder(
+        itemCount: _stokvels.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () {
+                _stokvel = _stokvels.elementAt(index);
+                _displayStokvelPaymentDialog();
+              },
+              child: Card(
+                elevation: 2,
+                color: getRandomPastelColor(),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.apps,
+                    color: getRandomColor(),
+                  ),
+                  title: Text(
+                    _stokvels.elementAt(index).name,
+                    style: Styles.blackBoldSmall,
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -217,5 +389,18 @@ class _SendMoneyState extends State<SendMoney>
   onStokvelPayment(StokvelPayment stokvelPayment) {
     // TODO: implement onStokvelPayment
     return null;
+  }
+
+  void _close() {
+    //todo - the user is a Member who has no stokvel ... they should download admin app
+    print(
+        '🔵 🔵  the user is a Member who has no stokvel ... they should download admin app');
+    Navigator.pop(context);
+  }
+
+  void onStokvelChanged(Stokvel value) {
+    setState(() {
+      _stokvel = value;
+    });
   }
 }

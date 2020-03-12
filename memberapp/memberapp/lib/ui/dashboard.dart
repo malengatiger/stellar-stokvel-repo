@@ -42,16 +42,14 @@ class _DashboardState extends State<Dashboard> {
         });
         await genericBloc.getAccount(seed);
         _member = await genericBloc.getMember(_member.memberId);
-        setState(() {
-          setState(() {
-            isBusy = false;
-          });
-        });
       } catch (e) {
         print(e);
         AppSnackBar.showErrorSnackBar(
             scaffoldKey: _key, message: 'Data refresh failed');
       }
+      setState(() {
+        isBusy = false;
+      });
     }
   }
 
@@ -76,7 +74,7 @@ class _DashboardState extends State<Dashboard> {
           leading: Container(),
           actions: <Widget>[
             IconButton(
-              icon: Icon(Icons.camera),
+              icon: Icon(Icons.person),
               onPressed: _startQRcode,
             ),
             IconButton(

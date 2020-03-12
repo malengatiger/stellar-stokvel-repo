@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
@@ -13,6 +14,40 @@ class ListAPI {
     var mList = List<Stokvel>();
     querySnapshot.documents.forEach((doc) {
       mList.add(Stokvel.fromJson(doc.data));
+    });
+    return mList;
+  }
+
+  static Future<Stokvel> getStokvelById(String stokvelId) async {
+    var querySnapshot = await _firestore
+        .collection('stokvels')
+        .where('stokvelId', isEqualTo: stokvelId)
+        .getDocuments();
+    var mList = List<Stokvel>();
+    var stokvel;
+    ;
+    querySnapshot.documents.forEach((doc) {
+      mList.add(Stokvel.fromJson(doc.data));
+    });
+    mList.forEach((s) {
+      if (s.stokvelId == stokvelId) {
+        stokvel = s;
+      }
+    });
+    if (stokvel != null) {
+      await FileUtil.addStokvel(stokvel);
+    }
+    return stokvel;
+  }
+
+  static Future<List<Invitation>> getInvitationsByEmail(String email) async {
+    var querySnapshot = await _firestore
+        .collection('invitations')
+        .where('email', isEqualTo: email)
+        .getDocuments();
+    var mList = List<Invitation>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(Invitation.fromJson(doc.data));
     });
     return mList;
   }

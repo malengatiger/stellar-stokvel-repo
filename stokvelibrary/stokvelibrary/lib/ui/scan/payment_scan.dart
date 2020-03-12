@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/snack.dart';
@@ -12,7 +14,7 @@ const SCAN_MEMBER_PAYMENT = 'memberPayment',
     SCAN_STOKVEL_PAYMENT = 'stokvelPayment';
 
 class PaymentScanner extends StatefulWidget {
-  final String type;
+  final String type, amount;
   final String stokvelId, memberId;
   final PaymentScannerListener scannerListener;
 
@@ -21,6 +23,7 @@ class PaymentScanner extends StatefulWidget {
       @required this.type,
       @required this.scannerListener,
       this.memberId,
+      this.amount,
       @required this.stokvelId})
       : super(key: key);
 
@@ -34,10 +37,16 @@ class _PaymentScannerState extends State<PaymentScanner> {
   Stokvel _stokvel;
   bool isBusy = false, isStokvelPayment = true;
   var amountController = TextEditingController();
+  Member _member;
   @override
   initState() {
     super.initState();
     assert(widget.type != null);
+    if (widget.amount != null) {
+      amountController.text = widget.amount;
+    } else {
+      amountController.text = '0.00';
+    }
     _setPaymentType();
     _getStokkie();
   }
@@ -83,9 +92,9 @@ class _PaymentScannerState extends State<PaymentScanner> {
         title: Text('Member Payment Scan'),
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(260),
+          preferredSize: Size.fromHeight(300),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               children: <Widget>[
                 Text(
@@ -93,7 +102,19 @@ class _PaymentScannerState extends State<PaymentScanner> {
                   style: Styles.whiteSmall,
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 16,
+                ),
+                _member == null
+                    ? Text(
+                        'Member Name Here',
+                        style: Styles.whiteBoldMedium,
+                      )
+                    : Text(
+                        _member.name,
+                        style: Styles.whiteBoldMedium,
+                      ),
+                SizedBox(
+                  height: 40,
                 ),
                 TextField(
                   style: Styles.blackBoldLarge,
@@ -123,6 +144,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
         onPressed: _startScan,
         backgroundColor: Theme.of(context).accentColor,
       ),
+      backgroundColor: Colors.brown[100],
       body: isScanned
           ? Column(
               children: <Widget>[],
@@ -130,7 +152,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
           : Center(
               child: Text(
                 '${_stokvel == null ? '' : _stokvel.name}',
-                style: Styles.blackBoldMedium,
+                style: Styles.greyLabelMedium,
               ),
             ),
     );
@@ -152,16 +174,15 @@ class _PaymentScannerState extends State<PaymentScanner> {
 
       if (widget.type == SCAN_MEMBER_PAYMENT) {
         try {
-          print('will process a MEMBER payment here ...................');
-        } catch (e) {
-          print(e);
-          AppSnackBar.showErrorSnackBar(
-              scaffoldKey: _key, message: 'Unable to scan');
-        }
-      }
-      if (widget.type == SCAN_STOKVEL_PAYMENT) {
-        try {
-          print('will process a STOKVEL payment here ...................');
+          print(
+              '🍎 will 🍎 process a MEMBER 🍎 payment here ...................');
+          _member = await genericBloc.getMember(parts[0]);
+          var me = await Prefs.getMember();
+          await genericBloc.sendMemberToMemberPayment(
+            fromMember: me,
+            toMember: _member,
+            amount: amountController.text,
+          );
         } catch (e) {
           print(e);
           AppSnackBar.showErrorSnackBar(

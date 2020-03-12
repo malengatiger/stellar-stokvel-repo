@@ -38,9 +38,8 @@ class _MemberScannerState extends State<MemberScanner> {
   }
 
   void _getStokkie() async {
+    _member = await Prefs.getMember();
     if (widget.stokvelId != null) {
-      _member = await Prefs.getMember();
-    } else {
       _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
     }
     setState(() {});
@@ -84,12 +83,13 @@ class _MemberScannerState extends State<MemberScanner> {
         onPressed: _startScan,
         backgroundColor: Theme.of(context).accentColor,
       ),
+      backgroundColor: Colors.brown[100],
       body: isScanned
           ? _buildImage()
           : Center(
               child: Text(
                 '${_stokvel == null ? '' : _stokvel.name}',
-                style: Styles.blackBoldMedium,
+                style: Styles.greyLabelMedium,
               ),
             ),
     );
@@ -101,7 +101,6 @@ class _MemberScannerState extends State<MemberScanner> {
       var barcode = await scanner.scan();
       print('👌👌👌 barcode: $barcode 👌👌👌');
       setState(() => this.barcode = barcode);
-
       var decoded = base64.decode(barcode);
       String stringTitle = utf8.decode(decoded);
       print(

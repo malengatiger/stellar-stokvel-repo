@@ -6,6 +6,7 @@ import 'package:stellarplugin/data_models/account_response_bag.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/bloc/data_api.dart';
 import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
@@ -87,13 +88,25 @@ class MakerBloc {
         seed: encryptedSeed);
 
     await FileUtil.addCredential(memberCredential);
-    await Prefs.saveMember(member);
     await Prefs.saveCredential(memberCredential);
     await writeCredential(memberCredential);
-    await writeMember(member);
 
-    print('🍏 🍏 MEMBER ACCOUNT from Stellar added 🍏 🍏 🍏 🍏 🍏 🍏 ');
+    var invites = await getInvitations(member);
+    invites.forEach((i) {
+      member.stokvelIds.add(i.stokvel.stokvelId);
+      print(
+          '🍏 🍏 MEMBER ACCOUNT: added stokvel to account: ${i.stokvel.name}');
+    });
+    await writeMember(member);
+    await Prefs.saveMember(member);
+    print('🍏 🍏 MEMBER ACCOUNT from Stellar added. 🍏 🍏 🍏 Yebo! 🍏 🍏 🍏 ');
     return member;
+  }
+
+  Future<List<Invitation>> getInvitations(Member member,
+      {bool updateMember = false}) async {
+    var invites = await ListAPI.getInvitationsByEmail(member.email);
+    return invites;
   }
 
   Future<StokkieCredential> createStokvelAccount(Stokvel stokvel) async {
@@ -116,8 +129,6 @@ class MakerBloc {
   static const String em1 = '🔆', em2 = '🔵 🔵 🔵';
   static const chacha20 = "ChaCha20/12";
   Future createNewStokvelAndAdmin(Member member, Stokvel stokvel) async {
-    member.stokvelIds.add(stokvel.stokvelId);
-
     var stokvelAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     stokvel.accountId = stokvelAccount.accountResponse.accountId;
     prettyPrint(
@@ -125,10 +136,9 @@ class MakerBloc {
 
     var memberAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     member.accountId = memberAccount.accountResponse.accountId;
-    var uuid = Uuid();
-    member.memberId = uuid.v1();
-    prettyPrint(memberAccount.toJson(), '🔑 🔑 🔑 Member Account 🔑 🔑 🔑');
-
+    member.stokvelIds.add(stokvel.stokvelId);
+    prettyPrint(memberAccount.toJson(),
+        '🔑 🔑 🔑 Member Account from Stellar 🔑 🔑 🔑');
     print('🍏 🍏 ACCOUNTS from Stellar seem OK 🍏 🍏 🍏 🍏 🍏 🍏 ');
 
     Prefs.addStokvelAccountResponseBag(stokvelAccount);
@@ -136,11 +146,10 @@ class MakerBloc {
 
     var fortunaKey = CryptKey().genFortuna();
     var cryptKey = CryptKey().genDart(8);
-
     assert(fortunaKey != null);
     assert(cryptKey != null);
 
-    var encrypted = encrypt(
+    var encryptedStokkieSeed = encrypt(
         seed: stokvelAccount.secretSeed,
         fortunaKey: fortunaKey,
         cryptKey: cryptKey);
@@ -150,10 +159,13 @@ class MakerBloc {
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
-        seed: encrypted);
+        seed: encryptedStokkieSeed);
     await FileUtil.addCredential(stokvelCredential);
 
-    var encrypted2 = encrypt(
+    //
+    fortunaKey = CryptKey().genFortuna();
+    cryptKey = CryptKey().genDart(8);
+    var encryptedMemberSeed = encrypt(
         seed: stokvelAccount.secretSeed,
         fortunaKey: fortunaKey,
         cryptKey: cryptKey);
@@ -163,17 +175,21 @@ class MakerBloc {
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
-        seed: encrypted2);
+        seed: encryptedMemberSeed);
 
     await FileUtil.addMember(member);
     await FileUtil.addStokvel(stokvel);
     await FileUtil.addCredential(memberCredential);
+    await FileUtil.addCredential(stokvelCredential);
+    prettyPrint(member.toJson(),
+        '🌽 🌽 🌽 Member about to be cached in Prefs ...🌽 🌽 🌽 check for stokvelIds ...');
     await Prefs.saveMember(member);
     await Prefs.saveCredential(memberCredential);
 
     print(
         '🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵  🍎 Trying to write to Firestore without shitting the bed !  🍎  🔵  🔵  🔵  🔵  🔵  🔵  🔵  🔵 ');
     await writeCredential(stokvelCredential);
+    await writeCredential(memberCredential);
     await writeMember(member);
     await writeStokvel(stokvel);
   }
