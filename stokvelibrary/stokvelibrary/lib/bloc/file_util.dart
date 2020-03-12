@@ -15,7 +15,7 @@ class FileUtil {
     await _prepareDirPath(credPath);
     var credentials = await getCredentials();
     if (credentials == null) {
-      credentials = StellarCredentials([]);
+      credentials = StokkieCredentials([]);
     }
     credentials.credentials.add(credential);
     var mJson = jsonEncode(credentials.toJson());
@@ -24,7 +24,21 @@ class FileUtil {
         '🌎 StellarCredential just added to file has ${credentials.credentials.length} credentials ...');
   }
 
-  static Future<StellarCredentials> getCredentials() async {
+  static Future<StokkieCredential> getCredentialByStokvel(
+      String stokvelId) async {
+    StokkieCredentials creds = await getCredentials();
+    StokkieCredential credential;
+    creds.credentials.forEach((c) {
+      if (stokvelId == c.stokvelId) {
+        credential = c;
+      }
+    });
+    print(
+        '🌎 🌎 🌎 getCredentials: Cache file has 🍎 ${creds.credentials.length} 🍎 StellarCredentials ...');
+    return credential;
+  }
+
+  static Future<StokkieCredentials> getCredentials() async {
     await _prepareDirPath(credPath);
     var string = await _readFile();
     if (string == null) {
@@ -32,7 +46,7 @@ class FileUtil {
       return null;
     }
     var mJson = jsonDecode(string);
-    var creds = StellarCredentials.fromJson(mJson);
+    var creds = StokkieCredentials.fromJson(mJson);
     print(
         '🌎 🌎 🌎 getCredentials: Cache file has 🍎 ${creds.credentials.length} 🍎 StellarCredentials ...');
     return creds;

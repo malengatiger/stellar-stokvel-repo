@@ -16,6 +16,7 @@ import 'package:stokvelibrary/bloc/data_api.dart';
 import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
+import 'package:stokvelibrary/functions.dart';
 
 import 'list_api.dart';
 import 'maker.dart';
@@ -31,6 +32,7 @@ class GenericBloc {
   List<Contact> _contacts = [];
 
   List<AccountResponse> _accountResponses = List();
+  List<AccountResponse> _stokkieAccountResponses = List();
   FirebaseMessaging fcm = FirebaseMessaging();
   StreamController<List<Member>> _memberController =
       StreamController.broadcast();
@@ -45,6 +47,8 @@ class GenericBloc {
   StreamController<List<Contact>> _contactController =
       StreamController.broadcast();
   StreamController<List<AccountResponse>> _accountResponseController =
+      StreamController.broadcast();
+  StreamController<List<AccountResponse>> _stokkieAccountResponseController =
       StreamController.broadcast();
 
   Stream<List<Member>> get memberStream => _memberController.stream;
@@ -64,6 +68,7 @@ class GenericBloc {
     _credController.close();
     _contactController.close();
     _accountResponseController.close();
+    _stokkieAccountResponseController.close();
   }
 
   Future configureFCM() async {
@@ -74,6 +79,7 @@ class GenericBloc {
         String messageType = message['data']['type'];
         print(
             "\n\n️♻️♻️♻️️♻️♻️♻️  ✳️ ✳️ ✳️ ✳️ GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
+        prettyPrint(message, '♻️♻️♻️️♻️♻️ message RECEIVED via FCM');
         switch (messageType) {
           case 'stokvels':
             print("✳️ ✳️ FCM onMessage messageType: 🍎 STOKVELS arrived 🍎");
@@ -246,6 +252,32 @@ class GenericBloc {
     return accountResponse;
   }
 
+  Future<AccountResponse> getStokvelAccount(String stokvelId) async {
+    //get stokvel cred to get balance
+    var cred = await FileUtil.getCredentialByStokvel(stokvelId);
+    AccountResponse accountResponse;
+    if (cred != null) {
+      var encryptedSeed = cred.seed;
+      var seed = makerBloc.decrypt(
+          encryptedSeed: encryptedSeed,
+          cryptKey: cred.cryptKey,
+          fortunaKey: cred.fortunaKey);
+      accountResponse = await Stellar.getAccount(seed: seed);
+      _stokkieAccountResponses.add(accountResponse);
+      _stokkieAccountResponseController.sink.add(_accountResponses);
+      print(
+          '🍎 GenericBloc 🍎  stokvel account response from 🧡 Stellar Network 🍎 '
+          'balances: ${accountResponse.balances.length} responses in list: ${_accountResponses.length}');
+      accountResponse.balances.forEach((bal) {
+        print('🧡 🧡 🧡 STOKVEL Balance: ${bal.balance} of ${bal.assetType}');
+      });
+    } else {
+      throw Exception('Stokvel credential not found');
+    }
+
+    return accountResponse;
+  }
+
   Future<Member> getMember(String memberId) async {
     var member = await ListAPI.getMember(memberId);
     await FileUtil.addMember(member);
@@ -316,7 +348,11 @@ class GenericBloc {
     var res =
         await DataAPI.sendStokvelPaymentToStellar(payment: payment, seed: seed);
     _stokvelPayments.add(res);
-
+    _stokvelPaymentController.add(_stokvelPayments);
+    //todo - check account after transaction
+    var updatedAcct = await getStokvelAccount(stokvel.stokvelId);
+    prettyPrint(
+        updatedAcct.toJson(), '🧡 Updated stokvel account, check balance ....');
     return res;
   }
 

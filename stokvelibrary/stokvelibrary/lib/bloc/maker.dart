@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:steel_crypt/steel_crypt.dart';
@@ -18,6 +19,7 @@ bool isDevelopmentStatus = true;
 
 class MakerBloc {
   Firestore fs = Firestore.instance;
+  FirebaseMessaging auth = FirebaseMessaging();
 
   MakerBloc() {
     _getStatus();
@@ -66,13 +68,14 @@ class MakerBloc {
     member.accountId = memberAccountResponse.accountResponse.accountId;
     var uuid = Uuid();
     member.memberId = uuid.v1();
+    var token = await auth.getToken();
+    member.fcmToken = token;
     print('$em2 DataAPI: MEMBER accountId has been set ${member.accountId}...');
     Prefs.addMemberAccountResponseBag(memberAccountResponse);
     await FileUtil.addMember(member);
 
     var fortunaKey = CryptKey().genFortuna();
     var cryptKey = CryptKey().genDart(8);
-
     assert(fortunaKey != null);
     assert(cryptKey != null);
 
@@ -137,6 +140,8 @@ class MakerBloc {
     var memberAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     member.accountId = memberAccount.accountResponse.accountId;
     member.stokvelIds.add(stokvel.stokvelId);
+    var token = await auth.getToken();
+    member.fcmToken = token;
     prettyPrint(memberAccount.toJson(),
         '🔑 🔑 🔑 Member Account from Stellar 🔑 🔑 🔑');
     print('🍏 🍏 ACCOUNTS from Stellar seem OK 🍏 🍏 🍏 🍏 🍏 🍏 ');
@@ -159,7 +164,9 @@ class MakerBloc {
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
-        seed: encryptedStokkieSeed);
+        seed: encryptedStokkieSeed,
+        stokvelId: stokvel.stokvelId,
+        memberId: null);
     await FileUtil.addCredential(stokvelCredential);
 
     //
@@ -175,7 +182,9 @@ class MakerBloc {
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
-        seed: encryptedMemberSeed);
+        seed: encryptedMemberSeed,
+        stokvelId: null,
+        memberId: member.memberId);
 
     await FileUtil.addMember(member);
     await FileUtil.addStokvel(stokvel);
@@ -197,6 +206,8 @@ class MakerBloc {
   Future createNewStokvelWithExistingMember(
       Member member, Stokvel stokvel) async {
     member.stokvelIds.add(stokvel.stokvelId);
+    var token = await auth.getToken();
+    member.fcmToken = token;
 
     var stokvelAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     stokvel.accountId = stokvelAccount.accountResponse.accountId;

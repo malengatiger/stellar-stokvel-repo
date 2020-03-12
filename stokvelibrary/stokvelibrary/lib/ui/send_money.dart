@@ -135,6 +135,62 @@ class _SendMoneyState extends State<SendMoney>
 
   void _displayStokvelPaymentDialog() {
     print('🧩 🧩 ........ _displayStokvelPaymentDialog ..... ');
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text("Stokvel Unavailable",
+                  style: Styles.blackBoldMedium),
+              content: Container(
+                height: 140.0,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      'You are about to make a Stokvel payment of ${amountController.text} to ${_stokvel.name}',
+                      style: Styles.blackSmall,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: FlatButton(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Cancel',
+                        style: Styles.pinkBoldSmall,
+                      ),
+                    ),
+                    onPressed: _close,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    color: Colors.blue,
+                    elevation: 4.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Send Payment',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                    onPressed: _sendStokkiePayment,
+                  ),
+                ),
+              ],
+            ));
+  }
+
+  void _sendStokkiePayment() async {
+    var me = await Prefs.getMember();
+    await genericBloc.sendStokvelPayment(
+        member: me, amount: amountController.text, stokvel: _stokvel);
   }
 
   void _onSwitchChanged(bool value) {

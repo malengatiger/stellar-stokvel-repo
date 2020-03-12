@@ -55,7 +55,7 @@ class Prefs {
     final preferences = await SharedPreferences.getInstance();
     var creds = await getStokvelCredentials();
     if (creds == null) {
-      creds = StellarCredentials([credential]);
+      creds = StokkieCredentials([credential]);
     } else {
       creds.credentials.add(credential);
     }
@@ -63,7 +63,7 @@ class Prefs {
     print('🔵 🔵 🔵 Prefs: Stellar credential cached ... 🍎 🍎 ');
   }
 
-  static Future<StellarCredentials> getStokvelCredentials() async {
+  static Future<StokkieCredentials> getStokvelCredentials() async {
     print('🔵 🔵 🔵 Prefs: getting Stellar credentials cached ...');
     final preferences = await SharedPreferences.getInstance();
     var b = preferences.getString('stokvelseed');
@@ -71,7 +71,7 @@ class Prefs {
       return null;
     } else {
       var mJson = jsonDecode(b);
-      var creds = StellarCredentials.fromJson(mJson);
+      var creds = StokkieCredentials.fromJson(mJson);
       print(
           '🔵 🔵 🔵 Prefs: Credentials retrieved, creds: ${creds.credentials.length} 🍏 🍏 ');
       return creds;

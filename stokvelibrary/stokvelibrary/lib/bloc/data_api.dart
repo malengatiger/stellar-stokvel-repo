@@ -205,11 +205,13 @@ class DataAPI {
         destinationAccount: payment.stokvel.accountId,
         amount: payment.amount,
         memo: 'STOKVEL');
-    print('Stokvel payment successful on Stellar. Will cache on Firestore');
+    print(
+        '👌🏾👌🏾👌🏾 Stokvel payment successful on Stellar. 🧩 Will cache on Firestore');
     payment.stellarHash = res.hash;
     var ref =
         await _firestore.collection('stokvelPayments').add(payment.toJson());
-    print('${ref.path} - payment added to Firestore after Stellar transaction');
+    print(
+        '${ref.path} - 🧩 payment added to Firestore after Stellar transaction');
     return payment;
   }
 

@@ -34,7 +34,7 @@ class Stokvel {
 }
 
 class Member {
-  String name, cellphone, email, date, memberId, accountId, url;
+  String name, cellphone, email, date, memberId, accountId, url, fcmToken;
   bool isActive;
   List<String> stokvelIds;
 
@@ -45,6 +45,7 @@ class Member {
       @required this.cellphone,
       @required this.date,
       @required this.url,
+      @required this.fcmToken,
       @required this.accountId,
       @required this.stokvelIds,
       @required this.isActive});
@@ -52,6 +53,7 @@ class Member {
   Member.fromJson(Map map) {
     name = map['name'];
     url = map['url'];
+    fcmToken = map['fcmToken'];
     memberId = map['memberId'];
     accountId = map['accountId'];
     cellphone = map['cellphone'];
@@ -72,6 +74,7 @@ class Member {
     Map<String, dynamic> map = {
       'name': name,
       'url': url,
+      'fcmToken': fcmToken,
       'memberId': memberId,
       'accountId': accountId,
       'cellphone': cellphone,
@@ -201,12 +204,14 @@ class Invitation {
 }
 
 class StokkieCredential {
-  String accountId, date, seed, cryptKey, fortunaKey;
+  String accountId, date, seed, cryptKey, fortunaKey, stokvelId, memberId;
   StokkieCredential({
     @required this.accountId,
     @required this.date,
     @required this.cryptKey,
-    this.fortunaKey,
+    @required this.fortunaKey,
+    @required this.stokvelId,
+    @required this.memberId,
     @required this.seed,
   });
 
@@ -214,6 +219,8 @@ class StokkieCredential {
     accountId = map['accountId'];
     date = map['date'];
     seed = map['seed'];
+    memberId = map['memberId'];
+    stokvelId = map['stokvelId'];
     cryptKey = map['cryptKey'];
     fortunaKey = map['fortunaKey'];
   }
@@ -222,6 +229,8 @@ class StokkieCredential {
     Map<String, dynamic> map = {
       'accountId': accountId,
       'seed': seed,
+      'memberId': memberId,
+      'stokvelId': stokvelId,
       'date': date,
       'cryptKey': cryptKey,
       'fortunaKey': fortunaKey,
@@ -230,12 +239,12 @@ class StokkieCredential {
   }
 }
 
-class StellarCredentials {
+class StokkieCredentials {
   List<StokkieCredential> credentials;
 
-  StellarCredentials(this.credentials);
+  StokkieCredentials(this.credentials);
 
-  StellarCredentials.fromJson(Map map) {
+  StokkieCredentials.fromJson(Map map) {
     credentials = List();
     if (map['credentials'] != null) {
       List mm = map['credentials'];
