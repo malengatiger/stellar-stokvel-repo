@@ -71,6 +71,10 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
     Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
   }
 
+  Drawer _getDrawer() {
+    return Drawer();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -80,7 +84,13 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
       child: Scaffold(
         key: _key,
         appBar: AppBar(
-          leading: Container(),
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              print('💛️ 💛️ .... open drawer ....');
+              _key.currentState.openDrawer();
+            },
+          ),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.person),
@@ -160,6 +170,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         ),
         backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(TYPE_ADMIN),
+        drawer: StokkieDrawer(),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
@@ -198,4 +209,114 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         '🌶 ${member.stokvelIds.length} stokvels 🌶 💦 💦 💦 ');
     prettyPrint(member.toJson(), '💦 💦 💦 member, check data ...');
   }
+}
+
+class StokkieDrawer extends StatelessWidget {
+  final DrawerListener listener;
+
+  const StokkieDrawer({Key key, this.listener}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      elevation: 8,
+      child: ListView(
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/download3.jpeg"),
+                    fit: BoxFit.cover)),
+            child: Container(),
+          ),
+          SizedBox(
+            height: 40,
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onStokvelStatementRequested();
+            },
+            child: ListTile(
+              title: Text("Stokvel Statements"),
+              leading: Icon(
+                Icons.format_list_bulleted,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onMemberStatementRequested();
+            },
+            child: ListTile(
+              title: Text("Member Statements"),
+              leading: Icon(
+                Icons.format_list_bulleted,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onQRCodeRequested();
+            },
+            child: ListTile(
+              title: Text("Display QR code"),
+              leading: Icon(
+                Icons.person,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onMembershipScannerRequested();
+            },
+            child: ListTile(
+              title: Text("Scan New Member"),
+              leading: Icon(
+                Icons.camera,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onWelcomeRequested();
+            },
+            child: ListTile(
+              title: Text("Information"),
+              leading: Icon(
+                Icons.info_outline,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onRandomThemeRequested();
+            },
+            child: ListTile(
+              title: Text("Change Color Scheme"),
+              leading: Icon(
+                Icons.apps,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+abstract class DrawerListener {
+  onQRCodeRequested();
+  onMembershipScannerRequested();
+  onRandomThemeRequested();
+  onWelcomeRequested();
+  onRefreshRequested();
+  onStokvelAccountRefreshRequested();
+  onInvitationsRequested();
+  onMemberStatementRequested();
+  onStokvelStatementRequested();
 }
