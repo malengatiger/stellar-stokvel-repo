@@ -187,10 +187,44 @@ class _SendMoneyState extends State<SendMoney>
             ));
   }
 
+  void _dismissKeyboard() {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+  }
+
   void _sendStokkiePayment() async {
-    var me = await Prefs.getMember();
-    await genericBloc.sendStokvelPayment(
-        member: me, amount: amountController.text, stokvel: _stokvel);
+    Navigator.pop(context);
+    _dismissKeyboard();
+    double amount = double.parse(amountController.text);
+    if (amount == 0) {
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Please enter amount');
+      return;
+    }
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      var me = await Prefs.getMember();
+      var res = await genericBloc.sendStokvelPayment(
+          member: me, amount: amountController.text, stokvel: _stokvel);
+      prettyPrint(res.toJson(), "🍎 Stokvel Payment Result 🍎 ");
+      AppSnackBar.showSnackBar(
+          scaffoldKey: _key,
+          message: 'Stokvel Payment Succeeded',
+          textColor: Colors.lightGreen,
+          backgroundColor: Colors.black);
+    } catch (e) {
+      print(e);
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Stokvel Payment failed');
+    }
+
+    setState(() {
+      isBusy = false;
+    });
   }
 
   void _onSwitchChanged(bool value) {

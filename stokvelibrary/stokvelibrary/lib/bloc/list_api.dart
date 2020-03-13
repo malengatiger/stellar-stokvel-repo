@@ -82,7 +82,25 @@ class ListAPI {
       mList.add(StokkieCredential.fromJson(doc.data));
     });
     print(
-        '🔵 🔵 ListAPI: getStokvelCredential found 🔵 ${mList.length} 🔵 creds');
+        '🔵 🔵 ListAPI: getStokvelCredential found on Firestore 🔵 ${mList.length} 🔵 creds');
+    if (mList.isNotEmpty) {
+      return mList.elementAt(0);
+    }
+    return null;
+  }
+
+  static Future<StokkieCredential> getMemberCredential(String memberId) async {
+    var querySnapshot = await _firestore
+        .collection('creds')
+        .where('memberId', isEqualTo: memberId)
+        .limit(1)
+        .getDocuments();
+    var mList = List<StokkieCredential>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(StokkieCredential.fromJson(doc.data));
+    });
+    print(
+        '🔵 🔵 ListAPI: getMemberCredential found on Firestore 🔵 ${mList.length} 🔵 creds');
     if (mList.isNotEmpty) {
       return mList.elementAt(0);
     }
@@ -103,16 +121,16 @@ class ListAPI {
     return mList;
   }
 
-  static Future<List<StokvelPayment>> getMemberPayments(String memberId) async {
+  static Future<List<MemberPayment>> getMemberPayments(String memberId) async {
     var querySnapshot = await _firestore
         .collection('memberPayments')
         .orderBy('date', descending: true)
         .where('memberId', isEqualTo: memberId)
         .limit(200)
         .getDocuments();
-    var mList = List<StokvelPayment>();
+    var mList = List<MemberPayment>();
     querySnapshot.documents.forEach((doc) {
-      mList.add(StokvelPayment.fromJson(doc.data));
+      mList.add(MemberPayment.fromJson(doc.data));
     });
     return mList;
   }

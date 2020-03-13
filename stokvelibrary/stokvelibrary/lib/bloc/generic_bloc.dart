@@ -56,9 +56,14 @@ class GenericBloc {
   Stream<List<StokkieCredential>> get credStream => _credController.stream;
   Stream<List<MemberPayment>> get memberPaymentStream =>
       _memberPaymentController.stream;
+  Stream<List<StokvelPayment>> get stokvelPaymentStream =>
+      _stokvelPaymentController.stream;
   Stream<List<Contact>> get contactStream => _contactController.stream;
+
   Stream<List<AccountResponse>> get accountResponseStream =>
       _accountResponseController.stream;
+  Stream<List<AccountResponse>> get stokvelAccountResponseStream =>
+      _stokkieAccountResponseController.stream;
 
   void close() {
     _memberPaymentController.close();
@@ -339,7 +344,7 @@ class GenericBloc {
       @required Stokvel stokvel}) async {
     var seed = await makerBloc.getDecryptedSeedFromCache();
     if (seed == null) {
-      throw Exception('Seed not found, cannot do payment');
+      throw Exception('Seed not found on Firestore, cannot do payment');
     }
     var payment = StokvelPayment(
       member: member,
@@ -353,7 +358,10 @@ class GenericBloc {
         await DataAPI.sendStokvelPaymentToStellar(payment: payment, seed: seed);
     _stokvelPayments.add(res);
     _stokvelPaymentController.add(_stokvelPayments);
-    //todo - check account after transaction
+
+    //todo - check account after transaction; REMOVE after test
+    print(
+        '🌎 🌎 🌎 🌎 check account after transaction; 🌎 🌎 🌎 🌎 REMOVE after test');
     var updatedAcct = await getStokvelAccount(stokvel.stokvelId);
     prettyPrint(
         updatedAcct.toJson(), '🧡 Updated stokvel account, check balance ....');
@@ -394,6 +402,15 @@ class GenericBloc {
     _stokvelPayments = filtered;
     _stokvelPaymentController.sink.add(_stokvelPayments);
     return _stokvelPayments;
+  }
+
+  Future getMemberPayments(String memberId) async {
+    if (_member == null) {
+      _member = await getCachedMember();
+    }
+    _memberPayments = await ListAPI.getMemberPayments(memberId);
+    _memberPaymentController.sink.add(_memberPayments);
+    return _memberPayments;
   }
 
   Future<List<Stokvel>> getStokvelsAdministered(String memberId) async {

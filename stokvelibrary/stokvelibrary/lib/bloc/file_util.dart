@@ -17,7 +17,14 @@ class FileUtil {
     if (credentials == null) {
       credentials = StokkieCredentials([]);
     }
-    credentials.credentials.add(credential);
+    var tempList = List<StokkieCredential>();
+    credentials.credentials.forEach((s) {
+      if (s.stokvelId != credential.stokvelId) {
+        tempList.add(s);
+      }
+    });
+    tempList.add(credential);
+    credentials.credentials = tempList;
     var mJson = jsonEncode(credentials.toJson());
     await _writeFile(mJson);
     print(
@@ -58,7 +65,14 @@ class FileUtil {
     if (stokvels == null) {
       stokvels = Stokvels([]);
     }
-    stokvels.stokvels.add(stokvel);
+    var tempList = List<Stokvel>();
+    stokvels.stokvels.forEach((s) {
+      if (s.stokvelId != stokvel.stokvelId) {
+        tempList.add(s);
+      }
+    });
+    tempList.add(stokvel);
+    stokvels.stokvels = tempList;
     var mJson = jsonEncode(stokvels.toJson());
     await _writeFile(mJson);
     print(
@@ -96,7 +110,14 @@ class FileUtil {
     if (members == null) {
       members = Members([]);
     }
-    members.members.add(member);
+    var tempList = List<Member>();
+    members.members.forEach((s) {
+      if (s.memberId != member.memberId) {
+        tempList.add(s);
+      }
+    });
+    tempList.add(member);
+    members.members = tempList;
     var mJson = jsonEncode(members.toJson());
     await _writeFile(mJson);
     print(

@@ -55,6 +55,18 @@ class MakerBloc {
     return res.path;
   }
 
+  Future<String> writeStokvelPayment(StokvelPayment payment) async {
+    var res = await fs.collection('stokvelPayments').add(payment.toJson());
+    print('🔵 🔵 StokvelPayment added to Firestore, 🍎 path ${res.path}');
+    return res.path;
+  }
+
+  Future<String> writeMemberPayment(MemberPayment payment) async {
+    var res = await fs.collection('memberPayments').add(payment.toJson());
+    print('🔵 🔵 MemberPayment added to Firestore, 🍎 path ${res.path}');
+    return res.path;
+  }
+
   Future<String> writeCredential(StokkieCredential cred) async {
     var res = await fs.collection('creds').add(cred.toJson());
     print('🔵 🔵 cred added to Firestore, 🍎 path ${res.path}');
@@ -140,11 +152,15 @@ class MakerBloc {
     var memberAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     member.accountId = memberAccount.accountResponse.accountId;
     member.stokvelIds.add(stokvel.stokvelId);
+    stokvel.adminMember = member;
+
     var token = await auth.getToken();
     member.fcmToken = token;
     prettyPrint(memberAccount.toJson(),
         '🔑 🔑 🔑 Member Account from Stellar 🔑 🔑 🔑');
     print('🍏 🍏 ACCOUNTS from Stellar seem OK 🍏 🍏 🍏 🍏 🍏 🍏 ');
+    print(
+        '🍏 🍏 compare seeds: stokvelAccount: ${stokvelAccount.secretSeed}  🔴  memberAccount: ${memberAccount.secretSeed} 🍏 🍏 🍏 🍏 🍏 🍏 ');
 
     Prefs.addStokvelAccountResponseBag(stokvelAccount);
     Prefs.addMemberAccountResponseBag(memberAccount);
@@ -167,25 +183,31 @@ class MakerBloc {
         seed: encryptedStokkieSeed,
         stokvelId: stokvel.stokvelId,
         memberId: null);
-    await FileUtil.addCredential(stokvelCredential);
-
     //
-    fortunaKey = CryptKey().genFortuna();
-    cryptKey = CryptKey().genDart(8);
+    var fortunaKey2 = CryptKey().genFortuna();
+    var cryptKey2 = CryptKey().genDart(8);
     var encryptedMemberSeed = encrypt(
-        seed: stokvelAccount.secretSeed,
-        fortunaKey: fortunaKey,
-        cryptKey: cryptKey);
+        seed: memberAccount.secretSeed,
+        fortunaKey: fortunaKey2,
+        cryptKey: cryptKey2);
 
     var memberCredential = StokkieCredential(
         accountId: memberAccount.accountResponse.accountId,
         date: DateTime.now().toUtc().toIso8601String(),
-        fortunaKey: fortunaKey,
-        cryptKey: cryptKey,
+        fortunaKey: fortunaKey2,
+        cryptKey: cryptKey2,
         seed: encryptedMemberSeed,
         stokvelId: null,
         memberId: member.memberId);
 
+    await _saveData(member, stokvel, memberCredential, stokvelCredential);
+  }
+
+  Future _saveData(
+      Member member,
+      Stokvel stokvel,
+      StokkieCredential memberCredential,
+      StokkieCredential stokvelCredential) async {
     await FileUtil.addMember(member);
     await FileUtil.addStokvel(stokvel);
     await FileUtil.addCredential(memberCredential);
@@ -278,10 +300,14 @@ class MakerBloc {
   Future<String> getDecryptedSeedFromCache() async {
     var cred = await Prefs.getCredential();
     if (cred != null) {
+      prettyPrint(cred.toJson(),
+          'getDecryptedSeedFromCache: .............. CRED retrieved from cache');
       var seed = decrypt(
           encryptedSeed: cred.seed,
           cryptKey: cred.cryptKey,
           fortunaKey: cred.fortunaKey);
+      print(
+          'decrypted seed from cache, this should be the member seed: 🍎 $seed 🍎 ');
       return seed;
     } else {
       throw Exception('No credential on file');

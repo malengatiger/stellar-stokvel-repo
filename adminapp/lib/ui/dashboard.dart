@@ -2,13 +2,11 @@ import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
-import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
-import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
@@ -24,6 +22,10 @@ class _DashboardState extends State<Dashboard>
   Member _member;
   var _key = GlobalKey<ScaffoldState>();
   bool isBusy = false;
+  List<Widget> _widgets = [];
+  AccountResponse memberResponse;
+  List<AccountResponse> stokvelResponses = List();
+
   @override
   initState() {
     super.initState();
@@ -32,28 +34,19 @@ class _DashboardState extends State<Dashboard>
 
   _getMember() async {
     _member = await Prefs.getMember();
-//    _refresh();
+    _getDashboardWidgets();
     genericBloc.configureFCM();
     setState(() {});
   }
 
   _refresh() async {
-    print('  🔵 🔵 🔵 Dashboard: _refresh data ...................');
-    try {
-      setState(() {
-        isBusy = true;
-      });
-      var seed = await makerBloc.getDecryptedSeedFromCache();
-      await genericBloc.getAccount(seed);
-      setState(() {
-        isBusy = false;
-      });
-    } catch (e) {
-      print(e);
-      AppSnackBar.showErrorSnackBar(
-          scaffoldKey: _key,
-          message: 'Problems! Credential not found or other shit');
-    }
+    print(
+        '  🔵 🔵 🔵 Dashboard: _refresh data from 🍏 Stellar and Firestore 🍏 ...................');
+    setState(() {
+      _widgets.clear();
+    });
+    _getDashboardWidgets();
+    setState(() {});
   }
 
   _startScanner() async {
@@ -68,7 +61,7 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  _startQRcode() async {
+  _startQRCode() async {
     Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
   }
 
@@ -91,7 +84,7 @@ class _DashboardState extends State<Dashboard>
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.person),
-              onPressed: _startQRcode,
+              onPressed: _startQRCode,
             ),
             IconButton(
               icon: Icon(Icons.camera),
@@ -166,23 +159,49 @@ class _DashboardState extends State<Dashboard>
         drawer: StokkieDrawer(
           listener: this,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView(
-            children: <Widget>[
-              StreamBuilder<List<AccountResponse>>(
-                  stream: genericBloc.accountResponseStream,
-                  builder: (context, snapshot) {
-                    return MemberAccountCard(
-                      accountResponse:
-                          snapshot.data == null ? null : snapshot.data.last,
-                    );
-                  }),
-            ],
-          ),
-        ),
+        body: isBusy
+            ? Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 4,
+                  backgroundColor: Colors.black,
+                ),
+              )
+            : _member == null
+                ? Container()
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView(
+                      children: _widgets,
+                    ),
+                  ),
       ),
     );
+  }
+
+  void _getDashboardWidgets() {
+    //add account cards
+    print(
+        '.................  🔴 getting dashboard widgets .........................');
+    prettyPrint(_member.toJson(), 'MEMBER');
+    _widgets.clear();
+    _widgets.add(MemberAccountCard(
+      memberId: _member.memberId,
+    ));
+    _widgets.add(SizedBox(
+      height: 8,
+    ));
+
+    _member.stokvelIds.forEach((stokvelId) {
+      _widgets.add(MemberAccountCard(
+        stokvelId: stokvelId,
+      ));
+    });
+    _widgets.add(SizedBox(
+      height: 20,
+    ));
+    print(
+        '...................  🔴 _getDashboardWidgets: ${_widgets.length} widgets added to dashboard');
+    setState(() {});
   }
 
   void _startWelcome(BuildContext context) {
@@ -214,11 +233,6 @@ class _DashboardState extends State<Dashboard>
   }
 
 //drawer
-  @override
-  onInvitationsRequested() {
-    // TODO: implement onInvitationsRequested
-    return null;
-  }
 
   @override
   onMemberStatementRequested() {
@@ -233,7 +247,7 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onQRCodeRequested() {
-    _startQRcode();
+    _startQRCode();
   }
 
   @override
@@ -369,7 +383,6 @@ abstract class StokkieDrawerListener {
   onWelcomeRequested();
   onRefreshRequested();
   onStokvelAccountRefreshRequested();
-  onInvitationsRequested();
   onMemberStatementRequested();
   onStokvelStatementRequested();
 }

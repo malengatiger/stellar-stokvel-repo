@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/functions.dart';
 
 class MemberAccountCard extends StatefulWidget {
-  final AccountResponse accountResponse;
+  final String stokvelId, memberId;
   final double height, width;
 
   const MemberAccountCard(
-      {Key key, this.accountResponse, this.height, this.width})
+      {Key key, this.stokvelId, this.memberId, this.height, this.width})
       : super(key: key);
 
   @override
@@ -18,56 +19,71 @@ class MemberAccountCard extends StatefulWidget {
 
 class _MemberAccountCardState extends State<MemberAccountCard> {
   bool isBusy = false;
-  String _seed;
   AccountResponse _accountResponse;
   @override
   void initState() {
     super.initState();
-    _accountResponse = widget.accountResponse;
-    _refreshAccount();
+    print(
+        '...................  🔴 MemberAccountCard: initStatem getting account .. '
+        '🍏 stokvelId: ${widget.stokvelId} memberId: ${widget.memberId}  🔴  🔴 ');
+    _getAccount();
   }
 
-  _refreshAccount() async {
+  _getAccount() async {
     print(
-        ' 🔵 🔵 🔵 🔵 _MemberAccountCardState 🔵 🔵 🔵 🔵 🔵 refresh account ...... 🔵 🔵 🔵');
+        '...................  🔴 Getting account for either stokvel or member');
     setState(() {
       isBusy = true;
     });
-    try {
-      _seed = await makerBloc.getDecryptedSeedFromCache();
-      _accountResponse = await genericBloc.getAccount(_seed);
-      _rows.clear();
-      _accountResponse.balances.forEach((a) {
-        _rows.add(DataRow(cells: [
-          DataCell(a.assetType == 'native'
-              ? Text(
-                  'XLM',
-                  style: Styles.greyLabelSmall,
-                )
-              : Text(
-                  a.assetType,
-                  style: Styles.blackBoldSmall,
-                )),
-          DataCell(Text(
-            getFormattedAmount(a.balance, context),
-            style: Styles.tealBoldMedium,
-          )),
-        ]));
-      });
-    } catch (e) {
-      print(e);
+    if (widget.stokvelId == null && widget.memberId == null) {
+      throw Exception('Missing stokvelId or memberId');
     }
+    if (widget.stokvelId != null) {
+      var cred = await ListAPI.getStokvelCredential(widget.stokvelId);
+      var seed = makerBloc.getDecryptedSeed(cred);
+      _accountResponse = await genericBloc.getAccount(seed);
+    }
+    if (widget.memberId != null) {
+      var cred = await ListAPI.getMemberCredential(widget.memberId);
+      var seed = makerBloc.getDecryptedSeed(cred);
+      _accountResponse = await genericBloc.getAccount(seed);
+    }
+    print(
+        '...................  🔴 about to build data table, accountId: ${_accountResponse.accountId}');
+    _buildTable();
     setState(() {
       isBusy = false;
     });
   }
 
+  _buildTable() async {
+    _rows.clear();
+    _accountResponse.balances.forEach((a) {
+      _rows.add(DataRow(cells: [
+        DataCell(a.assetType == 'native'
+            ? Text(
+                'XLM',
+                style: Styles.greyLabelSmall,
+              )
+            : Text(
+                a.assetType,
+                style: Styles.blackBoldSmall,
+              )),
+        DataCell(Text(
+          getFormattedAmount(a.balance, context),
+          style: Styles.tealBoldMedium,
+        )),
+      ]));
+    });
+    setState(() {});
+  }
+
   var _rows = List<DataRow>();
   double _getHeight() {
-    if (widget.accountResponse == null) {
+    if (_accountResponse == null) {
       return 280;
     }
-    var height = widget.accountResponse.balances.length * 180.0;
+    var height = _accountResponse.balances.length * 180.0;
     height += 100;
     return height;
   }
@@ -77,49 +93,52 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     return Container(
       height: widget.height == null ? _getHeight() : widget.height,
       width: widget.width == null ? 400 : widget.width,
-      child: StreamBuilder<List<AccountResponse>>(
-          stream: genericBloc.accountResponseStream,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              print(
-                  'data received in 👌🏾👌🏾👌🏾 memberAccountCard build snapshot ...... 👌🏾👌🏾👌🏾');
-              _accountResponse = snapshot.data.last;
-            }
-            return Card(
+      child: isBusy
+          ? Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 4,
+              ),
+            )
+          : Card(
+              color: getRandomPastelColor(),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: isBusy
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : Column(
-                        children: <Widget>[
-                          Text(
-                            _accountResponse == null
-                                ? ''
-                                : _accountResponse.accountId,
-                            style: Styles.blackBoldSmall,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          DataTable(columns: [
-                            DataColumn(
-                                label: Text(
-                              'Asset',
-                              style: Styles.greyLabelSmall,
-                            )),
-                            DataColumn(
-                                label: Text(
-                              'Amount',
-                              style: Styles.greyLabelSmall,
-                            ))
-                          ], rows: _rows)
-                        ],
-                      ),
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      widget.memberId == null
+                          ? 'Stokvel Account'
+                          : 'Member Account',
+                      style: Styles.blackBoldMedium,
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Text(
+                      _accountResponse == null
+                          ? ''
+                          : _accountResponse.accountId,
+                      style: Styles.blackBoldSmall,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    DataTable(columns: [
+                      DataColumn(
+                          label: Text(
+                        'Asset',
+                        style: Styles.greyLabelSmall,
+                      )),
+                      DataColumn(
+                          label: Text(
+                        'Amount',
+                        style: Styles.greyLabelSmall,
+                      ))
+                    ], rows: _rows)
+                  ],
+                ),
               ),
-            );
-          }),
+            ),
     );
   }
 }

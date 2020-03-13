@@ -335,12 +335,18 @@ class _SignUpState extends State<SignUp> {
         email: emailEditor.text,
         date: DateTime.now().toUtc().toIso8601String(),
         isActive: true,
-        stokvelIds: []);
+        stokvelIds: [],
+        cellphone: cellEditor.text,
+        fcmToken: null,
+        url: null,
+        accountId: null);
+    var uuid2 = Uuid();
+
     var stokvel = Stokvel(
-      stokvelId: uuid.v1(),
+      stokvelId: uuid2.v1(),
       name: stokvelEditor.text,
       isActive: true,
-      adminMember: member,
+      adminMember: null,
       date: DateTime.now().toUtc().toIso8601String(),
     );
 

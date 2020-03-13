@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/bloc/LocalDBAPI.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
@@ -161,16 +162,6 @@ class DataAPI {
     print(
         '💊💊💊 DataAPI: MEMBER accountId 0 has been set ${member.accountId}...');
 
-//    var memberAccountResponse1 = await Stellar.createAccount(
-//        isDevelopmentStatus: status == 'dev' ? true : false);
-//    member.accountId = memberAccountResponse1.accountResponse.accountId;
-//    print('💊💊💊 DataAPI: MEMBER accountId 1 has been set ${member.accountId}...');
-//
-//    var memberAccountResponse2 = await Stellar.createAccount(
-//        isDevelopmentStatus: status == 'dev' ? true : false);
-//    member.accountId = memberAccountResponse2.accountResponse.accountId;
-//    print('💊💊💊 DataAPI: MEMBER accountId 2 has been set ${member.accountId}...');
-
     await LocalDBAPI.addMember(member: member);
     print('💊💊💊 DataAPI: 🌎 Member cached on device DATABASE... 🌎');
     await Prefs.saveMember(member);
@@ -208,10 +199,7 @@ class DataAPI {
     print(
         '👌🏾👌🏾👌🏾 Stokvel payment successful on Stellar. 🧩 Will cache on Firestore');
     payment.stellarHash = res.hash;
-    var ref =
-        await _firestore.collection('stokvelPayments').add(payment.toJson());
-    print(
-        '${ref.path} - 🧩 payment added to Firestore after Stellar transaction');
+    await makerBloc.writeStokvelPayment(payment);
     return payment;
   }
 
@@ -224,10 +212,8 @@ class DataAPI {
         memo: 'MEMBER');
     print('Member payment successful on Stellar. Will cache on Firestore');
     payment.stellarHash = res.hash;
-    var ref =
-        await _firestore.collection('memberPayments').add(payment.toJson());
-    print('${ref.path} - payment added to Firestore after Stellar transaction');
-    return ref;
+    await makerBloc.writeMemberPayment(payment);
+    return res;
   }
 
   static Future addStokvelToMember(
