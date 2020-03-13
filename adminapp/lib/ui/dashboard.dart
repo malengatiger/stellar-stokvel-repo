@@ -19,7 +19,8 @@ class Dashboard extends StatefulWidget {
   _DashboardState createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> implements ScannerListener {
+class _DashboardState extends State<Dashboard>
+    implements ScannerListener, StokkieDrawerListener {
   Member _member;
   var _key = GlobalKey<ScaffoldState>();
   bool isBusy = false;
@@ -42,7 +43,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
       setState(() {
         isBusy = true;
       });
-      var seed = await makerBloc.getDecryptedCredential();
+      var seed = await makerBloc.getDecryptedSeedFromCache();
       await genericBloc.getAccount(seed);
       setState(() {
         isBusy = false;
@@ -69,10 +70,6 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
 
   _startQRcode() async {
     Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
-  }
-
-  Drawer _getDrawer() {
-    return Drawer();
   }
 
   @override
@@ -109,11 +106,7 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
             IconButton(
               icon: Icon(Icons.info_outline),
               onPressed: () {
-                Navigator.push(
-                    context,
-                    SlideRightRoute(
-                      widget: Welcome(_member),
-                    ));
+                _startWelcome(context);
               },
             ),
             IconButton(
@@ -170,7 +163,9 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         ),
         backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(TYPE_ADMIN),
-        drawer: StokkieDrawer(),
+        drawer: StokkieDrawer(
+          listener: this,
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
@@ -188,6 +183,14 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         ),
       ),
     );
+  }
+
+  void _startWelcome(BuildContext context) {
+    Navigator.push(
+        context,
+        SlideRightRoute(
+          widget: Welcome(_member),
+        ));
   }
 
   Future<bool> doNothing() async {
@@ -209,10 +212,60 @@ class _DashboardState extends State<Dashboard> implements ScannerListener {
         '🌶 ${member.stokvelIds.length} stokvels 🌶 💦 💦 💦 ');
     prettyPrint(member.toJson(), '💦 💦 💦 member, check data ...');
   }
+
+//drawer
+  @override
+  onInvitationsRequested() {
+    // TODO: implement onInvitationsRequested
+    return null;
+  }
+
+  @override
+  onMemberStatementRequested() {
+    // TODO: implement onMemberStatementRequested
+    return null;
+  }
+
+  @override
+  onMembershipScannerRequested() {
+    _startScanner();
+  }
+
+  @override
+  onQRCodeRequested() {
+    _startQRcode();
+  }
+
+  @override
+  onRandomThemeRequested() {
+    themeBloc.changeToRandomTheme();
+  }
+
+  @override
+  onRefreshRequested() {
+    _refresh();
+  }
+
+  @override
+  onStokvelAccountRefreshRequested() {
+    // TODO: implement onStokvelAccountRefreshRequested
+    return null;
+  }
+
+  @override
+  onStokvelStatementRequested() {
+    // TODO: implement onStokvelStatementRequested
+    return null;
+  }
+
+  @override
+  onWelcomeRequested() {
+    _startWelcome(context);
+  }
 }
 
 class StokkieDrawer extends StatelessWidget {
-  final DrawerListener listener;
+  final StokkieDrawerListener listener;
 
   const StokkieDrawer({Key key, this.listener}) : super(key: key);
   @override
@@ -309,7 +362,7 @@ class StokkieDrawer extends StatelessWidget {
   }
 }
 
-abstract class DrawerListener {
+abstract class StokkieDrawerListener {
   onQRCodeRequested();
   onMembershipScannerRequested();
   onRandomThemeRequested();

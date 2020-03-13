@@ -275,10 +275,10 @@ class MakerBloc {
     return chaDecrypted;
   }
 
-  Future<String> getDecryptedCredential() async {
+  Future<String> getDecryptedSeedFromCache() async {
     var cred = await Prefs.getCredential();
     if (cred != null) {
-      var seed = makerBloc.decrypt(
+      var seed = decrypt(
           encryptedSeed: cred.seed,
           cryptKey: cred.cryptKey,
           fortunaKey: cred.fortunaKey);
@@ -286,6 +286,16 @@ class MakerBloc {
     } else {
       throw Exception('No credential on file');
     }
+  }
+
+  String getDecryptedSeed(StokkieCredential cred) {
+    assert(cred != null);
+    var seed = decrypt(
+        encryptedSeed: cred.seed,
+        cryptKey: cred.cryptKey,
+        fortunaKey: cred.fortunaKey);
+
+    return seed;
   }
 
   void testCached() async {

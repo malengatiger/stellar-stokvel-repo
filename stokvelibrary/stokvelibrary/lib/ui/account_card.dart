@@ -34,7 +34,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
       isBusy = true;
     });
     try {
-      _seed = await makerBloc.getDecryptedCredential();
+      _seed = await makerBloc.getDecryptedSeedFromCache();
       _accountResponse = await genericBloc.getAccount(_seed);
       _rows.clear();
       _accountResponse.balances.forEach((a) {

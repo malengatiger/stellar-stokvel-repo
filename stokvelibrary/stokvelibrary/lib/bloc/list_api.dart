@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
@@ -62,6 +63,30 @@ class ListAPI {
     print(
         '🔵 🔵 ListAPI: getStokvelMembers found 🔵 ${mList.length} 🔵 members');
     return mList;
+  }
+
+  static Future<String> getStokvelSeed(String stokvelId) async {
+    var cred = await getStokvelCredential(stokvelId);
+    return makerBloc.getDecryptedSeed(cred);
+  }
+
+  static Future<StokkieCredential> getStokvelCredential(
+      String stokvelId) async {
+    var querySnapshot = await _firestore
+        .collection('creds')
+        .where('stokvelId', isEqualTo: stokvelId)
+        .limit(1)
+        .getDocuments();
+    var mList = List<StokkieCredential>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(StokkieCredential.fromJson(doc.data));
+    });
+    print(
+        '🔵 🔵 ListAPI: getStokvelCredential found 🔵 ${mList.length} 🔵 creds');
+    if (mList.isNotEmpty) {
+      return mList.elementAt(0);
+    }
+    return null;
   }
 
   static Future<List<StokvelPayment>> getStokvelPayments(

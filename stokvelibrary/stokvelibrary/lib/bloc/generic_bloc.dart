@@ -255,6 +255,10 @@ class GenericBloc {
   Future<AccountResponse> getStokvelAccount(String stokvelId) async {
     //get stokvel cred to get balance
     var cred = await FileUtil.getCredentialByStokvel(stokvelId);
+    if (cred == null) {
+      cred = await ListAPI.getStokvelCredential(stokvelId);
+      await FileUtil.addCredential(cred);
+    }
     AccountResponse accountResponse;
     if (cred != null) {
       var encryptedSeed = cred.seed;
@@ -333,7 +337,7 @@ class GenericBloc {
       {@required Member member,
       @required String amount,
       @required Stokvel stokvel}) async {
-    var seed = await makerBloc.getDecryptedCredential();
+    var seed = await makerBloc.getDecryptedSeedFromCache();
     if (seed == null) {
       throw Exception('Seed not found, cannot do payment');
     }
@@ -358,7 +362,7 @@ class GenericBloc {
 
   Future<StokvelPayment> sendMemberToMemberPayment(
       {Member fromMember, Member toMember, String amount}) async {
-    var seed = await makerBloc.getDecryptedCredential();
+    var seed = await makerBloc.getDecryptedSeedFromCache();
     if (seed == null) {
       throw Exception('Seed not found, MemberToMemberPayment cannot be made');
     }

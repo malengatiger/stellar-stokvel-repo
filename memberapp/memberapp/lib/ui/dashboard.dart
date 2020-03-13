@@ -17,7 +17,7 @@ class Dashboard extends StatefulWidget {
   _DashboardState createState() => _DashboardState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   Member _member;
   var _key = GlobalKey<ScaffoldState>();
   @override
@@ -34,7 +34,7 @@ class _DashboardState extends State<Dashboard> {
 
   _refresh() async {
     print('🌶  🌶  🌶  🌶  .... Refreshing data ..............');
-    var seed = await makerBloc.getDecryptedCredential();
+    var seed = await makerBloc.getDecryptedSeedFromCache();
     if (seed != null) {
       try {
         setState(() {
@@ -132,6 +132,9 @@ class _DashboardState extends State<Dashboard> {
               ),
               preferredSize: Size.fromHeight(80)),
         ),
+        drawer: MemberDrawer(
+          listener: this,
+        ),
         backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(TYPE_MEMBER),
         body: Padding(
@@ -149,4 +152,161 @@ class _DashboardState extends State<Dashboard> {
   Future<bool> doNothing() async {
     return false;
   }
+
+  @override
+  onInvitationsRequested() {
+    // TODO: implement onInvitationsRequested
+    return null;
+  }
+
+  @override
+  onMemberStatementRequested() {
+    // TODO: implement onMemberStatementRequested
+    return null;
+  }
+
+  @override
+  onMembershipScannerRequested() {
+    // TODO: implement onMembershipScannerRequested
+    return null;
+  }
+
+  @override
+  onQRCodeRequested() {
+    // TODO: implement onQRCodeRequested
+    return null;
+  }
+
+  @override
+  onRandomThemeRequested() {
+    // TODO: implement onRandomThemeRequested
+    return null;
+  }
+
+  @override
+  onRefreshRequested() {
+    // TODO: implement onRefreshRequested
+    return null;
+  }
+
+  @override
+  onStokvelStatementRequested() {
+    // TODO: implement onStokvelStatementRequested
+    return null;
+  }
+
+  @override
+  onWelcomeRequested() {
+    // TODO: implement onWelcomeRequested
+    return null;
+  }
+}
+
+class MemberDrawer extends StatelessWidget {
+  final MemberDrawerListener listener;
+
+  const MemberDrawer({Key key, this.listener}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      elevation: 8,
+      child: ListView(
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/download3.jpeg"),
+                    fit: BoxFit.cover)),
+            child: Container(),
+          ),
+          SizedBox(
+            height: 40,
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onStokvelStatementRequested();
+            },
+            child: ListTile(
+              title: Text("Stokvel Statements"),
+              leading: Icon(
+                Icons.format_list_bulleted,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onMemberStatementRequested();
+            },
+            child: ListTile(
+              title: Text("Member Statements"),
+              leading: Icon(
+                Icons.format_list_bulleted,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onQRCodeRequested();
+            },
+            child: ListTile(
+              title: Text("Display QR code"),
+              leading: Icon(
+                Icons.person,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onMembershipScannerRequested();
+            },
+            child: ListTile(
+              title: Text("Scan New Member"),
+              leading: Icon(
+                Icons.camera,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onWelcomeRequested();
+            },
+            child: ListTile(
+              title: Text("Information"),
+              leading: Icon(
+                Icons.info_outline,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onRandomThemeRequested();
+            },
+            child: ListTile(
+              title: Text("Change Color Scheme"),
+              leading: Icon(
+                Icons.apps,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+abstract class MemberDrawerListener {
+  onQRCodeRequested();
+  onMembershipScannerRequested();
+  onRandomThemeRequested();
+  onWelcomeRequested();
+  onRefreshRequested();
+  onInvitationsRequested();
+  onMemberStatementRequested();
+  onStokvelStatementRequested();
 }
