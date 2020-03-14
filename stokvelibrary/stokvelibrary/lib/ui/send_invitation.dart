@@ -36,6 +36,7 @@ class _SendInvitationState extends State<SendInvitation>
     });
     try {
       _member = await genericBloc.getCachedMember();
+      _contacts.clear();
       _contacts = await genericBloc.getContacts();
       print('🥦🥦🥦🥦🥦 ${_contacts.length} contacts returned to UI');
       _stokvels = await genericBloc.getStokvelsAdministered(_member.memberId);
@@ -354,10 +355,14 @@ class _SendInvitationState extends State<SendInvitation>
     }
     debugPrint('🔵 filter contacts here ... from ${_contacts.length}');
     filteredContacts.clear();
+    Map<String, Contact> map = Map();
     _contacts.forEach((v) {
       if (v.displayName.toLowerCase().contains(filter)) {
-        filteredContacts.add(v);
+        map[v.displayName] = v;
       }
+    });
+    map.values.forEach((v) {
+      filteredContacts.add(v);
     });
     filteredContacts.sort((a, b) => a.displayName.compareTo(b.displayName));
     debugPrint('🍎 🍎 🍎 filtered contacts: ${filteredContacts.length}');
