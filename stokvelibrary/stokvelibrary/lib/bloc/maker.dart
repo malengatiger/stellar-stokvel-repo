@@ -95,18 +95,21 @@ class MakerBloc {
         seed: memberAccountResponse.secretSeed,
         fortunaKey: fortunaKey,
         cryptKey: cryptKey);
+
     var memberCredential = StokkieCredential(
         accountId: memberAccountResponse.accountResponse.accountId,
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
-        seed: encryptedSeed);
+        seed: encryptedSeed,
+        stokvelId: null,
+        memberId: member.memberId);
 
     await FileUtil.addCredential(memberCredential);
     await Prefs.saveCredential(memberCredential);
     await writeCredential(memberCredential);
 
-    var invites = await getInvitations(member);
+    var invites = await getInvitations(member.email);
     invites.forEach((i) {
       member.stokvelIds.add(i.stokvel.stokvelId);
       print(
@@ -118,9 +121,9 @@ class MakerBloc {
     return member;
   }
 
-  Future<List<Invitation>> getInvitations(Member member,
+  Future<List<Invitation>> getInvitations(String email,
       {bool updateMember = false}) async {
-    var invites = await ListAPI.getInvitationsByEmail(member.email);
+    var invites = await ListAPI.getInvitationsByEmail(email);
     return invites;
   }
 

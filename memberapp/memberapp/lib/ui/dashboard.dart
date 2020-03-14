@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:member/ui/welcome.dart';
+import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
@@ -20,6 +21,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   Member _member;
   var _key = GlobalKey<ScaffoldState>();
+  AccountResponse _accountResponse;
   @override
   initState() {
     super.initState();
@@ -28,6 +30,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
 
   _getMember() async {
     _member = await Prefs.getMember();
+    await _refresh();
     genericBloc.configureFCM();
     setState(() {});
   }
@@ -40,17 +43,22 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
         setState(() {
           isBusy = true;
         });
-        await genericBloc.getAccount(seed);
+        _accountResponse = await genericBloc.getAccount(seed);
         _member = await genericBloc.getMember(_member.memberId);
+        print(
+            '🌶  🌶  🌶  🌶  .... genericBloc.getMember .....memberId: ${_member.memberId}');
       } catch (e) {
         print(e);
         AppSnackBar.showErrorSnackBar(
             scaffoldKey: _key, message: 'Data refresh failed');
       }
-      setState(() {
-        isBusy = false;
-      });
+    } else {
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Seed not found');
     }
+    setState(() {
+      isBusy = false;
+    });
   }
 
   _startQRcode() {
@@ -137,14 +145,24 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
         ),
         backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(TYPE_MEMBER),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView(
-            children: <Widget>[
-              MemberAccountCard(),
-            ],
-          ),
-        ),
+        body: isBusy
+            ? Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 4,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _member == null
+                    ? Container()
+                    : ListView(
+                        children: <Widget>[
+                          MemberAccountCard(
+                            memberId: _member.memberId,
+                          ),
+                        ],
+                      ),
+              ),
       ),
     );
   }

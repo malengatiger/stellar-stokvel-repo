@@ -203,7 +203,7 @@ class DataAPI {
     return payment;
   }
 
-  static Future sendMemberPaymentToStellar(
+  static Future<MemberPayment> sendMemberPaymentToStellar(
       {@required MemberPayment payment, @required String seed}) async {
     var res = await Stellar.sendPayment(
         seed: seed,
@@ -213,7 +213,7 @@ class DataAPI {
     print('Member payment successful on Stellar. Will cache on Firestore');
     payment.stellarHash = res.hash;
     await makerBloc.writeMemberPayment(payment);
-    return res;
+    return payment;
   }
 
   static Future addStokvelToMember(

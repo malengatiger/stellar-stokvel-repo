@@ -54,8 +54,10 @@ class ListAPI {
   }
 
   static Future<List<Member>> getStokvelMembers(String stokvelId) async {
-    var querySnapshot = await _firestore.collection('members').where('stokvels',
-        arrayContains: {'stokvelId': stokvelId}).getDocuments();
+    var querySnapshot = await _firestore
+        .collection('members')
+        .where('stokvelIds', arrayContains: stokvelId)
+        .getDocuments();
     var mList = List<Member>();
     querySnapshot.documents.forEach((doc) {
       mList.add(Member.fromJson(doc.data));

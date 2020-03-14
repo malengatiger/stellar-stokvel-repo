@@ -106,7 +106,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
                 ),
                 _member == null
                     ? Text(
-                        'Member Name Here',
+                        _member == null ? 'Member to Pay' : _member.name,
                         style: Styles.whiteBoldMedium,
                       )
                     : Text(
@@ -177,12 +177,14 @@ class _PaymentScannerState extends State<PaymentScanner> {
           print(
               '🍎 will 🍎 process a MEMBER 🍎 payment here ...................');
           _member = await genericBloc.getMember(parts[0]);
+          setState(() {});
           var me = await Prefs.getMember();
           await genericBloc.sendMemberToMemberPayment(
             fromMember: me,
             toMember: _member,
             amount: amountController.text,
           );
+          setState(() {});
         } catch (e) {
           print(e);
           AppSnackBar.showErrorSnackBar(

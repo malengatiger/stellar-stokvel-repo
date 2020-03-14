@@ -2,6 +2,7 @@ import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
@@ -25,6 +26,7 @@ class _DashboardState extends State<Dashboard>
   List<Widget> _widgets = [];
   AccountResponse memberResponse;
   List<AccountResponse> stokvelResponses = List();
+  List<Member> _members = List();
 
   @override
   initState() {
@@ -37,6 +39,12 @@ class _DashboardState extends State<Dashboard>
     _getDashboardWidgets();
     genericBloc.configureFCM();
     setState(() {});
+    for (var id in _member.stokvelIds) {
+      var members = await ListAPI.getStokvelMembers(id);
+      _members.addAll(members);
+    }
+    print(
+        '🍏 🍏 🍏 🍏 Stokvel members, for ever stokvel this member belongs to; 🔴  found on Firestore: ${_members.length}');
   }
 
   _refresh() async {

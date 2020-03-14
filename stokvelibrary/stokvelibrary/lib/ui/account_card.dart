@@ -35,22 +35,28 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     setState(() {
       isBusy = true;
     });
-    if (widget.stokvelId == null && widget.memberId == null) {
-      throw Exception('Missing stokvelId or memberId');
+    try {
+      if (widget.stokvelId == null && widget.memberId == null) {
+        // throw Exception('Missing stokvelId or memberId');
+        print('StokvelId and memberId is null, ignoring data refresh');
+      }
+      if (widget.stokvelId != null) {
+        var cred = await ListAPI.getStokvelCredential(widget.stokvelId);
+        var seed = makerBloc.getDecryptedSeed(cred);
+        _accountResponse = await genericBloc.getAccount(seed);
+      }
+      if (widget.memberId != null) {
+        var cred = await ListAPI.getMemberCredential(widget.memberId);
+        var seed = makerBloc.getDecryptedSeed(cred);
+        _accountResponse = await genericBloc.getAccount(seed);
+      }
+      print('...................  🔴 about to build data table ...........');
+      if (_accountResponse != null) {
+        _buildTable();
+      }
+    } catch (e) {
+      print(e);
     }
-    if (widget.stokvelId != null) {
-      var cred = await ListAPI.getStokvelCredential(widget.stokvelId);
-      var seed = makerBloc.getDecryptedSeed(cred);
-      _accountResponse = await genericBloc.getAccount(seed);
-    }
-    if (widget.memberId != null) {
-      var cred = await ListAPI.getMemberCredential(widget.memberId);
-      var seed = makerBloc.getDecryptedSeed(cred);
-      _accountResponse = await genericBloc.getAccount(seed);
-    }
-    print(
-        '...................  🔴 about to build data table, accountId: ${_accountResponse.accountId}');
-    _buildTable();
     setState(() {
       isBusy = false;
     });
