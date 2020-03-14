@@ -58,13 +58,17 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text('ADMIN'),
       ),
+      backgroundColor: Colors.brown[100],
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
               'Stokkie',
-              style: TextStyle(fontSize: 60, fontWeight: FontWeight.w900),
+              style: TextStyle(
+                  fontSize: 60,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.indigo[300]),
             ),
           ],
         ),

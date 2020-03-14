@@ -42,6 +42,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
   initState() {
     super.initState();
     assert(widget.type != null);
+    _listen();
     if (widget.amount != null) {
       amountController.text = widget.amount;
     } else {
@@ -49,6 +50,36 @@ class _PaymentScannerState extends State<PaymentScanner> {
     }
     _setPaymentType();
     _getStokkie();
+  }
+
+  void _listen() async {
+    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
+    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
+    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
   }
 
   void _setPaymentType() {

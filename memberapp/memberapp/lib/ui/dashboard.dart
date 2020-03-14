@@ -25,7 +25,38 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   @override
   initState() {
     super.initState();
+    _listen();
     _getMember();
+  }
+
+  void _listen() async {
+    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
+    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
+    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
   }
 
   _getMember() async {
@@ -118,7 +149,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                       children: <Widget>[
                         Text(
                           'Member',
-                          style: Styles.whiteBoldMedium,
+                          style: Styles.greyLabelMedium,
                         ),
                         SizedBox(
                           width: 80,

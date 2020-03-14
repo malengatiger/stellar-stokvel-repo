@@ -8,6 +8,7 @@ import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
@@ -31,7 +32,38 @@ class _DashboardState extends State<Dashboard>
   @override
   initState() {
     super.initState();
+    _listen();
     _getMember();
+  }
+
+  void _listen() async {
+    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
+    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
+    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
   }
 
   _getMember() async {
@@ -140,7 +172,7 @@ class _DashboardState extends State<Dashboard>
                         ),
                         Text(
                           'Administrator',
-                          style: Styles.whiteBoldMedium,
+                          style: Styles.greyLabelMedium,
                         ),
                         SizedBox(
                           width: 60,

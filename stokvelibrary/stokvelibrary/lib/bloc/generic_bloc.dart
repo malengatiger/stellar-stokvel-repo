@@ -84,25 +84,26 @@ class GenericBloc {
         String messageType = message['data']['type'];
         print(
             "\n\n️♻️♻️♻️️♻️♻️♻️  ✳️ ✳️ ✳️ ✳️ GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
-        prettyPrint(message, '♻️♻️♻️️♻️♻️ message RECEIVED via FCM');
+        prettyPrint(message,
+            '♻️♻️♻️️♻️♻️ ............... message RECEIVED via FCM .............');
         switch (messageType) {
           case 'stokvels':
-            print("✳️ ✳️ FCM onMessage messageType: 🍎 STOKVELS arrived 🍎");
+            print("✳️ ✳️ FCM onMessage messageType: 🍎 STOKVEL arrived 🍎");
             _processStokvels(message);
             break;
           case 'members':
-            print("✳️ ✳️ FCM onMessage messageType: 🍎 MEMBERS arrived 🍎");
+            print("✳️ ✳️ FCM onMessage messageType: 🍎 MEMBER arrived 🍎");
             _processMembers(message);
             break;
 
-          case 'memberPayments':
+          case 'memberPayment':
             print(
-                "✳️ ✳️ FCM onMessage messageType: 🍎 MEMBER PAYMENTS arrived 🍎");
+                "✳️ ✳️ FCM onMessage messageType: 🍎 MEMBER PAYMENT arrived 🍎");
             _processMemberPayments(message);
             break;
-          case 'stokvelPayments':
+          case 'stokvelPayment':
             print(
-                "✳️ ✳️ FCM onMessage messageType: 🍎 COMMUTER_FENCE_DWELL_EVENTS arrived 🍎");
+                "✳️ ✳️ FCM onMessage messageType: 🍎 STOKVEL PAYMENT arrived 🍎");
             _processStokvelPayments(message);
             break;
         }
@@ -123,7 +124,7 @@ class GenericBloc {
     });
     fcm.getToken().then((String token) {
       assert(token != null);
-      print('♻️♻️♻️️♻️♻️️ MarshalBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
+      print('♻️♻️♻️️♻️♻️️ GenericBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
     });
     subscribeToFCM();
 
@@ -417,23 +418,73 @@ class GenericBloc {
     return await ListAPI.getStokvelsAdministered(memberId);
   }
 
-  void _processStokvels(Map<String, dynamic> message) {}
+  void _processStokvels(Map<String, dynamic> message) {
+    print(
+        '......................... ️ 🌀 _processStokvels ️ 🌀 ...................................');
+    var stokvel = Stokvel.fromJson(message['data']['stokvel']);
+    _stokvels.add(stokvel);
+    print('♻️ Add received stokvel to stream');
+    _stokvelController.sink.add(_stokvels);
+  }
 
-  void _processMembers(Map<String, dynamic> message) {}
+  void _processMembers(Map<String, dynamic> message) {
+    print(
+        '......................... ️ 🌀 _processMembers ️ 🌀 ...................................');
+    var payment = Member.fromJson(message['data']['member']);
+    _members.add(payment);
+    print('♻️ Add received member to stream');
+    _memberController.sink.add(_members);
+  }
 
-  void _processMemberPayments(Map<String, dynamic> message) {}
+  void _processMemberPayments(Map<String, dynamic> message) {
+    print(
+        '......................... ️ 🌀 _processMemberPayments ️ 🌀 ...................................');
+    var mJSON = message['data']['memberPayment'];
+    prettyPrint(mJSON, 'MEMBER PAYMENT from FCM');
+    try {
+      var payment = MemberPayment.fromJson(mJSON);
+      _memberPayments.add(payment);
+      print('♻️ Add received memberPayment to stream');
+      _memberPaymentController.sink.add(_memberPayments);
+      print(
+          '......................... ️ 🌀 _processMemberPayments completed OK. Stream fed .... ️ 🌀'
+          ' ...................................');
+    } catch (e) {
+      print(e);
+    }
+  }
 
-  void _processStokvelPayments(Map<String, dynamic> message) {}
+  void _processStokvelPayments(Map<String, dynamic> message) {
+    print(
+        '............................️ 🌀  _processStokvelPayments ️ 🌀 ................................');
+    var mJSON = message['data']['stokvelPayment'];
+    prettyPrint(mJSON, 'STOKVEL PAYMENT from FCM');
+    try {
+      var payment = StokvelPayment.fromJson(mJSON);
+      _stokvelPayments.add(payment);
+      print('♻️ Add received stokvelPayment to stream');
+      _stokvelPaymentController.sink.add(_stokvelPayments);
+      print(
+          '............................️ 🌀  _processStokvelPayments completed OK. Stream has been fed! 🌀 '
+          '................................');
+    } catch (e) {
+      print(e);
+    }
+  }
 
   Future subscribeToFCM() async {
+    _member = await Prefs.getMember();
     List<String> topics = List();
     topics.add('stokvels');
-    topics.add('members');
-    topics.add('memberPayments');
-    topics.add('stokvelPayments');
+    _member.stokvelIds.forEach((id) {
+      topics.add('members_$id');
+      topics.add('memberPayments_$id');
+      topics.add('stokvelPayments_$id');
+    });
+
     for (var t in topics) {
       await fcm.subscribeToTopic(t);
-      print('GenericBloc: 💜 💜 Subscribed to FCM topic: 🍎  $t ✳️ ');
+      print('GenericBloc: 💜 💜 ..... Subscribed to FCM topic: 🍎  $t  💜 💜 ');
     }
   }
 }

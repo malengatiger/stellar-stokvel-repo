@@ -25,6 +25,7 @@ class _SendMoneyState extends State<SendMoney>
   @override
   void initState() {
     super.initState();
+    _listen();
     _getMember();
   }
 
@@ -142,13 +143,42 @@ class _SendMoneyState extends State<SendMoney>
 
   bool isBusy = false, isStokvelPayment = true;
 
+  void _listen() async {
+    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
+    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
+    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
+      print(
+          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
+      if (mounted) {
+        var mPayment = payments.last;
+        AppSnackBar.showSnackBar(
+            scaffoldKey: _key,
+            message:
+                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
+            textColor: Colors.lightGreen,
+            backgroundColor: Colors.black);
+      }
+    });
+  }
+
   void _displayStokvelPaymentDialog() {
     print('🧩 🧩 ........ _displayStokvelPaymentDialog ..... ');
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-              title: new Text("Stokvel Unavailable",
-                  style: Styles.blackBoldMedium),
+              title: new Text("Stokvel Payment", style: Styles.blackBoldMedium),
               content: Container(
                 height: 140.0,
                 child: Column(
