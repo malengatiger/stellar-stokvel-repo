@@ -221,7 +221,7 @@ class _DashboardState extends State<Dashboard>
   void _getDashboardWidgets() {
     //add account cards
     print(
-        '.................  🔴 getting dashboard widgets .........................');
+        '.................  🔴 .... getting dashboard widgets .........................');
     prettyPrint(_member.toJson(), 'MEMBER');
     _widgets.clear();
     _widgets.add(MemberAccountCard(
@@ -240,7 +240,7 @@ class _DashboardState extends State<Dashboard>
       height: 20,
     ));
     print(
-        '...................  🔴 _getDashboardWidgets: ${_widgets.length} widgets added to dashboard');
+        '...................  🔴 _getDashboardWidgets: ${_widgets.length} widgets added to dashboard, did refresh happen ????');
     setState(() {});
   }
 
