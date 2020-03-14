@@ -3,6 +3,8 @@ import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/maker.dart';
+import 'package:stokvelibrary/bloc/prefs.dart';
+import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
 class MemberAccountCard extends StatefulWidget {
@@ -20,6 +22,8 @@ class MemberAccountCard extends StatefulWidget {
 class _MemberAccountCardState extends State<MemberAccountCard> {
   bool isBusy = false;
   AccountResponse _accountResponse;
+  Member _member;
+  Stokvel _stokvel;
   @override
   void initState() {
     super.initState();
@@ -42,6 +46,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
       }
       if (widget.stokvelId != null) {
         var cred = await ListAPI.getStokvelCredential(widget.stokvelId);
+        _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
         var seed = makerBloc.getDecryptedSeed(cred);
         _accountResponse = await genericBloc.getAccount(seed);
       }
@@ -49,6 +54,10 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
         var cred = await ListAPI.getMemberCredential(widget.memberId);
         var seed = makerBloc.getDecryptedSeed(cred);
         _accountResponse = await genericBloc.getAccount(seed);
+        _member = await Prefs.getMember();
+        if (_member.memberId != cred.memberId) {
+          _member = null;
+        }
       }
       print('...................  🔴 about to build data table ...........');
       if (_accountResponse != null) {
@@ -90,7 +99,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
       return 280;
     }
     var height = _accountResponse.balances.length * 180.0;
-    height += 100;
+    height += 120;
     return height;
   }
 
@@ -106,7 +115,8 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
               ),
             )
           : Card(
-              color: getRandomPastelColor(),
+//              color: getRandomPastelColor(),
+              elevation: 2,
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -115,16 +125,26 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                       widget.memberId == null
                           ? 'Stokvel Account'
                           : 'Member Account',
-                      style: Styles.blackBoldMedium,
+                      style: Styles.greyLabelMedium,
                     ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    _getMemberOrStokvel(),
                     SizedBox(
                       height: 12,
                     ),
-                    Text(
-                      _accountResponse == null
-                          ? ''
-                          : _accountResponse.accountId,
-                      style: Styles.blackBoldSmall,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 40.0, right: 40),
+                      child: Text(
+                        _accountResponse == null
+                            ? ''
+                            : _accountResponse.accountId,
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                     SizedBox(
                       height: 20,
@@ -146,5 +166,23 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
               ),
             ),
     );
+  }
+
+  Widget _getMemberOrStokvel() {
+    if (widget.stokvelId != null) {
+      if (_stokvel != null) {
+        return Text(_stokvel.name);
+      } else {
+        return Text('Stokvel Name Here');
+      }
+    }
+    if (widget.memberId != null) {
+      if (_member != null) {
+        return Text(_member.name);
+      } else {
+        return Text('Member Name Here');
+      }
+    }
+    return Text('');
   }
 }

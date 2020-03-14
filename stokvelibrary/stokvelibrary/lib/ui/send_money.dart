@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
@@ -33,7 +34,15 @@ class _SendMoneyState extends State<SendMoney>
     });
     try {
       _member = await Prefs.getMember();
-
+      prettyPrint(_member.toJson(),
+          '🔵 🔵 🔵 MEMBER doin the paying; check stokvelIds 🔵 🔵 🔵 ');
+      if (_member.stokvelIds == null || _member.stokvelIds.isEmpty) {
+        _member = await ListAPI.getMember(_member.memberId);
+        if (_member != null) {
+          await FileUtil.addMember(_member);
+          await Prefs.saveMember(_member);
+        }
+      }
       if (_member.stokvelIds == null || _member.stokvelIds.isEmpty) {
         _displayNoStokvelDialog();
       } else {

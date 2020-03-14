@@ -375,3 +375,51 @@ class StokvelPayments {
     return map;
   }
 }
+
+//todo - expand StokvelGoal ideas and code ... saving money for something (sports, trips, volunteering, group purchase, crowd funding etc.
+class StokvelGoal {
+  String name,
+      date,
+      stokvelId,
+      accountId,
+      amountToCollect,
+      amountCollected,
+      description;
+  bool isActive;
+
+  StokvelGoal(
+      {this.name,
+      this.date,
+      this.stokvelId,
+      this.accountId,
+      this.amountToCollect,
+      this.amountCollected,
+      this.description,
+      this.isActive});
+
+  StokvelGoal.fromJson(Map map) {
+    name = map['name'];
+    accountId = map['accountId'];
+    stokvelId = map['stokvelId'];
+    amountToCollect = map['amountToCollect'];
+    description = map['description'];
+    accountId = map['accountId'];
+    amountCollected = map['amountCollected'];
+    date = map['date'];
+    isActive = map['isActive'];
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'name': name,
+      'accountId': accountId,
+      'stokvelId': stokvelId,
+      'date': date,
+      'amountToCollect': amountToCollect,
+      'description': description,
+      'amountCollected': amountCollected,
+      'isActive': isActive,
+    };
+    return map;
+  }
+}

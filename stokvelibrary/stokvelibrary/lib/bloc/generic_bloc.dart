@@ -368,7 +368,7 @@ class GenericBloc {
     return res;
   }
 
-  Future<StokvelPayment> sendMemberToMemberPayment(
+  Future<MemberPayment> sendMemberToMemberPayment(
       {Member fromMember, Member toMember, String amount}) async {
     var seed = await makerBloc.getDecryptedSeedFromCache();
     if (seed == null) {
