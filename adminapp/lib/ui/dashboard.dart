@@ -82,11 +82,13 @@ class _DashboardState extends State<Dashboard>
   _refresh() async {
     print(
         '  🔵 🔵 🔵 Dashboard: _refresh data from 🍏 Stellar and Firestore 🍏 ...................');
-    setState(() {
-      _widgets.clear();
-    });
-    _getDashboardWidgets();
-    setState(() {});
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(widget: Dashboard()));
+//    setState(() {
+//      _widgets.clear();
+//    });
+//    _getDashboardWidgets();
+//    setState(() {});
   }
 
   _startScanner() async {
