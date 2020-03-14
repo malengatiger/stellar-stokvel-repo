@@ -295,8 +295,8 @@ class GenericBloc {
   }
 
   Future<List<Member>> getStokvelMembers(String stokvelId) async {
-    _members = await ListAPI.getStokvelMembers(stokvelId);
     _members.clear();
+    _members = await ListAPI.getStokvelMembers(stokvelId);
     _memberController.sink.add(_members);
     print(' 🔵  🔵 returning members found: ${_members.length}');
     return _members;
@@ -360,12 +360,6 @@ class GenericBloc {
     _stokvelPayments.add(res);
     _stokvelPaymentController.add(_stokvelPayments);
 
-    //todo - check account after transaction; REMOVE after test
-    print(
-        '🌎 🌎 🌎 🌎 check account after transaction; 🌎 🌎 🌎 🌎 REMOVE after test');
-    var updatedAcct = await getStokvelAccount(stokvel.stokvelId);
-    prettyPrint(
-        updatedAcct.toJson(), '🧡 Updated stokvel account, check balance ....');
     return res;
   }
 

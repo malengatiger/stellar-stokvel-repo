@@ -199,7 +199,7 @@ class FileUtil {
     }
     appDocPath = appDocDir.path;
     filePath = "$appDocPath/$path";
-    print(' 🌎 ..... File path: $filePath');
+//    print(' 🌎 ..... File path: $filePath');
     return filePath;
   }
 
@@ -207,7 +207,7 @@ class FileUtil {
     File file = File(filePath);
     var mFile = await file.writeAsString(content);
     var length = await mFile.length();
-    print('File ${file.path} is now 🍎 $length bytes long');
+//    print('File ${file.path} is now 🍎 $length bytes long');
   }
 
   static Future<String> _readFile() async {

@@ -51,7 +51,6 @@ class _SendMoneyState extends State<SendMoney>
           var stokvel = await ListAPI.getStokvelById(id);
           _stokvels.add(stokvel);
         }
-        _buildDropDown();
       }
       if (_member != null) {
         await _getStokvelMembers();
@@ -123,7 +122,7 @@ class _SendMoneyState extends State<SendMoney>
       });
       _members.sort((a, b) => a.name.compareTo(b.name));
     }
-    print('SendMoney:  🔵 members found: ${_members.length}');
+    print('SendMoney: 🔵 🔵 🔵 members found: 🔵 ${_members.length}');
     if (_member.stokvelIds.length == 1) {
       _stokvel = await ListAPI.getStokvelById(_member.stokvelIds.first);
       prettyPrint(
@@ -132,12 +131,6 @@ class _SendMoneyState extends State<SendMoney>
 
     setState(() {
       isBusy = false;
-    });
-  }
-
-  _buildDropDown() {
-    _stokvels.forEach((s) {
-      items.add(DropdownMenuItem(child: Text(s.name)));
     });
   }
 
@@ -226,6 +219,61 @@ class _SendMoneyState extends State<SendMoney>
             ));
   }
 
+  void _displayMemberPaymentDialog(Member member) {
+    print('🧩 🧩 ........ _displayMemberPaymentDialog ..... ');
+    showDialog(
+        context: context,
+        builder: (_) => new AlertDialog(
+              title: new Text("Member Payment", style: Styles.blackBoldMedium),
+              content: Container(
+                height: 140.0,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      'You are about to make a Member payment of ${amountController.text} to ${_stokvel.name}',
+                      style: Styles.blackSmall,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: FlatButton(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Cancel',
+                        style: Styles.pinkBoldSmall,
+                      ),
+                    ),
+                    onPressed: _close,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: RaisedButton(
+                    color: Colors.blue,
+                    elevation: 4.0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Send Payment',
+                        style: Styles.whiteSmall,
+                      ),
+                    ),
+                    onPressed: () {
+                      _sendMemberPayment(member);
+                    },
+                  ),
+                ),
+              ],
+            ));
+  }
+
   void _dismissKeyboard() {
     FocusScopeNode currentFocus = FocusScope.of(context);
     if (!currentFocus.hasPrimaryFocus) {
@@ -259,6 +307,39 @@ class _SendMoneyState extends State<SendMoney>
       print(e);
       AppSnackBar.showErrorSnackBar(
           scaffoldKey: _key, message: 'Stokvel Payment failed');
+    }
+
+    setState(() {
+      isBusy = false;
+    });
+  }
+
+  void _sendMemberPayment(Member member) async {
+    Navigator.pop(context);
+    _dismissKeyboard();
+    double amount = double.parse(amountController.text);
+    if (amount == 0) {
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Please enter amount');
+      return;
+    }
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      var me = await Prefs.getMember();
+      var res = await genericBloc.sendMemberToMemberPayment(
+          fromMember: me, amount: amountController.text, toMember: member);
+      prettyPrint(res.toJson(), "🍎 Member Payment Result 🍎 ");
+      AppSnackBar.showSnackBar(
+          scaffoldKey: _key,
+          message: 'Member Payment Succeeded',
+          textColor: Colors.lightGreen,
+          backgroundColor: Colors.black);
+    } catch (e) {
+      print(e);
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Member Payment failed');
     }
 
     setState(() {
@@ -454,17 +535,22 @@ class _SendMoneyState extends State<SendMoney>
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 2,
-              color: getRandomPastelColor(),
-              child: ListTile(
-                leading: Icon(
-                  Icons.person,
-                  color: getRandomColor(),
-                ),
-                title: Text(
-                  _members.elementAt(index).name,
-                  style: Styles.blackBoldSmall,
+            child: GestureDetector(
+              onTap: () {
+                _displayMemberPaymentDialog(_members.elementAt(index));
+              },
+              child: Card(
+                elevation: 2,
+                color: getRandomPastelColor(),
+                child: ListTile(
+                  leading: Icon(
+                    Icons.person,
+                    color: getRandomColor(),
+                  ),
+                  title: Text(
+                    _members.elementAt(index).name,
+                    style: Styles.blackBoldSmall,
+                  ),
                 ),
               ),
             ),
