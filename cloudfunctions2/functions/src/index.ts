@@ -7,14 +7,14 @@ import Messaging from './helpers/messaging';
 // });
 
 export const memberCreated = functions.firestore.document(`members/{memberId}`)
-    .onWrite((snapshot, context) => {
+    .onWrite((snapshot: any, context: any) => {
         
         const newValue = snapshot.after.data();
         console.log(`🔵 🔵 🔵 memberCreated: ${newValue} 🍎`);
         return Messaging.sendMemberCreated(newValue)
     });
     export const memberUpdated = functions.firestore.document(`members/{memberId}`)
-    .onUpdate((snapshot, context) => {
+    .onUpdate((snapshot: any, context: any) => {
         
         const newValue = snapshot.after.data();
         console.log(`🔵 🔵 🔵 memberUpdated: ${newValue} 🍎`);
@@ -22,20 +22,20 @@ export const memberCreated = functions.firestore.document(`members/{memberId}`)
     });
 
 export const stokvelCreated = functions.firestore.document(`stokvels/{stokvelId}`)
-    .onWrite((snapshot, context) => {
+    .onWrite((snapshot: any, context: any) => {
         const newValue = snapshot.after.data();
         console.log(`🔵 🔵 🔵 stokvelCreated: ${newValue} 🍎`);
         return Messaging.sendStokvelCreated(newValue)
     });
 export const stokvelPaymentCreated = functions.firestore.document(`stokvelPayments/{stokvelId}`)
-    .onWrite((snapshot, context) => {
+    .onWrite((snapshot: any, context: any) => {
         const newValue = snapshot.after.data();
         console.log(`🔵 🔵 🔵 stokvelPaymentCreated: ${newValue} 🍎`);
         return Messaging.sendStokvelPaymentCreated(newValue)
 
     });
 export const memberPaymentCreated = functions.firestore.document(`memberPayments/{memberId}`)
-    .onWrite((snapshot, context) => {
+    .onWrite((snapshot: any, context: any) => {
         const newValue = snapshot.after.data();
         console.log(`🔵 🔵 🔵 memberPaymentCreated: ${newValue} 🍎`);
         return Messaging.sendMemberPaymentCreated(newValue)
