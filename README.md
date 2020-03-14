@@ -1,6 +1,6 @@
 ## stellar-stokvel-repo
 
-# Stellar based Community Wallets, Small Loans, Crowdfunding, et. al. 🎲 ## aka Stokkie Network ##
+# Stellar based Community Wallets, Small Loans, Crowdfunding, et. al. 🎲 aka The Stokkie Network
 
 # Stokkie Network
 
