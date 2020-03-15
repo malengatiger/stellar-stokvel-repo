@@ -406,6 +406,8 @@ class GenericBloc {
     }
     _memberPayments = await ListAPI.getMemberPayments(memberId);
     _memberPaymentController.sink.add(_memberPayments);
+    print(
+        'GenericBloc:  🔵 🔵 🔵 getMemberPayments, found ${_memberPayments.length}');
     return _memberPayments;
   }
 

@@ -6,7 +6,6 @@ import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
-import 'package:toast/toast.dart';
 
 class MemberAccountCard extends StatefulWidget {
   final String stokvelId, memberId;
@@ -102,25 +101,25 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     height += 120;
     return height;
   }
-
-  void _refresh() async {
-    setState(() {
-      isBusy = true;
-    });
-    try {
-      var cred = await Prefs.getCredential();
-      var seed = makerBloc.getDecryptedSeed(cred);
-      _accountResponse = await genericBloc.getAccount(seed);
-      _buildTable();
-    } catch (e) {
-      print(e);
-      Toast.show('Data refresh failed', context,
-          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-    }
-    setState(() {
-      isBusy = false;
-    });
-  }
+//
+//  void _refresh() async {
+//    setState(() {
+//      isBusy = true;
+//    });
+//    try {
+//      var cred = await Prefs.getCredential();
+//      var seed = makerBloc.getDecryptedSeed(cred);
+//      _accountResponse = await genericBloc.getAccount(seed);
+//      _buildTable();
+//    } catch (e) {
+//      print(e);
+//      Toast.show('Data refresh failed', context,
+//          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+//    }
+//    setState(() {
+//      isBusy = false;
+//    });
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +139,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                   _accountResponse = snapshot.data.last;
                 }
                 return GestureDetector(
-                  onTap: _refresh,
+                  onTap: _getAccount,
                   child: Card(
 //              color: getRandomPastelColor(),
                     elevation: 2,

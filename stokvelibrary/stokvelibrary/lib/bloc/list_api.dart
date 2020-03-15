@@ -114,7 +114,7 @@ class ListAPI {
     var querySnapshot = await _firestore
         .collection('stokvelPayments')
         .where('stokvelId', isEqualTo: stokvelId)
-        .limit(200)
+        .limit(PAYMENT_LIST_LIMIT)
         .getDocuments();
     var mList = List<StokvelPayment>();
     querySnapshot.documents.forEach((doc) {
@@ -127,8 +127,8 @@ class ListAPI {
     var querySnapshot = await _firestore
         .collection('memberPayments')
         .orderBy('date', descending: true)
-        .where('memberId', isEqualTo: memberId)
-        .limit(200)
+        .where('fromMember.memberId', isEqualTo: memberId)
+        .limit(PAYMENT_LIST_LIMIT)
         .getDocuments();
     var mList = List<MemberPayment>();
     querySnapshot.documents.forEach((doc) {
@@ -161,3 +161,5 @@ class ListAPI {
     return null;
   }
 }
+
+const int PAYMENT_LIST_LIMIT = 1000;

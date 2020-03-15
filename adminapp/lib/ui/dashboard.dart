@@ -14,6 +14,7 @@ import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
+import 'package:stokvelibrary/ui/payment_totals.dart';
 import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
 class Dashboard extends StatefulWidget {
@@ -44,13 +45,11 @@ class _DashboardState extends State<Dashboard>
     genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
       print(
           '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
-      _refreshAccount();
+      //_refreshAccount();
       if (mounted) {
-        var mPayment = payments.last;
         AppSnackBar.showSnackBar(
             scaffoldKey: _key,
-            message:
-                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
+            message: 'Member Payments processed: ${payments.length}',
             textColor: Colors.lightGreen,
             backgroundColor: Colors.black);
       }
@@ -58,14 +57,12 @@ class _DashboardState extends State<Dashboard>
     genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
       print(
           '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
-      _refreshAccount();
+      //_refreshAccount();
       if (mounted) {
-        var mPayment = payments.last;
         AppSnackBar.showSnackBar(
             scaffoldKey: _key,
-            message:
-                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
-            textColor: Colors.lightGreen,
+            message: 'Stokvel Payments processed: ${payments.length}',
+            textColor: Colors.lightBlue,
             backgroundColor: Colors.black);
       }
     });
@@ -90,6 +87,10 @@ class _DashboardState extends State<Dashboard>
     var cred = await Prefs.getCredential();
     var seed = makerBloc.getDecryptedSeed(cred);
     memberResponse = await genericBloc.getAccount(seed);
+//    await genericBloc.getMemberPayments(_member.memberId);
+//    for (var id in _member.stokvelIds) {
+//      var ps = await genericBloc.getStokvelPayments(id);
+//    }
   }
 
   _startScanner() async {
@@ -244,6 +245,40 @@ class _DashboardState extends State<Dashboard>
       ));
     });
     _widgets.add(SizedBox(
+      height: 8,
+    ));
+    _widgets.add(Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Text(
+        'Member Payments',
+        style: Styles.greyLabelSmall,
+      ),
+    ));
+    _widgets.add(SizedBox(
+      height: 8,
+    ));
+    _widgets.add(PaymentsTotals(
+      memberId: _member.memberId,
+    ));
+    _widgets.add(SizedBox(
+      height: 8,
+    ));
+    _widgets.add(Padding(
+      padding: const EdgeInsets.only(left: 8.0),
+      child: Text(
+        'Stokvel Payments',
+        style: Styles.greyLabelSmall,
+      ),
+    ));
+    _widgets.add(SizedBox(
+      height: 8,
+    ));
+    _member.stokvelIds.forEach((id) {
+      _widgets.add(PaymentsTotals(
+        stokvelId: id,
+      ));
+    });
+    _widgets.add(SizedBox(
       height: 20,
     ));
     _widgets.add(Text(
@@ -253,6 +288,7 @@ class _DashboardState extends State<Dashboard>
     _widgets.add(SizedBox(
       height: 8,
     ));
+
     _widgets.add(MembersList(memberId: _member.memberId));
     _widgets.add(SizedBox(
       height: 20,
