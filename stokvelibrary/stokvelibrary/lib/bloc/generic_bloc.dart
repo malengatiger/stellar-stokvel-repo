@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:contacts_service/contacts_service.dart';
@@ -432,8 +433,12 @@ class GenericBloc {
 
   void _processMemberPayments(Map<String, dynamic> message) {
     print(
-        '......................... ️ 🌀 _processMemberPayments ️ 🌀 ...................................');
-    var mJSON = message['data']['memberPayment'];
+        '......................... ️ 🌀 _processMemberPayments, something weird going down .... ️ 🌀 ...................................');
+    var string = message['data']['memberPayment'];
+    if (string == null) {
+      throw Exception('message data fucked somehow');
+    }
+    var mJSON = jsonDecode(string);
     prettyPrint(mJSON, 'MEMBER PAYMENT from FCM');
     try {
       var payment = MemberPayment.fromJson(mJSON);
@@ -443,7 +448,9 @@ class GenericBloc {
       print(
           '......................... ️ 🌀 _processMemberPayments completed OK. Stream fed .... ️ 🌀'
           ' ...................................');
+      return;
     } catch (e) {
+      print('Something is really weird here ...');
       print(e);
     }
   }
@@ -451,7 +458,12 @@ class GenericBloc {
   void _processStokvelPayments(Map<String, dynamic> message) {
     print(
         '............................️ 🌀  _processStokvelPayments ️ 🌀 ................................');
-    var mJSON = message['data']['stokvelPayment'];
+    var string = message['data']['stokvelPayment'];
+    if (string == null) {
+      throw Exception('message data fucked somehow');
+    }
+
+    var mJSON = jsonDecode(string);
     prettyPrint(mJSON, 'STOKVEL PAYMENT from FCM');
     try {
       var payment = StokvelPayment.fromJson(mJSON);

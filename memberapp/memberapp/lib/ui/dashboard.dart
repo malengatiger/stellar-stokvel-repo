@@ -33,7 +33,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
     genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
       print(
-          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
+          '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... ${payments.length}');
       if (mounted) {
         var mPayment = payments.last;
         AppSnackBar.showSnackBar(
@@ -46,7 +46,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     });
     genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
       print(
-          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
+          '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... ${payments.length}');
       if (mounted) {
         var mPayment = payments.last;
         AppSnackBar.showSnackBar(
@@ -110,7 +110,13 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
       child: Scaffold(
         key: _key,
         appBar: AppBar(
-          leading: Container(),
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              print('💛️ 💛️ .... open drawer ....');
+              _key.currentState.openDrawer();
+            },
+          ),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.person),
@@ -149,7 +155,10 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                       children: <Widget>[
                         Text(
                           'Member',
-                          style: Styles.greyLabelMedium,
+                          style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           width: 80,

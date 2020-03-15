@@ -6,6 +6,7 @@ import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:toast/toast.dart';
 
 class MemberAccountCard extends StatefulWidget {
   final String stokvelId, memberId;
@@ -41,7 +42,6 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     });
     try {
       if (widget.stokvelId == null && widget.memberId == null) {
-        // throw Exception('Missing stokvelId or memberId');
         print('StokvelId and memberId is null, ignoring data refresh');
       }
       if (widget.stokvelId != null) {
@@ -103,6 +103,25 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     return height;
   }
 
+  void _refresh() async {
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      var cred = await Prefs.getCredential();
+      var seed = makerBloc.getDecryptedSeed(cred);
+      _accountResponse = await genericBloc.getAccount(seed);
+      _buildTable();
+    } catch (e) {
+      print(e);
+      Toast.show('Data refresh failed', context,
+          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+    }
+    setState(() {
+      isBusy = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -114,57 +133,68 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                 strokeWidth: 4,
               ),
             )
-          : Card(
+          : StreamBuilder<List<AccountResponse>>(
+              stream: genericBloc.accountResponseStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  _accountResponse = snapshot.data.last;
+                }
+                return GestureDetector(
+                  onTap: _refresh,
+                  child: Card(
 //              color: getRandomPastelColor(),
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      widget.memberId == null
-                          ? 'Stokvel Account'
-                          : 'Member Account',
-                      style: Styles.greyLabelMedium,
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    _getMemberOrStokvel(),
-                    SizedBox(
-                      height: 12,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 40.0, right: 40),
-                      child: Text(
-                        _accountResponse == null
-                            ? ''
-                            : _accountResponse.accountId,
-                        style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[400],
-                            fontWeight: FontWeight.bold),
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            widget.memberId == null
+                                ? 'Stokvel Account'
+                                : 'Member Account',
+                            style: Styles.greyLabelMedium,
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          _getMemberOrStokvel(),
+                          SizedBox(
+                            height: 12,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 40.0, right: 40),
+                            child: Text(
+                              _accountResponse == null
+                                  ? ''
+                                  : _accountResponse.accountId,
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey[400],
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          DataTable(columns: [
+                            DataColumn(
+                                label: Text(
+                              'Asset',
+                              style: Styles.greyLabelSmall,
+                            )),
+                            DataColumn(
+                                label: Text(
+                              'Amount',
+                              style: Styles.greyLabelSmall,
+                            ))
+                          ], rows: _rows)
+                        ],
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    DataTable(columns: [
-                      DataColumn(
-                          label: Text(
-                        'Asset',
-                        style: Styles.greyLabelSmall,
-                      )),
-                      DataColumn(
-                          label: Text(
-                        'Amount',
-                        style: Styles.greyLabelSmall,
-                      ))
-                    ], rows: _rows)
-                  ],
-                ),
-              ),
-            ),
+                  ),
+                );
+              }),
     );
   }
 

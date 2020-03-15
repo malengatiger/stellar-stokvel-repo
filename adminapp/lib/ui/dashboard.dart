@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
@@ -11,6 +12,7 @@ import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
+import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
@@ -37,10 +39,12 @@ class _DashboardState extends State<Dashboard>
   }
 
   void _listen() async {
-    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
+    print(
+        ' 🌽 🌽 🌽 Dashboard: Start listening to FCM payment messages via stream');
     genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
       print(
-          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
+          '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
+      _refreshAccount();
       if (mounted) {
         var mPayment = payments.last;
         AppSnackBar.showSnackBar(
@@ -53,7 +57,8 @@ class _DashboardState extends State<Dashboard>
     });
     genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
       print(
-          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
+          '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
+      _refreshAccount();
       if (mounted) {
         var mPayment = payments.last;
         AppSnackBar.showSnackBar(
@@ -79,11 +84,12 @@ class _DashboardState extends State<Dashboard>
         '🍏 🍏 🍏 🍏 Stokvel members, for ever stokvel this member belongs to; 🔴  found on Firestore: ${_members.length}');
   }
 
-  _refresh() async {
+  _refreshAccount() async {
     print(
-        '  🔵 🔵 🔵 Dashboard: _refresh data from 🍏 Stellar and Firestore 🍏 ...................');
-    Navigator.pop(context);
-    Navigator.push(context, SlideRightRoute(widget: Dashboard()));
+        '🔵 🔵 🔵 Dashboard: _refresh Account from 🍏 Stellar 🍏 ...................');
+    var cred = await Prefs.getCredential();
+    var seed = makerBloc.getDecryptedSeed(cred);
+    memberResponse = await genericBloc.getAccount(seed);
   }
 
   _startScanner() async {
@@ -111,6 +117,7 @@ class _DashboardState extends State<Dashboard>
       child: Scaffold(
         key: _key,
         appBar: AppBar(
+          elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.menu),
             onPressed: () {
@@ -142,7 +149,7 @@ class _DashboardState extends State<Dashboard>
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: () {
-                _refresh();
+                _refreshAccount();
               },
             ),
           ],
@@ -169,12 +176,15 @@ class _DashboardState extends State<Dashboard>
                         ),
                         Text(
                           'Administrator',
-                          style: Styles.greyLabelMedium,
+                          style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
-                          width: 60,
+                          width: 40,
                         ),
-                        Text('Stokvels'),
+                        Text('My Stokvels'),
                         SizedBox(
                           width: 12,
                         ),
@@ -236,6 +246,17 @@ class _DashboardState extends State<Dashboard>
     _widgets.add(SizedBox(
       height: 20,
     ));
+    _widgets.add(Text(
+      'Stokvel Members',
+      style: Styles.greyLabelSmall,
+    ));
+    _widgets.add(SizedBox(
+      height: 8,
+    ));
+    _widgets.add(MembersList(memberId: _member.memberId));
+    _widgets.add(SizedBox(
+      height: 20,
+    ));
     print(
         '...................  🔴 _getDashboardWidgets: ${_widgets.length} widgets added to dashboard, did refresh happen ????');
     setState(() {});
@@ -259,7 +280,7 @@ class _DashboardState extends State<Dashboard>
         '🤟🤟🤟 Dashboard: Member scanned and updated on Firestore ...now has  🌶 ${member.stokvelIds.length} stokvels 🌶 ');
     prettyPrint(member.toJson(),
         '🤟🤟🤟 member scanned and updated, check stokvels in member rec');
-    _refresh();
+    _refreshAccount();
   }
 
   @override
@@ -294,7 +315,7 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onRefreshRequested() {
-    _refresh();
+    _refreshAccount();
   }
 
   @override

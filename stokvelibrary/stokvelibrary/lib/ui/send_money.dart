@@ -8,6 +8,7 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/scan/payment_scan.dart';
+import 'package:toast/toast.dart';
 
 class SendMoney extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class _SendMoneyState extends State<SendMoney>
   @override
   void initState() {
     super.initState();
-    _listen();
+//    _listen();
     _getMember();
   }
 
@@ -136,35 +137,36 @@ class _SendMoneyState extends State<SendMoney>
 
   bool isBusy = false, isStokvelPayment = true;
 
-  void _listen() async {
-    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
-    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
-      if (mounted) {
-        var mPayment = payments.last;
-        AppSnackBar.showSnackBar(
-            scaffoldKey: _key,
-            message:
-                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
-            textColor: Colors.lightGreen,
-            backgroundColor: Colors.black);
-      }
-    });
-    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Receiving stokvelPayment from stream ... ${payments.length}');
-      if (mounted) {
-        var mPayment = payments.last;
-        AppSnackBar.showSnackBar(
-            scaffoldKey: _key,
-            message:
-                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
-            textColor: Colors.lightGreen,
-            backgroundColor: Colors.black);
-      }
-    });
-  }
+//  void _listen() async {
+//    print(
+//        ' 🌽 🌽 🌽 SendMoney: Start listening to FCM payment messages via stream');
+//    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
+//      print(
+//          '🔵 🔵 🔵 SendMoney: Receiving memberPayment from stream ... ${payments.length}');
+//      if (mounted) {
+//        var mPayment = payments.last;
+//        AppSnackBar.showSnackBar(
+//            scaffoldKey: _key,
+//            message:
+//                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
+//            textColor: Colors.lightGreen,
+//            backgroundColor: Colors.black);
+//      }
+//    });
+//    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
+//      print(
+//          '🔵 🔵 🔵 SendMoney: Receiving stokvelPayment from stream ... ${payments.length}');
+//      if (mounted) {
+//        var mPayment = payments.last;
+//        AppSnackBar.showSnackBar(
+//            scaffoldKey: _key,
+//            message:
+//                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
+//            textColor: Colors.lightGreen,
+//            backgroundColor: Colors.black);
+//      }
+//    });
+//  }
 
   void _displayStokvelPaymentDialog() {
     print('🧩 🧩 ........ _displayStokvelPaymentDialog ..... ');
@@ -298,11 +300,9 @@ class _SendMoneyState extends State<SendMoney>
       var res = await genericBloc.sendStokvelPayment(
           member: me, amount: amountController.text, stokvel: _stokvel);
       prettyPrint(res.toJson(), "🍎 Stokvel Payment Result 🍎 ");
-      AppSnackBar.showSnackBar(
-          scaffoldKey: _key,
-          message: 'Stokvel Payment Succeeded',
-          textColor: Colors.lightGreen,
-          backgroundColor: Colors.black);
+      Toast.show('Stokvel Payment Succeeded', context,
+          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+      Navigator.pop(context, res);
     } catch (e) {
       print(e);
       AppSnackBar.showErrorSnackBar(
@@ -331,11 +331,9 @@ class _SendMoneyState extends State<SendMoney>
       var res = await genericBloc.sendMemberToMemberPayment(
           fromMember: me, amount: amountController.text, toMember: member);
       prettyPrint(res.toJson(), "🍎 Member Payment Result 🍎 ");
-      AppSnackBar.showSnackBar(
-          scaffoldKey: _key,
-          message: 'Member Payment Succeeded',
-          textColor: Colors.lightGreen,
-          backgroundColor: Colors.black);
+      Toast.show('Member Payment Succeeded', context,
+          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+      Navigator.pop(context, res);
     } catch (e) {
       print(e);
       AppSnackBar.showErrorSnackBar(
