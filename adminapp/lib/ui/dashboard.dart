@@ -9,7 +9,6 @@ import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
-import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/account_card.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/members_list.dart';
@@ -47,11 +46,11 @@ class _DashboardState extends State<Dashboard>
           '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
       //_refreshAccount();
       if (mounted) {
-        AppSnackBar.showSnackBar(
-            scaffoldKey: _key,
-            message: 'Member Payments processed: ${payments.length}',
-            textColor: Colors.lightGreen,
-            backgroundColor: Colors.black);
+//        AppSnackBar.showSnackBar(
+//            scaffoldKey: _key,
+//            message: 'Member Payments processed: ${payments.length}',
+//            textColor: Colors.lightGreen,
+//            backgroundColor: Colors.black);
       }
     });
     genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
@@ -59,11 +58,11 @@ class _DashboardState extends State<Dashboard>
           '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
       //_refreshAccount();
       if (mounted) {
-        AppSnackBar.showSnackBar(
-            scaffoldKey: _key,
-            message: 'Stokvel Payments processed: ${payments.length}',
-            textColor: Colors.lightBlue,
-            backgroundColor: Colors.black);
+//        AppSnackBar.showSnackBar(
+//            scaffoldKey: _key,
+//            message: 'Stokvel Payments processed: ${payments.length}',
+//            textColor: Colors.lightBlue,
+//            backgroundColor: Colors.black);
       }
     });
   }

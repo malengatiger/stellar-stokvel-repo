@@ -65,9 +65,11 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     } catch (e) {
       print(e);
     }
-    setState(() {
-      isBusy = false;
-    });
+    if (mounted) {
+      setState(() {
+        isBusy = false;
+      });
+    }
   }
 
   _buildTable() async {
