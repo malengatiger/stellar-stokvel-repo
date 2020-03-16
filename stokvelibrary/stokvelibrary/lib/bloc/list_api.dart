@@ -113,13 +113,15 @@ class ListAPI {
       String stokvelId) async {
     var querySnapshot = await _firestore
         .collection('stokvelPayments')
-        .where('stokvelId', isEqualTo: stokvelId)
+        .where('stokvel.stokvelId', isEqualTo: stokvelId)
         .limit(PAYMENT_LIST_LIMIT)
         .getDocuments();
     var mList = List<StokvelPayment>();
     querySnapshot.documents.forEach((doc) {
       mList.add(StokvelPayment.fromJson(doc.data));
     });
+    print('ListAPI: 🌎 🌎 🌎 getStokvelPayments found ${mList.length} '
+        'stokvel payments from Firestore, 🌎 id: $stokvelId');
     return mList;
   }
 

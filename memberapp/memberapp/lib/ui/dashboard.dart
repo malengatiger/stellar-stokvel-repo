@@ -9,11 +9,9 @@ import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
-import 'package:stokvelibrary/ui/account_card.dart';
+import 'package:stokvelibrary/ui/dash_util.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
-import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
-import 'package:stokvelibrary/ui/payment_totals.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -38,28 +36,10 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
       print(
           '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... ${payments.length}');
-      if (mounted) {
-        var mPayment = payments.last;
-        AppSnackBar.showSnackBar(
-            scaffoldKey: _key,
-            message:
-                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
-            textColor: Colors.lightGreen,
-            backgroundColor: Colors.black);
-      }
     });
     genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
       print(
           '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... ${payments.length}');
-      if (mounted) {
-        var mPayment = payments.last;
-        AppSnackBar.showSnackBar(
-            scaffoldKey: _key,
-            message:
-                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
-            textColor: Colors.lightGreen,
-            backgroundColor: Colors.black);
-      }
     });
   }
 
@@ -105,74 +85,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   }
 
   void _getDashboardWidgets() {
-    //add account cards
-    print(
-        '.................  🔴 .... getting dashboard widgets .........................');
-    prettyPrint(_member.toJson(), 'MEMBER');
-    _widgets.clear();
-    _widgets.add(MemberAccountCard(
-      memberId: _member.memberId,
-    ));
-    _widgets.add(SizedBox(
-      height: 8,
-    ));
-
-    _member.stokvelIds.forEach((stokvelId) {
-      _widgets.add(MemberAccountCard(
-        stokvelId: stokvelId,
-      ));
-    });
-    _widgets.add(SizedBox(
-      height: 8,
-    ));
-    _widgets.add(Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: Text(
-        'Member Payments',
-        style: Styles.greyLabelSmall,
-      ),
-    ));
-    _widgets.add(SizedBox(
-      height: 8,
-    ));
-    _widgets.add(PaymentsTotals(
-      memberId: _member.memberId,
-    ));
-    _widgets.add(SizedBox(
-      height: 8,
-    ));
-    _widgets.add(Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: Text(
-        'Stokvel Payments',
-        style: Styles.greyLabelSmall,
-      ),
-    ));
-    _widgets.add(SizedBox(
-      height: 8,
-    ));
-    _member.stokvelIds.forEach((id) {
-      _widgets.add(PaymentsTotals(
-        stokvelId: id,
-      ));
-    });
-    _widgets.add(SizedBox(
-      height: 20,
-    ));
-    _widgets.add(Text(
-      'Stokvel Members',
-      style: Styles.greyLabelSmall,
-    ));
-    _widgets.add(SizedBox(
-      height: 8,
-    ));
-
-    _widgets.add(MembersList(memberId: _member.memberId));
-    _widgets.add(SizedBox(
-      height: 20,
-    ));
-    print(
-        '...................  🔴 _getDashboardWidgets: ${_widgets.length} widgets added to dashboard, did refresh happen ????');
+    _widgets = getDashboardWidgets(_member);
     setState(() {});
   }
 

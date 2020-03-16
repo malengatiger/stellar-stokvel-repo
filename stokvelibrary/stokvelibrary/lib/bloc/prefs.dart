@@ -23,7 +23,7 @@ class Prefs {
     }
     var jx = json.decode(string);
     var member = new Member.fromJson(jx);
-    print("🌽 🌽 🌽 Prefs.getMember 🧩  ${member.toJson()} retrieved");
+    print("🌽 🌽 🌽 Prefs.getMember 🧩  ${member.name} retrieved");
     return member;
   }
 

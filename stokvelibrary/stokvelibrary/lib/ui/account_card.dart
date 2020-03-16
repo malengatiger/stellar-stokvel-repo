@@ -28,14 +28,12 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
   void initState() {
     super.initState();
     print(
-        '...................  🔴 MemberAccountCard: initStatem getting account .. '
+        '...................  🔴 MemberAccountCard: initState getting account .. '
         '🍏 stokvelId: ${widget.stokvelId} memberId: ${widget.memberId}  🔴  🔴 ');
     _getAccount();
   }
 
   _getAccount() async {
-    print(
-        '...................  🔴 Getting account for either stokvel or member');
     setState(() {
       isBusy = true;
     });

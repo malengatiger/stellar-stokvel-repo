@@ -16,7 +16,6 @@ class PaymentsTotals extends StatefulWidget {
 }
 
 class _PaymentsTotalsState extends State<PaymentsTotals> {
-  var _stokvels = List<Stokvel>();
   var _memberPayments = List<MemberPayment>();
   var _stokvelPayments = List<StokvelPayment>();
   bool isBusy = false;
@@ -26,6 +25,8 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
   @override
   void initState() {
     super.initState();
+    print(
+        '🔴 🔴 🔴 🔴 🔴 PaymentsTotals: initState 🔴 stokvelId: ${widget.stokvelId} 🔴 memberId: ${widget.memberId}');
     if (widget.stokvelId == null && widget.memberId == null) {
       throw Exception('Missing stokvelId or memberId');
     }
@@ -36,28 +37,44 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
     setState(() {
       isBusy = true;
     });
+    print(
+        '🔴 🔴 🔴 🔴 🔴 🔵 🔵 PaymentsTotals: _refresh 🔴 stokvelId: ${widget.stokvelId} 🔴 memberId: ${widget.memberId}');
+
     try {
       if (widget.stokvelId != null) {
+        print(
+            '🔵 🔵 🍏 🍏 🍏 This is a Stokvel Payments request: call FileUtil and/or ListAPI with stokvelID: 🔴 ${widget.stokvelId} ');
         _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
         if (_stokvel == null) {
           _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
         }
+        if (_stokvel == null) {
+          throw Exception('Stokvel not found when need for payment query');
+        }
         _stokvelPayments =
             await genericBloc.getStokvelPayments(widget.stokvelId);
-      }
-      if (widget.memberId != null) {
-        _member = await Prefs.getMember();
-        if (_member.memberId != widget.memberId) {
-          _member = await ListAPI.getMember(widget.memberId);
+        print(
+            '🔵 🔵 🍏 🍏 🍏 we have found ${_stokvelPayments.length} stokvelPayments. we good? ');
+      } else {
+        if (widget.memberId != null) {
+          _member = await Prefs.getMember();
+          if (_member.memberId != widget.memberId) {
+            _member = await ListAPI.getMember(widget.memberId);
+          }
+          _memberPayments =
+              await genericBloc.getMemberPayments(widget.memberId);
+        } else {
+          print('.... 🔴 🔴 🔴 🔴 We have a problem here, Houston!');
         }
-        _memberPayments = await genericBloc.getMemberPayments(widget.memberId);
       }
     } catch (e) {
       print(e);
     }
-    setState(() {
-      isBusy = false;
-    });
+    if (mounted) {
+      setState(() {
+        isBusy = false;
+      });
+    }
   }
 
   @override

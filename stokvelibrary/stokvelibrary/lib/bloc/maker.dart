@@ -292,11 +292,11 @@ class MakerBloc {
     assert(encryptedSeed != null);
     assert(fortunaKey != null);
     assert(cryptKey != null);
-    print(
-        '\n🍏 🍏 🍏 🍏 🍏 $chacha20 Decryption: 🔵 cryptKey: $cryptKey 🔵 encryptedSeed: $encryptedSeed:');
+//    print(
+//        '\n🍏 🍏 🍏 🍏 🍏 $chacha20 Decryption: 🔵 cryptKey: $cryptKey 🔵 encryptedSeed: $encryptedSeed:');
     var lightCrypt = LightCrypt(fortunaKey, chacha20);
     var chaDecrypted = lightCrypt.decrypt(encryptedSeed, cryptKey);
-    print('$chacha20:  🍏 chaDecrypted: 🍎  $chaDecrypted 🍏');
+//    print('$chacha20:  🍏 chaDecrypted: 🍎  $chaDecrypted 🍏');
     return chaDecrypted;
   }
 

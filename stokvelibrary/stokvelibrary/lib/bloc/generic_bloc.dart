@@ -125,7 +125,7 @@ class GenericBloc {
     });
     fcm.getToken().then((String token) {
       assert(token != null);
-      print('♻️♻️♻️️♻️♻️️ GenericBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
+//      print('♻️♻️♻️️♻️♻️️ GenericBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
     });
     subscribeToFCM();
 
@@ -387,16 +387,10 @@ class GenericBloc {
     if (_member == null) {
       _member = await getCachedMember();
     }
-    var _stokvelPaymnts = await ListAPI.getStokvelPayments(stokvelId);
-    var filtered = List<StokvelPayment>();
-    _stokvelPayments.forEach((m) {
-      if (m.stokvel.stokvelId != stokvelId) {
-        filtered.add(m);
-      }
-    });
-    filtered.addAll(_stokvelPaymnts);
-    _stokvelPayments = filtered;
+    _stokvelPayments = await ListAPI.getStokvelPayments(stokvelId);
     _stokvelPaymentController.sink.add(_stokvelPayments);
+    print(
+        'GenericBloc:  🌎 🌎 🌎 getStokvelPayments: found ${_stokvelPayments.length}  🔵 🔵 🔵 ');
     return _stokvelPayments;
   }
 
@@ -492,7 +486,7 @@ class GenericBloc {
 
     for (var t in topics) {
       await fcm.subscribeToTopic(t);
-      print('GenericBloc: 💜 💜 ..... Subscribed to FCM topic: 🍎  $t  💜 💜 ');
+      //print('GenericBloc: 💜 💜 ..... Subscribed to FCM topic: 🍎  $t  💜 💜 ');
     }
   }
 }
