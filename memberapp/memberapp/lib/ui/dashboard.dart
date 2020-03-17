@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:member/ui/welcome.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
-import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
-import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/dash_util.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
@@ -32,7 +30,6 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   }
 
   void _listen() async {
-    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
     genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
       print(
           '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... ${payments.length}');
@@ -47,32 +44,6 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     _member = await Prefs.getMember();
     _getDashboardWidgets();
     setState(() {});
-  }
-
-  _refresh() async {
-    print('🌶  🌶  🌶  🌶  .... Refreshing data ..............');
-    var seed = await makerBloc.getDecryptedSeedFromCache();
-    if (seed != null) {
-      try {
-        setState(() {
-          isBusy = true;
-        });
-        _accountResponse = await genericBloc.getAccount(seed);
-        _member = await genericBloc.getMember(_member.memberId);
-        print(
-            '🌶  🌶  🌶  🌶  .... genericBloc.getMember .....memberId: ${_member.memberId}');
-      } catch (e) {
-        print(e);
-        AppSnackBar.showErrorSnackBar(
-            scaffoldKey: _key, message: 'Data refresh failed');
-      }
-    } else {
-      AppSnackBar.showErrorSnackBar(
-          scaffoldKey: _key, message: 'Seed not found');
-    }
-    setState(() {
-      isBusy = false;
-    });
   }
 
   _startQRcode() {
@@ -124,12 +95,6 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                     SlideRightRoute(
                       widget: Welcome(_member),
                     ));
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () {
-                _refresh();
               },
             ),
           ],

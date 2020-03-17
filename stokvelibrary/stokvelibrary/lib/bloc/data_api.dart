@@ -182,6 +182,10 @@ class DataAPI {
     var cred = StokkieCredential(
         accountId: stokvel.accountId,
         date: DateTime.now().toUtc().toIso8601String(),
+        stokvelId: stokvel.stokvelId,
+        memberId: null,
+        fortunaKey: null,
+        cryptKey: null,
         seed: stokvelAccountResponse.secretSeed);
 
     await LocalDBAPI.addCredential(credential: cred);

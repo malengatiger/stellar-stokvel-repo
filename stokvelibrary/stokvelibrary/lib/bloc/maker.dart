@@ -5,8 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:steel_crypt/steel_crypt.dart';
 import 'package:stellarplugin/data_models/account_response_bag.dart';
 import 'package:stellarplugin/stellarplugin.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/data_api.dart';
-import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
@@ -82,9 +82,6 @@ class MakerBloc {
     member.memberId = uuid.v1();
     var token = await auth.getToken();
     member.fcmToken = token;
-    print('$em2 DataAPI: MEMBER accountId has been set ${member.accountId}...');
-    Prefs.addMemberAccountResponseBag(memberAccountResponse);
-    await FileUtil.addMember(member);
 
     var fortunaKey = CryptKey().genFortuna();
     var cryptKey = CryptKey().genDart(8);
@@ -105,10 +102,19 @@ class MakerBloc {
         stokvelId: null,
         memberId: member.memberId);
 
-    await FileUtil.addCredential(memberCredential);
+    await _saveMemberData(memberCredential, member, memberAccountResponse);
+    return member;
+  }
+
+  Future _saveMemberData(StokkieCredential memberCredential, Member member,
+      AccountResponseBag memberAccountResponse) async {
+    await LocalDB.addCredential(credential: memberCredential);
+    await LocalDB.addMember(member: member);
+    await LocalDB.addMemberAccountResponse(
+        accountResponse: memberAccountResponse.accountResponse);
+    Prefs.addMemberAccountResponseBag(memberAccountResponse);
     await Prefs.saveCredential(memberCredential);
     await writeCredential(memberCredential);
-
     var invites = await getInvitations(member.email);
     invites.forEach((i) {
       member.stokvelIds.add(i.stokvel.stokvelId);
@@ -118,7 +124,6 @@ class MakerBloc {
     await writeMember(member);
     await Prefs.saveMember(member);
     print('🍏 🍏 MEMBER ACCOUNT from Stellar added. 🍏 🍏 🍏 Yebo! 🍏 🍏 🍏 ');
-    return member;
   }
 
   Future<List<Invitation>> getInvitations(String email,
@@ -127,7 +132,7 @@ class MakerBloc {
     return invites;
   }
 
-  Future<StokkieCredential> createStokvelAccount(Stokvel stokvel) async {
+  Future<int> createStokvelAccount(Stokvel stokvel) async {
     print('$em1 DataAPI: creating Stellar account for the Stokvel ...');
     var stokvelAccountResponse =
         await Stellar.createAccount(isDevelopmentStatus: isDevelopmentStatus);
@@ -135,13 +140,32 @@ class MakerBloc {
     print(
         '$em1 DataAPI: STOKVEL accountId has been set 🌎 🌎 🌎 ${stokvel.accountId} 🌎 ...');
 
-    //todo - store this credential on Firestore - ENCRYPT seed
-    var cred = StokkieCredential(
-        accountId: stokvel.accountId,
-        date: DateTime.now().toUtc().toIso8601String(),
-        seed: stokvelAccountResponse.secretSeed);
+    var fortunaKey = CryptKey().genFortuna();
+    var cryptKey = CryptKey().genDart(8);
+    assert(fortunaKey != null);
+    assert(cryptKey != null);
 
-    return cred;
+    var encryptedStokkieSeed = encrypt(
+        seed: stokvelAccountResponse.secretSeed,
+        fortunaKey: fortunaKey,
+        cryptKey: cryptKey);
+
+    var stokvelCredential = StokkieCredential(
+        accountId: stokvelAccountResponse.accountResponse.accountId,
+        date: DateTime.now().toUtc().toIso8601String(),
+        fortunaKey: fortunaKey,
+        cryptKey: cryptKey,
+        seed: encryptedStokkieSeed,
+        stokvelId: stokvel.stokvelId,
+        memberId: null);
+
+    await LocalDB.addStokvel(stokvel: stokvel);
+    await LocalDB.addCredential(credential: stokvelCredential);
+    await LocalDB.addStokvelAccountResponse(
+        accountResponse: stokvelAccountResponse.accountResponse);
+    await writeStokvel(stokvel);
+    await writeCredential(stokvelCredential);
+    return 0;
   }
 
   static const String em1 = '🔆', em2 = '🔵 🔵 🔵';
@@ -203,18 +227,22 @@ class MakerBloc {
         stokvelId: null,
         memberId: member.memberId);
 
-    await _saveData(member, stokvel, memberCredential, stokvelCredential);
+    await _saveStokvelAndMemberData(
+        member, stokvel, memberCredential, stokvelCredential, stokvelAccount);
   }
 
-  Future _saveData(
+  Future _saveStokvelAndMemberData(
       Member member,
       Stokvel stokvel,
       StokkieCredential memberCredential,
-      StokkieCredential stokvelCredential) async {
-    await FileUtil.addMember(member);
-    await FileUtil.addStokvel(stokvel);
-    await FileUtil.addCredential(memberCredential);
-    await FileUtil.addCredential(stokvelCredential);
+      StokkieCredential stokvelCredential,
+      AccountResponseBag bag) async {
+    await LocalDB.addMember(member: member);
+    await LocalDB.addStokvel(stokvel: stokvel);
+    await LocalDB.addCredential(credential: memberCredential);
+    await LocalDB.addCredential(credential: stokvelCredential);
+    await LocalDB.addStokvelAccountResponse(
+        accountResponse: bag.accountResponse);
     prettyPrint(member.toJson(),
         '🌽 🌽 🌽 Member about to be cached in Prefs ...🌽 🌽 🌽 check for stokvelIds ...');
     await Prefs.saveMember(member);
@@ -241,12 +269,8 @@ class MakerBloc {
 
     print('🍏 🍏 STOKVEL ACCOUNT from Stellar seems OK 🍏 🍏 🍏 🍏 🍏 🍏 ');
 
-    Prefs.addStokvelAccountResponseBag(stokvelAccount);
-
-    await FileUtil.addStokvel(stokvel);
     var fortunaKey = CryptKey().genFortuna();
     var cryptKey = CryptKey().genDart(8);
-
     assert(fortunaKey != null);
     assert(cryptKey != null);
 
@@ -260,15 +284,27 @@ class MakerBloc {
         date: DateTime.now().toUtc().toIso8601String(),
         fortunaKey: fortunaKey,
         cryptKey: cryptKey,
+        stokvelId: stokvel.stokvelId,
+        memberId: null,
         seed: ee);
-    await FileUtil.addCredential(stokvelCredential);
 
+    await _saveStokvelData(stokvelCredential, stokvel, stokvelAccount, member);
+  }
+
+  Future _saveStokvelData(StokkieCredential stokvelCredential, Stokvel stokvel,
+      AccountResponseBag bag, Member member) async {
+    await LocalDB.addCredential(credential: stokvelCredential);
+    await LocalDB.addStokvel(stokvel: stokvel);
+    await LocalDB.addStokvelAccountResponse(
+        accountResponse: bag.accountResponse);
+    await LocalDB.addMember(member: member);
     print(
         '🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵   🍎 Trying to write to Firestore without shitting the bed !   🍎  🔵  🔵  🔵  🔵  🔵  🔵  🔵  🔵 ');
     await writeCredential(stokvelCredential);
     await writeStokvel(stokvel);
     await DataAPI.updateMember(member);
     await Prefs.saveMember(member);
+    Prefs.addStokvelAccountResponseBag(bag);
   }
 
   String encrypt({@required String seed, String fortunaKey, String cryptKey}) {
@@ -292,11 +328,9 @@ class MakerBloc {
     assert(encryptedSeed != null);
     assert(fortunaKey != null);
     assert(cryptKey != null);
-//    print(
-//        '\n🍏 🍏 🍏 🍏 🍏 $chacha20 Decryption: 🔵 cryptKey: $cryptKey 🔵 encryptedSeed: $encryptedSeed:');
+
     var lightCrypt = LightCrypt(fortunaKey, chacha20);
     var chaDecrypted = lightCrypt.decrypt(encryptedSeed, cryptKey);
-//    print('$chacha20:  🍏 chaDecrypted: 🍎  $chaDecrypted 🍏');
     return chaDecrypted;
   }
 
@@ -325,44 +359,5 @@ class MakerBloc {
         fortunaKey: cred.fortunaKey);
 
     return seed;
-  }
-
-  void testCached() async {
-    print('\n\n\n');
-//    var stok2 = await Prefs.getStokvelAccountResponseBag();
-//    prettyPrint(stok2.toJson(),
-//        '🍏 🍏 STOKVEL account from disk cache 🔵 🔵 🔵 🔵 🔵 🔵 ');
-//
-//    var mem = await Prefs.getMemberAccountResponseBag();
-//    prettyPrint(mem.toJson(),
-//        '🍏 🍏 MEMBER account from disk cache 🔵 🔵 🔵 🔵 🔵 🔵 ');
-//
-//    var stokkies = await FileUtil.getStokvels();
-//    stokkies.stokvels.forEach((s) {
-//      prettyPrint(s.toJson(), '🔵 🔵 🔵 🔵 STOKVEL 🔵 🔵 🔵 🔵');
-//    });
-//    print(
-//        '🔵 🔵 ${stokkies.stokvels.length} stokvels in the cache file  🔵 🔵 🔵 🔵 ');
-//
-    var mems = await FileUtil.getMembers();
-    mems.members.forEach((s) {
-      prettyPrint(s.toJson(), '🤟🏽 🤟🏽 🤟🏽  MEMBER 🤟🏽 🤟🏽 🤟🏽 ');
-    });
-    print(
-        '🤟🏽 🤟🏽 🤟🏽 🤟🏽 🤟🏽 🤟🏽  ${mems.members.length} members in the cache file 🍏 🍏 🍏 🍏 ');
-    var creds = await FileUtil.getCredentials();
-    creds.credentials.forEach((s) {
-      prettyPrint(s.toJson(), '🍎 🍎 🍎 🍎 STOKVEL CREDS 🍎 🍎 🍎 🍎 ');
-      try {
-        decrypt(
-            encryptedSeed: s.seed,
-            cryptKey: s.cryptKey,
-            fortunaKey: s.fortunaKey);
-      } catch (e) {
-        print(e);
-      }
-    });
-    print(
-        '🍎 🍎 ${creds.credentials.length} creds in the cache file 🍎 🍎 🍎 🍎  ');
   }
 }

@@ -30,6 +30,8 @@
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/stellarplugin-0.0.3+7" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-1.2.2" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler-4.4.0+hotfix.1" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.13.4+2" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler-4.4.0+hotfix.2" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

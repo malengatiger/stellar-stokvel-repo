@@ -69,6 +69,7 @@
           <value>
             <list>
               <option value="$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.13.4+1/lib" />
+              <option value="$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.13.4+2/lib" />
             </list>
           </value>
         </entry>
@@ -385,6 +386,7 @@
           <value>
             <list>
               <option value="$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler-4.4.0+hotfix.1/lib" />
+              <option value="$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler-4.4.0+hotfix.2/lib" />
             </list>
           </value>
         </entry>
@@ -626,6 +628,7 @@
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/charcode-1.1.2/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/circular_profile_avatar-1.0.6/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.13.4+1/lib" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore-0.13.4+2/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore_platform_interface-1.1.0/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore_web-0.1.1+1/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/cloud_firestore_web-0.1.1/lib" />
@@ -669,6 +672,7 @@
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_platform_interface-1.0.1/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/pedantic-1.8.0+1/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler-4.4.0+hotfix.1/lib" />
+      <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler-4.4.0+hotfix.2/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/permission_handler_platform_interface-1.0.0/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-2.4.0/lib" />
       <root url="file://$PROJECT_DIR$/../../../flutter/.pub-cache/hosted/pub.dartlang.org/platform-2.2.1/lib" />

@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
 import 'package:stokvelibrary/bloc/data_api.dart';
 import 'package:stokvelibrary/bloc/file_util.dart';
@@ -249,14 +250,17 @@ class GenericBloc {
     }
   }
 
-  Future<AccountResponse> getAccount(String seed) async {
-    var accountResponse = await Stellar.getAccount(seed: seed);
-    _accountResponses.add(accountResponse);
-    _accountResponseController.sink.add(_accountResponses);
-    print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
-        'balances: ${accountResponse.balances.length} responses in list: ${_accountResponses.length}');
-
-    return accountResponse;
+  Future<AccountResponse> getAccount(String accountId) async {
+//    var cred = await LocalDB.getCredentialByStokvel(stokvelId);
+//    _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
+//    var seed = makerBloc.getDecryptedSeed(cred);
+//    var accountResponse = await Stellar.getAccount(seed: seed);
+//    _accountResponses.add(accountResponse);
+//    _accountResponseController.sink.add(_accountResponses);
+//    print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
+//        'balances: ${accountResponse.balances.length} responses in list: ${_accountResponses.length}');
+//
+//    return accountResponse;
   }
 
   Future<AccountResponse> getStokvelAccount(String stokvelId) async {
@@ -319,19 +323,6 @@ class GenericBloc {
     return await Auth.checkAuth();
   }
 
-  Future<Member> createMember({Member member, String password}) async {
-    _member = await Auth.createMember(member: member, memberPassword: password);
-    return _member;
-  }
-
-  Future<Stokvel> createStokvel({Stokvel stokvel, Member member}) async {
-    var stokvelResult =
-        await DataAPI.createStokvelNewAdmin(stokvel: stokvel, member: member);
-    _stokvels.add(stokvelResult);
-
-    return stokvelResult;
-  }
-
   Future<Member> updateMember(Member member) async {
     return await DataAPI.updateMember(member);
   }
@@ -387,10 +378,29 @@ class GenericBloc {
     if (_member == null) {
       _member = await getCachedMember();
     }
-    _stokvelPayments = await ListAPI.getStokvelPayments(stokvelId);
+    _stokvelPayments = await LocalDB.getStokvelPayments(stokvelId);
+    if (_stokvelPayments.isEmpty) {
+      return await refreshStokvelPayments(stokvelId);
+    }
     _stokvelPaymentController.sink.add(_stokvelPayments);
     print(
         'GenericBloc:  🌎 🌎 🌎 getStokvelPayments: found ${_stokvelPayments.length}  🔵 🔵 🔵 ');
+
+    return _stokvelPayments;
+  }
+
+  Future refreshStokvelPayments(String stokvelId) async {
+    if (_member == null) {
+      _member = await getCachedMember();
+    }
+    _stokvelPayments = await ListAPI.getStokvelPayments(stokvelId);
+    _stokvelPaymentController.sink.add(_stokvelPayments);
+    for (var pay in _stokvelPayments) {
+      await LocalDB.addStokvelPayment(stokvelPayment: pay);
+    }
+    print(
+        'GenericBloc:  🌎 🌎 🌎 refreshStokvelPayments: found ${_stokvelPayments.length}  🔵 🔵 🔵 ');
+
     return _stokvelPayments;
   }
 
@@ -398,10 +408,28 @@ class GenericBloc {
     if (_member == null) {
       _member = await getCachedMember();
     }
-    _memberPayments = await ListAPI.getMemberPayments(memberId);
+    _memberPayments = await LocalDB.getMemberPayments(memberId);
+    if (_memberPayments.isEmpty) {
+      return await refreshMemberPayments(memberId);
+    }
     _memberPaymentController.sink.add(_memberPayments);
     print(
         'GenericBloc:  🔵 🔵 🔵 getMemberPayments, found ${_memberPayments.length}');
+    return _memberPayments;
+  }
+
+  Future refreshMemberPayments(String memberId) async {
+    if (_member == null) {
+      _member = await getCachedMember();
+    }
+    _memberPayments = await ListAPI.getMemberPayments(memberId);
+    _memberPaymentController.sink.add(_memberPayments);
+//    for (var pay in _memberPayments) {
+//      await LocalDB.addMemberPayment(memberPayment: pay);
+//    }
+    print(
+        'GenericBloc:  🌎 🌎 🌎 refreshMemberPayments: found ${_stokvelPayments.length}  🔵 🔵 🔵 ');
+
     return _memberPayments;
   }
 
