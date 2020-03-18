@@ -6,6 +6,7 @@ import 'package:mobmongo/carrier.dart';
 import 'package:mobmongo/mobmongo.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/constants.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
@@ -86,7 +87,7 @@ class LocalDB {
     await MobMongo.createIndex(carr8);
 
     print(
-        'LocalDBAPI: 🧩 🧩 🧩  🧩 🧩 🧩 ALL local indices built! - 👌 👌 👌 \n\n');
+        'LocalDB: 🧩 🧩 🧩  🧩 🧩 🧩 ALL local database indices built! - 👌 👌 👌 \n\n');
   }
 
   static Future<List<Stokvel>> getStokvels() async {
@@ -98,13 +99,14 @@ class LocalDB {
     );
     List result = await MobMongo.getAll(carrier);
     result.forEach((r) {
-      mList.add(Stokvel.fromJson(r));
+      mList.add(Stokvel.fromJson(jsonDecode(r)));
     });
     return mList;
   }
 
   static Future<List<Member>> getMembers() async {
     await _connectToLocalDB();
+    print('LocalDB: ... getMembers ......................');
     List<Member> mList = [];
     Carrier carrier = Carrier(
       db: databaseName,
@@ -112,9 +114,30 @@ class LocalDB {
     );
     List result = await MobMongo.getAll(carrier);
     result.forEach((r) {
-      mList.add(Member.fromJson(r));
+      mList.add(Member.fromJson(jsonDecode(r)));
     });
     return mList;
+  }
+
+  static Future<Member> getMember(String memberId) async {
+    print('LocalDB: ... getMember: ....');
+    List<Member> mList = await getMembers();
+    print('LocalDB: ... getMember: .... found ${mList.length}');
+    Member member;
+    mList.forEach((m) {
+      if (m.memberId == memberId) {
+        member = m;
+      }
+    });
+    if (member == null) {
+      member = await ListAPI.getMember(memberId);
+      if (member != null) {
+        await addMember(member: member);
+      }
+    }
+    prettyPrint(member.toJson(),
+        'LocalDB: 🌽 Member retrieved from cache or Firestore');
+    return member;
   }
 
   static Future<List<MemberPayment>> getMemberPayments(String memberId) async {
@@ -127,7 +150,7 @@ class LocalDB {
     });
     List result = await MobMongo.query(carrier);
     result.forEach((r) {
-      mList.add(MemberPayment.fromJson(r));
+      mList.add(MemberPayment.fromJson(jsonDecode(r)));
     });
     return mList;
   }
@@ -145,7 +168,7 @@ class LocalDB {
         });
     List result = await MobMongo.query(carrier);
     result.forEach((r) {
-      mList.add(StokvelPayment.fromJson(r));
+      mList.add(StokvelPayment.fromJson(jsonDecode(r)));
     });
     return mList;
   }
@@ -159,7 +182,14 @@ class LocalDB {
     );
     List result = await MobMongo.getAll(carrier);
     result.forEach((r) {
-      mList.add(AccountResponse.fromJson(r));
+      try {
+        mList.add(AccountResponse.fromJson(jsonDecode(r)));
+      } catch (e) {
+        print(e);
+        print(
+            'LocalDB: 🐸🐸🐸 getMemberAccountResponses: ......... 🐸the fuckup is here somewhere ....');
+        throw Exception('Fuckup $e');
+      }
     });
     return mList;
   }
@@ -173,14 +203,24 @@ class LocalDB {
     );
     List result = await MobMongo.getAll(carrier);
     result.forEach((r) {
-      mList.add(AccountResponse.fromJson(r));
+      try {
+        mList.add(AccountResponse.fromJson(jsonDecode(r)));
+      } catch (e) {
+        print(
+            '=================================== heita, look below  =============================');
+        print(e);
+        print(
+            'LocalDB: 🦠 🦠 🦠 getStokvelAccountResponses: .........  🦠 the fuckup is here somewhere .... 🦠 🦠 🦠');
+        throw Exception('🔴 🔴 🔴 🔴 Fuckup 🔴 $e');
+      }
     });
     return mList;
   }
 
   static Future<int> addStokvel({@required Stokvel stokvel}) async {
     await _connectToLocalDB();
-    prettyPrint(stokvel.toJson(), "STOKVEL TO BE ADDED TO local DB");
+    prettyPrint(stokvel.toJson(),
+        ",,,,,,,,,,,,,,,,,,,,,,, STOKVEL TO BE ADDED TO local DB, check name etc.");
 
     var start = DateTime.now();
     Carrier c = Carrier(db: databaseName, collection: Constants.STOKVELS, id: {
@@ -191,7 +231,9 @@ class LocalDB {
     print('🦠  Result of stokvel delete: 🍎 $resDelete 🍎 ');
 
     Carrier ca = Carrier(
-        db: databaseName, collection: Constants.STOKVELS, data: c.toJson());
+        db: databaseName,
+        collection: Constants.STOKVELS,
+        data: stokvel.toJson());
     var res = await MobMongo.insert(ca);
     print('🦠  Result of addStokvel insert: 🍎 $res 🍎 ');
     var end = DateTime.now();
@@ -203,7 +245,7 @@ class LocalDB {
 
   static Future<int> addMember({@required Member member}) async {
     await _connectToLocalDB();
-    prettyPrint(member.toJson(), "STOKVEL TO BE ADDED TO local DB");
+    prettyPrint(member.toJson(), "MEMBER TO BE ADDED TO local DB");
     var start = DateTime.now();
     Carrier c = Carrier(db: databaseName, collection: Constants.MEMBERS, id: {
       'field': 'memberId',
@@ -213,8 +255,8 @@ class LocalDB {
     print('🦠  Result of member delete: 🍎 $resDelete 🍎 ');
 
     Carrier ca = Carrier(
-        db: databaseName, collection: Constants.MEMBERS, data: c.toJson());
-    var res = await MobMongo.insert(ca);
+        db: databaseName, collection: Constants.MEMBERS, data: member.toJson());
+    await MobMongo.insert(ca);
     var end = DateTime.now();
     var elapsedSecs = end.difference(start).inMilliseconds;
     print(
@@ -319,7 +361,7 @@ class LocalDB {
   static Future<Stokvel> getStokvelById(String stokvelId) async {
     await _connectToLocalDB();
     Carrier carrier =
-        Carrier(db: databaseName, collection: Constants.CREDS, query: {
+        Carrier(db: databaseName, collection: Constants.STOKVELS, query: {
       "eq": {"stokvelId": stokvelId}
     });
     List results = await MobMongo.query(carrier);
@@ -332,7 +374,6 @@ class LocalDB {
       return null;
     }
 
-    print('🔵 🔵 🔵 🔵 🔵 🔵 🔵 getStokvelById: 🦠 ${list.length}');
     return list.first;
   }
 

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
@@ -36,7 +36,7 @@ class ListAPI {
       }
     });
     if (stokvel != null) {
-      await FileUtil.addStokvel(stokvel);
+      await LocalDB.addStokvel(stokvel: stokvel);
     }
     return stokvel;
   }

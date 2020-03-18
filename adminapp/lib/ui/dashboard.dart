@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
-import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
@@ -65,9 +64,7 @@ class _DashboardState extends State<Dashboard>
   _refreshAccount() async {
     print(
         '🔵 🔵 🔵 Dashboard: _refresh Account from 🍏 Stellar 🍏 ...................');
-    var cred = await Prefs.getCredential();
-    var seed = makerBloc.getDecryptedSeed(cred);
-    memberResponse = await genericBloc.getAccount(seed);
+    memberResponse = await genericBloc.getMemberAccount(_member.memberId);
   }
 
   _startScanner() async {
@@ -235,8 +232,6 @@ class _DashboardState extends State<Dashboard>
         '🌶 ${member.stokvelIds.length} stokvels 🌶 💦 💦 💦 ');
     prettyPrint(member.toJson(), '💦 💦 💦 member, check data ...');
   }
-
-//drawer
 
   @override
   onMemberStatementRequested() {

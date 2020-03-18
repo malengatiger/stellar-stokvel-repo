@@ -14,12 +14,11 @@ import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
-import 'package:stokvelibrary/bloc/data_api.dart';
-import 'package:stokvelibrary/bloc/file_util.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
+import 'data_api.dart';
 import 'list_api.dart';
 import 'maker.dart';
 
@@ -33,7 +32,7 @@ class GenericBloc {
   List<StokvelPayment> _stokvelPayments = [];
   List<Contact> _contacts = [];
 
-  List<AccountResponse> _accountResponses = List();
+  List<AccountResponse> _memberAccountResponses = List();
   List<AccountResponse> _stokkieAccountResponses = List();
   FirebaseMessaging fcm = FirebaseMessaging();
   StreamController<List<Member>> _memberController =
@@ -48,7 +47,7 @@ class GenericBloc {
       StreamController.broadcast();
   StreamController<List<Contact>> _contactController =
       StreamController.broadcast();
-  StreamController<List<AccountResponse>> _accountResponseController =
+  StreamController<List<AccountResponse>> _memberAccountResponseController =
       StreamController.broadcast();
   StreamController<List<AccountResponse>> _stokkieAccountResponseController =
       StreamController.broadcast();
@@ -62,8 +61,8 @@ class GenericBloc {
       _stokvelPaymentController.stream;
   Stream<List<Contact>> get contactStream => _contactController.stream;
 
-  Stream<List<AccountResponse>> get accountResponseStream =>
-      _accountResponseController.stream;
+  Stream<List<AccountResponse>> get memberAccountResponseStream =>
+      _memberAccountResponseController.stream;
   Stream<List<AccountResponse>> get stokvelAccountResponseStream =>
       _stokkieAccountResponseController.stream;
 
@@ -74,7 +73,7 @@ class GenericBloc {
     _stokvelController.close();
     _credController.close();
     _contactController.close();
-    _accountResponseController.close();
+    _memberAccountResponseController.close();
     _stokkieAccountResponseController.close();
   }
 
@@ -250,52 +249,82 @@ class GenericBloc {
     }
   }
 
-  Future<AccountResponse> getAccount(String accountId) async {
-//    var cred = await LocalDB.getCredentialByStokvel(stokvelId);
-//    _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
-//    var seed = makerBloc.getDecryptedSeed(cred);
-//    var accountResponse = await Stellar.getAccount(seed: seed);
-//    _accountResponses.add(accountResponse);
-//    _accountResponseController.sink.add(_accountResponses);
-//    print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
-//        'balances: ${accountResponse.balances.length} responses in list: ${_accountResponses.length}');
-//
-//    return accountResponse;
+  Future<AccountResponse> getStokvelAccount(String stokvelId) async {
+    var accountResponses = await LocalDB.getStokvelAccountResponses();
+    if (accountResponses.isNotEmpty) {
+      accountResponses
+          .sort((m, n) => n.sequenceNumber.compareTo(m.sequenceNumber));
+      _stokkieAccountResponses.add(accountResponses.first);
+      _stokkieAccountResponseController.sink.add(_stokkieAccountResponses);
+      print(
+          '🌈  GenericBloc 🌈   stokvel account response from 🌈 MongoDB cache 🌈  '
+          'balances: ${accountResponses.first.balances.length} responses in list: ${_stokkieAccountResponses.length}');
+      return accountResponses.first;
+    } else {
+      return await refreshAccount(stokvelId: stokvelId, memberId: null);
+    }
   }
 
-  Future<AccountResponse> getStokvelAccount(String stokvelId) async {
-    //get stokvel cred to get balance
-    var cred = await FileUtil.getCredentialByStokvel(stokvelId);
-    if (cred == null) {
-      cred = await ListAPI.getStokvelCredential(stokvelId);
-      await FileUtil.addCredential(cred);
-    }
-    AccountResponse accountResponse;
-    if (cred != null) {
-      var encryptedSeed = cred.seed;
-      var seed = makerBloc.decrypt(
-          encryptedSeed: encryptedSeed,
-          cryptKey: cred.cryptKey,
-          fortunaKey: cred.fortunaKey);
-      accountResponse = await Stellar.getAccount(seed: seed);
-      _stokkieAccountResponses.add(accountResponse);
-      _stokkieAccountResponseController.sink.add(_accountResponses);
+  Future<AccountResponse> getMemberAccount(String memberId) async {
+    var accountResponses = await LocalDB.getMemberAccountResponses();
+    if (accountResponses.isNotEmpty) {
+      accountResponses
+          .sort((m, n) => n.sequenceNumber.compareTo(m.sequenceNumber));
+      _memberAccountResponses.add(accountResponses.first);
+      _memberAccountResponseController.sink.add(_memberAccountResponses);
       print(
-          '🍎 GenericBloc 🍎  stokvel account response from 🧡 Stellar Network 🍎 '
-          'balances: ${accountResponse.balances.length} responses in list: ${_accountResponses.length}');
-      accountResponse.balances.forEach((bal) {
-        print('🧡 🧡 🧡 STOKVEL Balance: ${bal.balance} of ${bal.assetType}');
-      });
+          '🌈  GenericBloc 🌈   member account response from 🌈 MongoDB cache 🌈  '
+          'balances: ${accountResponses.first.balances.length} responses in list: ${_stokkieAccountResponses.length}');
+      return accountResponses.first;
     } else {
-      throw Exception('Stokvel credential not found');
+      return await refreshAccount(stokvelId: null, memberId: memberId);
     }
+  }
 
-    return accountResponse;
+  Future<AccountResponse> refreshAccount(
+      {String stokvelId, String memberId}) async {
+    if (stokvelId != null) {
+      var cred = await LocalDB.getStokvelCredential(stokvelId);
+      var seed = makerBloc.getDecryptedSeed(cred);
+      var accountResponse = await Stellar.getAccount(seed: seed);
+      _memberAccountResponses.add(accountResponse);
+      _memberAccountResponseController.sink.add(_memberAccountResponses);
+
+      print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
+          'balances: ${accountResponse.balances.length} responses in list: ${_memberAccountResponses.length}');
+      await LocalDB.addStokvelAccountResponse(accountResponse: accountResponse);
+
+      return accountResponse;
+    }
+    if (memberId != null) {
+      var cred = await LocalDB.getMemberCredential(memberId);
+      var seed = makerBloc.getDecryptedSeed(cred);
+      var accountResponse = await Stellar.getAccount(seed: seed);
+      _memberAccountResponses.add(accountResponse);
+      _memberAccountResponseController.sink.add(_memberAccountResponses);
+      print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
+          'balances: ${accountResponse.balances.length} responses in list: ${_memberAccountResponses.length}');
+      await LocalDB.addMemberAccountResponse(accountResponse: accountResponse);
+      return accountResponse;
+    }
+    return null;
   }
 
   Future<Member> getMember(String memberId) async {
-    var member = await ListAPI.getMember(memberId);
-    await FileUtil.addMember(member);
+    var members = await LocalDB.getMembers();
+    Member member;
+    members.forEach((m) {
+      if (m.memberId == memberId) {
+        member = m;
+      }
+    });
+    if (member == null) {
+      member = await ListAPI.getMember(memberId);
+      if (member != null) {
+        await LocalDB.addMember(member: member);
+      }
+    }
+
     return member;
   }
 

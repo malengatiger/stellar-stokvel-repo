@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
-import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
@@ -40,7 +40,7 @@ class _MemberScannerState extends State<MemberScanner> {
   void _getStokkie() async {
     _member = await Prefs.getMember();
     if (widget.stokvelId != null) {
-      _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
+      _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
     }
     setState(() {});
   }

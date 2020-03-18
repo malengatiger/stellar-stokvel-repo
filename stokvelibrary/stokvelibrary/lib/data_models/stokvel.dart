@@ -9,27 +9,37 @@ class Stokvel {
       {this.name, this.stokvelId, this.date, this.adminMember, this.isActive});
 
   Stokvel.fromJson(Map map) {
-    name = map['name'];
-    accountId = map['accountId'];
-    stokvelId = map['stokvelId'];
+    try {
+      name = map['name'];
+      accountId = map['accountId'];
+      stokvelId = map['stokvelId'];
 
-    date = map['date'];
-    isActive = map['isActive'];
-    if (map['adminMember'] != null) {
-      adminMember = Member.fromJson(map['adminMember']);
+      date = map['date'];
+      isActive = map['isActive'];
+      if (map['adminMember'] != null) {
+        adminMember = Member.fromJson(map['adminMember']);
+      }
+    } catch (e) {
+      print('fromJson: the fuckup is here somewhere ....');
+      throw Exception('Stokvel: fromJSON 🔴 Fuckup 🔴 $e 🔴');
     }
   }
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> map = {
-      'name': name,
-      'accountId': accountId,
-      'stokvelId': stokvelId,
-      'date': date,
-      'isActive': isActive,
-      'adminMember': adminMember == null ? null : adminMember.toJson(),
-    };
-    return map;
+    try {
+      Map<String, dynamic> map = {
+        'name': name,
+        'accountId': accountId,
+        'stokvelId': stokvelId,
+        'date': date,
+        'isActive': isActive,
+        'adminMember': adminMember == null ? null : adminMember.toJson(),
+      };
+      return map;
+    } catch (e) {
+      print('Stokvel: toJson: the fuckup (stokvel) is here somewhere ....');
+      throw Exception('Stokvel: toJSON 🔴 Fuckup 🔴 $e 🔴');
+    }
   }
 }
 
@@ -51,39 +61,48 @@ class Member {
       @required this.isActive});
 
   Member.fromJson(Map map) {
-    name = map['name'];
-    url = map['url'];
-    fcmToken = map['fcmToken'];
-    memberId = map['memberId'];
-    accountId = map['accountId'];
-    cellphone = map['cellphone'];
-    email = map['email'];
-    date = map['date'];
-    isActive = map['isActive'];
-
-    stokvelIds = [];
-    if (map['stokvelIds'] != null) {
-      List mm = map['stokvelIds'];
-      mm.forEach((m) {
-        stokvelIds.add(m as String);
-      });
+    try {
+      name = map['name'];
+      url = map['url'];
+      fcmToken = map['fcmToken'];
+      memberId = map['memberId'];
+      accountId = map['accountId'];
+      cellphone = map['cellphone'];
+      email = map['email'];
+      date = map['date'];
+      isActive = map['isActive'];
+      stokvelIds = [];
+      if (map['stokvelIds'] != null) {
+        List mm = map['stokvelIds'];
+        mm.forEach((m) {
+          stokvelIds.add(m as String);
+        });
+      }
+    } catch (e) {
+      print('Member: fromJson: the fuckup is here somewhere ....');
+      throw Exception('Fuckup $e');
     }
   }
 
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> map = {
-      'name': name,
-      'url': url,
-      'fcmToken': fcmToken,
-      'memberId': memberId,
-      'accountId': accountId,
-      'cellphone': cellphone,
-      'email': email,
-      'date': date,
-      'stokvelIds': stokvelIds == null ? [] : stokvelIds,
-      'isActive': isActive,
-    };
-    return map;
+    try {
+      Map<String, dynamic> map = {
+        'name': name,
+        'url': url,
+        'fcmToken': fcmToken,
+        'memberId': memberId,
+        'accountId': accountId,
+        'cellphone': cellphone,
+        'email': email,
+        'date': date,
+        'stokvelIds': stokvelIds == null ? [] : stokvelIds,
+        'isActive': isActive,
+      };
+      return map;
+    } catch (e) {
+      print('Member: toJson: the fuckup is here somewhere ....');
+      throw Exception('Fuckup $e');
+    }
   }
 }
 

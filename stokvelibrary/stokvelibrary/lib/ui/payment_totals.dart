@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
-import 'package:stokvelibrary/bloc/list_api.dart';
-import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
@@ -21,7 +19,6 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
   bool isBusy = false;
   Stokvel _stokvel;
   Member _member;
-
   @override
   void initState() {
     super.initState();
@@ -37,35 +34,19 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
     setState(() {
       isBusy = true;
     });
-    print(
-        '🔴 🔴 🔴 🔴 🔴 🔵 🔵 PaymentsTotals: _refresh 🔴 stokvelId: ${widget.stokvelId} 🔴 memberId: ${widget.memberId}');
 
     try {
       if (widget.stokvelId != null) {
-        print(
-            '🔵 🔵 🍏 🍏 🍏 This is a Stokvel Payments request: call FileUtil and/or ListAPI with stokvelID: 🔴 ${widget.stokvelId} ');
-        _stokvel = await FileUtil.getStokvelById(widget.stokvelId);
-        if (_stokvel == null) {
-          _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
-        }
+        _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
         if (_stokvel == null) {
           throw Exception('Stokvel not found when need for payment query');
         }
         _stokvelPayments =
             await genericBloc.getStokvelPayments(widget.stokvelId);
-        print(
-            '🔵 🔵 🍏 🍏 🍏 we have found ${_stokvelPayments.length} stokvelPayments. we good? ');
-      } else {
-        if (widget.memberId != null) {
-          _member = await Prefs.getMember();
-          if (_member.memberId != widget.memberId) {
-            _member = await ListAPI.getMember(widget.memberId);
-          }
-          _memberPayments =
-              await genericBloc.getMemberPayments(widget.memberId);
-        } else {
-          print('.... 🔴 🔴 🔴 🔴 We have a problem here, Houston!');
-        }
+      }
+      if (widget.memberId != null) {
+        _member = await LocalDB.getMember(widget.memberId);
+        _memberPayments = await genericBloc.getMemberPayments(widget.memberId);
       }
     } catch (e) {
       print(e);
@@ -89,7 +70,13 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
                     stream: genericBloc.memberPaymentStream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
+                        print(
+                            '......... we have snapshot data here _memberPayments....');
                         _memberPayments = snapshot.data;
+                      } else {
+                        print(
+                            '......... we have NO _memberPayments snapshot data here ....');
+                        _memberPayments = [];
                       }
                       return GestureDetector(
                         onTap: _refresh,
@@ -107,13 +94,6 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
                                   ),
                                   SizedBox(
                                     width: 48,
-                                  ),
-                                  Text(
-                                    'Payments',
-                                    style: Styles.greyLabelSmall,
-                                  ),
-                                  SizedBox(
-                                    width: 12,
                                   ),
                                   Text(
                                     '${_memberPayments.length}',
@@ -138,7 +118,9 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
                                     width: 12,
                                   ),
                                   Text(
-                                    _getMemberTotals(),
+                                    _memberPayments == null
+                                        ? '0'
+                                        : _getMemberTotals(),
                                     style: Styles.tealBoldMedium,
                                   ),
                                   SizedBox(
@@ -160,7 +142,11 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
                     stream: genericBloc.stokvelPaymentStream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
+                        print('......... we have snapshot data here ....');
                         _stokvelPayments = snapshot.data;
+                      } else {
+                        print('......... we have NO snapshot data here ....');
+                        _stokvelPayments = [];
                       }
                       return GestureDetector(
                         onTap: _refresh,

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
-import 'package:stokvelibrary/ui/account_card.dart';
+import 'package:stokvelibrary/ui/member_account_card.dart';
 import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/payment_totals.dart';
+import 'package:stokvelibrary/ui/stokvel_account_card.dart';
 
 List<Widget> getDashboardWidgets(Member member) {
-  //add account cards
   print(
-      '.................  🔴 .... getting dashboard widgets .........................');
+      '.................  🔴 .... getting dashboard widgets .............. member has ${member.stokvelIds} stokvels');
   List<Widget> widgets = [];
-  prettyPrint(member.toJson(), 'MEMBER');
+  prettyPrint(
+      member.toJson(), 'getDashboardWidgets: MEMBER, check stokvels ....');
   widgets.clear();
   widgets.add(MemberAccountCard(
     memberId: member.memberId,
@@ -20,7 +21,7 @@ List<Widget> getDashboardWidgets(Member member) {
   ));
 
   member.stokvelIds.forEach((stokvelId) {
-    widgets.add(MemberAccountCard(
+    widgets.add(StokvelAccountCard(
       stokvelId: stokvelId,
     ));
   });

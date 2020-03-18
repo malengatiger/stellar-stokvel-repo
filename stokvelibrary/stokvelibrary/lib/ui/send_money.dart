@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stokvelibrary/bloc/file_util.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
@@ -39,17 +39,13 @@ class _SendMoneyState extends State<SendMoney>
       prettyPrint(_member.toJson(),
           '🔵 🔵 🔵 MEMBER doin the paying; check stokvelIds 🔵 🔵 🔵 ');
       if (_member.stokvelIds == null || _member.stokvelIds.isEmpty) {
-        _member = await ListAPI.getMember(_member.memberId);
-        if (_member != null) {
-          await FileUtil.addMember(_member);
-          await Prefs.saveMember(_member);
-        }
+        _member = await LocalDB.getMember(_member.memberId);
       }
       if (_member.stokvelIds == null || _member.stokvelIds.isEmpty) {
         _displayNoStokvelDialog();
       } else {
         for (var id in _member.stokvelIds) {
-          var stokvel = await ListAPI.getStokvelById(id);
+          var stokvel = await LocalDB.getStokvelById(id);
           _stokvels.add(stokvel);
         }
       }

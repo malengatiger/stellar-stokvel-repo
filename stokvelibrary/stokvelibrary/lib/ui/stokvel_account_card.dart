@@ -1,62 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
-import 'package:stokvelibrary/bloc/list_api.dart';
-import 'package:stokvelibrary/bloc/maker.dart';
-import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
-class MemberAccountCard extends StatefulWidget {
-  final String stokvelId, memberId;
+class StokvelAccountCard extends StatefulWidget {
+  final String stokvelId;
   final double height, width;
 
-  const MemberAccountCard(
-      {Key key, this.stokvelId, this.memberId, this.height, this.width})
+  const StokvelAccountCard({Key key, this.stokvelId, this.height, this.width})
       : super(key: key);
 
   @override
-  _MemberAccountCardState createState() => _MemberAccountCardState();
+  _StokvelAccountCardState createState() => _StokvelAccountCardState();
 }
 
-class _MemberAccountCardState extends State<MemberAccountCard> {
+class _StokvelAccountCardState extends State<StokvelAccountCard> {
   bool isBusy = false;
   AccountResponse _accountResponse;
-  Member _member;
   Stokvel _stokvel;
   @override
   void initState() {
     super.initState();
-    print(
-        '...................  🔴 MemberAccountCard: initState getting account .. '
-        '🍏 stokvelId: ${widget.stokvelId} memberId: ${widget.memberId}  🔴  🔴 ');
+    if (widget.stokvelId == null) {
+      throw Exception('Both stokvelId is missing');
+    }
     _getAccount();
   }
 
   _getAccount() async {
+    print(
+        'StokvelAccountCard:_getAccount: ...................  🔴 about to build data table ...........');
     setState(() {
       isBusy = true;
     });
     try {
-      if (widget.stokvelId == null && widget.memberId == null) {
-        print('StokvelId and memberId is null, ignoring data refresh');
-      }
-      if (widget.stokvelId != null) {
-        var cred = await ListAPI.getStokvelCredential(widget.stokvelId);
-        _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
-        var seed = makerBloc.getDecryptedSeed(cred);
-        _accountResponse = await genericBloc.getAccount(seed);
-      }
-      if (widget.memberId != null) {
-        var cred = await ListAPI.getMemberCredential(widget.memberId);
-        var seed = makerBloc.getDecryptedSeed(cred);
-        _accountResponse = await genericBloc.getAccount(seed);
-        _member = await Prefs.getMember();
-        if (_member.memberId != cred.memberId) {
-          _member = null;
-        }
-      }
-      print('...................  🔴 about to build data table ...........');
+      _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
+      _accountResponse = await genericBloc.getStokvelAccount(widget.stokvelId);
+      print('.................. are we there yet? ...........................');
       if (_accountResponse != null) {
         _buildTable();
       }
@@ -70,7 +52,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     }
   }
 
-  _buildTable() async {
+  _buildTable() {
     _rows.clear();
     _accountResponse.balances.forEach((a) {
       _rows.add(DataRow(cells: [
@@ -90,6 +72,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
       ]));
     });
     setState(() {});
+    return null;
   }
 
   var _rows = List<DataRow>();
@@ -101,28 +84,12 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     height += 120;
     return height;
   }
-//
-//  void _refresh() async {
-//    setState(() {
-//      isBusy = true;
-//    });
-//    try {
-//      var cred = await Prefs.getCredential();
-//      var seed = makerBloc.getDecryptedSeed(cred);
-//      _accountResponse = await genericBloc.getAccount(seed);
-//      _buildTable();
-//    } catch (e) {
-//      print(e);
-//      Toast.show('Data refresh failed', context,
-//          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
-//    }
-//    setState(() {
-//      isBusy = false;
-//    });
-//  }
 
   @override
   Widget build(BuildContext context) {
+    if (_accountResponse != null) {
+      _buildTable();
+    }
     return Container(
       height: widget.height == null ? _getHeight() : widget.height,
       width: widget.width == null ? 400 : widget.width,
@@ -133,7 +100,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
               ),
             )
           : StreamBuilder<List<AccountResponse>>(
-              stream: genericBloc.accountResponseStream,
+              stream: genericBloc.memberAccountResponseStream,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   _accountResponse = snapshot.data.last;
@@ -141,22 +108,19 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                 return GestureDetector(
                   onTap: _getAccount,
                   child: Card(
-//              color: getRandomPastelColor(),
                     elevation: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
                         children: <Widget>[
                           Text(
-                            widget.memberId == null
-                                ? 'Stokvel Account'
-                                : 'Member Account',
+                            'Stokvel Account',
                             style: Styles.greyLabelMedium,
                           ),
                           SizedBox(
                             height: 4,
                           ),
-                          _getMemberOrStokvel(),
+                          _getStokvel(),
                           SizedBox(
                             height: 12,
                           ),
@@ -197,21 +161,11 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     );
   }
 
-  Widget _getMemberOrStokvel() {
-    if (widget.stokvelId != null) {
-      if (_stokvel != null) {
-        return Text(_stokvel.name);
-      } else {
-        return Text('Stokvel Name Here');
-      }
+  Widget _getStokvel() {
+    if (_stokvel != null) {
+      return Text(_stokvel.name);
+    } else {
+      return Text('Stokvel Name Here');
     }
-    if (widget.memberId != null) {
-      if (_member != null) {
-        return Text(_member.name);
-      } else {
-        return Text('Member Name Here');
-      }
-    }
-    return Text('');
   }
 }
