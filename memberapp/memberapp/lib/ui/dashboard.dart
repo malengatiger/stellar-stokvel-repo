@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:member/ui/welcome.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
@@ -42,17 +43,21 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
 
   _getMember() async {
     _member = await Prefs.getMember();
+    _member = await LocalDB.getMember(_member.memberId);
     _getDashboardWidgets();
     setState(() {});
   }
 
-  _startQRcode() {
+  _startQRcode() async {
     print('starting qr code ....');
-    Navigator.push(
+    await Navigator.push(
         context,
         SlideRightRoute(
           widget: MemberQRCode(),
         ));
+
+    await genericBloc.refreshAccount(memberId: _member.memberId);
+    await genericBloc.refreshStokvels();
   }
 
   void _getDashboardWidgets() {
@@ -136,7 +141,6 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
         drawer: MemberDrawer(
           listener: this,
         ),
-        backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(TYPE_MEMBER),
         body: isBusy
             ? Center(

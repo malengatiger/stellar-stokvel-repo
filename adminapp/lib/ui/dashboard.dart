@@ -80,7 +80,10 @@ class _DashboardState extends State<Dashboard>
   }
 
   _startQRCode() async {
-    Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
+    await Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
+    memberResponse =
+        await genericBloc.refreshAccount(memberId: _member.memberId);
+    await genericBloc.refreshStokvels();
   }
 
   @override
@@ -176,7 +179,7 @@ class _DashboardState extends State<Dashboard>
               ),
               preferredSize: Size.fromHeight(80)),
         ),
-        backgroundColor: Colors.brown[100],
+//        backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(TYPE_ADMIN),
         drawer: StokkieDrawer(
           listener: this,

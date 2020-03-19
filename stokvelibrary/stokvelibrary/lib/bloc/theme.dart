@@ -104,6 +104,7 @@ class ThemeUtil {
       accentColor: Colors.pink,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.indigo[50],
       appBarTheme: AppBarTheme(
           color: Colors.indigo.shade300, brightness: Brightness.dark),
       buttonColor: Colors.blue,
@@ -113,8 +114,9 @@ class ThemeUtil {
       primaryColor: Colors.pink,
       accentColor: Colors.teal,
       cardColor: Colors.white,
-      backgroundColor: Colors.brown.shade100,
-      appBarTheme: AppBarTheme(color: Colors.pink.shade200),
+      backgroundColor: Colors.pink[50],
+      scaffoldBackgroundColor: Colors.pink[50],
+      appBarTheme: AppBarTheme(color: Colors.pink[300]),
       buttonColor: Colors.indigo,
     ));
     _themes.add(ThemeData(
@@ -123,6 +125,7 @@ class ThemeUtil {
       accentColor: Colors.purple,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.teal[50],
       appBarTheme: AppBarTheme(color: Colors.teal.shade300),
       buttonColor: Colors.pink,
     ));
@@ -132,6 +135,27 @@ class ThemeUtil {
       accentColor: Colors.yellow.shade900,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.brown[50],
+      appBarTheme: AppBarTheme(color: Colors.brown.shade300),
+      buttonColor: Colors.blue,
+    ));
+    _themes.add(ThemeData(
+      fontFamily: 'Raleway',
+      primaryColor: Colors.pink,
+      accentColor: Colors.yellow.shade900,
+      cardColor: Colors.white,
+      backgroundColor: Colors.pink.shade100,
+      scaffoldBackgroundColor: Colors.pink[50],
+      appBarTheme: AppBarTheme(color: Colors.pink.shade400),
+      buttonColor: Colors.blue,
+    ));
+    _themes.add(ThemeData(
+      fontFamily: 'Raleway',
+      primaryColor: Colors.brown,
+      accentColor: Colors.yellow.shade900,
+      cardColor: Colors.white,
+      backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.brown[50],
       appBarTheme: AppBarTheme(color: Colors.brown.shade300),
       buttonColor: Colors.blue,
     ));
@@ -141,6 +165,7 @@ class ThemeUtil {
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.lime[50],
       appBarTheme: AppBarTheme(color: Colors.lime.shade300),
       buttonColor: Colors.brown,
     ));
@@ -150,6 +175,7 @@ class ThemeUtil {
       accentColor: Colors.red,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.blue[50],
       appBarTheme: AppBarTheme(color: Colors.blue.shade300),
       buttonColor: Colors.blue,
     ));
@@ -159,6 +185,7 @@ class ThemeUtil {
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.blueGrey[50],
       appBarTheme: AppBarTheme(color: Colors.blueGrey.shade300),
       buttonColor: Colors.pink,
     ));
@@ -168,6 +195,7 @@ class ThemeUtil {
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.purple[50],
       appBarTheme: AppBarTheme(color: Colors.purple.shade300),
       buttonColor: Colors.pink,
     ));
@@ -177,6 +205,7 @@ class ThemeUtil {
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.amber[50],
       appBarTheme: AppBarTheme(color: Colors.amber.shade300),
       buttonColor: Colors.pink,
     ));
@@ -186,6 +215,7 @@ class ThemeUtil {
       accentColor: Colors.brown,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.deepOrange[50],
       appBarTheme: AppBarTheme(color: Colors.deepOrange.shade300),
       buttonColor: Colors.deepOrange,
     ));
@@ -195,6 +225,7 @@ class ThemeUtil {
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
+      scaffoldBackgroundColor: Colors.orange[50],
       appBarTheme: AppBarTheme(color: Colors.orange.shade300),
       buttonColor: Colors.pink,
     ));
@@ -204,6 +235,7 @@ class ThemeUtil {
       brightness: Brightness.dark,
       backgroundColor: const Color(0xFF212121),
       accentColor: Colors.white,
+      scaffoldBackgroundColor: Colors.purple[100],
       accentIconTheme: IconThemeData(color: Colors.black),
       dividerColor: Colors.black12,
     );
@@ -215,6 +247,7 @@ class ThemeUtil {
       brightness: Brightness.light,
       backgroundColor: const Color(0xFFE5E5E5),
       accentColor: Colors.black,
+      scaffoldBackgroundColor: Colors.pink[50],
       accentIconTheme: IconThemeData(color: Colors.white),
       dividerColor: Colors.white54,
     );

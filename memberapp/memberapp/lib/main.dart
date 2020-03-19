@@ -54,9 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text('ADMIN'),
+        title: Text('Stokkie Network'),
       ),
       backgroundColor: Colors.brown[100],
       body: Center(
@@ -68,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(
                   fontSize: 60,
                   fontWeight: FontWeight.w900,
-                  color: Colors.indigo[300]),
+                  color: Theme.of(context).primaryColor),
             ),
           ],
         ),

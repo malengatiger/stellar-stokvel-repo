@@ -66,8 +66,7 @@ class MemberQRCodeState extends State<MemberQRCode> {
               FlatButton(
                 child: Text('Yes'),
                 onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                  _close();
                 },
               ),
             ],
@@ -166,5 +165,10 @@ class MemberQRCodeState extends State<MemberQRCode> {
                     ],
                   ))),
     );
+  }
+
+  void _close() {
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 }

@@ -13,6 +13,8 @@ import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:uuid/uuid.dart';
 
+import 'generic_bloc.dart';
+
 MakerBloc makerBloc = MakerBloc();
 
 bool isDevelopmentStatus = true;
@@ -254,6 +256,7 @@ class MakerBloc {
     await writeCredential(memberCredential);
     await writeMember(member);
     await writeStokvel(stokvel);
+    await genericBloc.refreshStokvels();
   }
 
   Future createNewStokvelWithExistingMember(

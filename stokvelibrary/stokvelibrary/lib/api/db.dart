@@ -120,9 +120,7 @@ class LocalDB {
   }
 
   static Future<Member> getMember(String memberId) async {
-    print('LocalDB: ... getMember: ....');
     List<Member> mList = await getMembers();
-    print('LocalDB: ... getMember: .... found ${mList.length}');
     Member member;
     mList.forEach((m) {
       if (m.memberId == memberId) {
@@ -135,8 +133,6 @@ class LocalDB {
         await addMember(member: member);
       }
     }
-    prettyPrint(member.toJson(),
-        'LocalDB: 🌽 Member retrieved from cache or Firestore');
     return member;
   }
 

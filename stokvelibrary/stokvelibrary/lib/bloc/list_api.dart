@@ -19,6 +19,16 @@ class ListAPI {
     return mList;
   }
 
+  static Future<List<Stokvel>> getStokvels() async {
+    var querySnapshot = await _firestore.collection('stokvels').getDocuments();
+    var mList = List<Stokvel>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(Stokvel.fromJson(doc.data));
+    });
+    mList.sort((a, b) => a.name.compareTo(b.name));
+    return mList;
+  }
+
   static Future<Stokvel> getStokvelById(String stokvelId) async {
     var querySnapshot = await _firestore
         .collection('stokvels')

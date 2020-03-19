@@ -57,11 +57,8 @@ class _AdminHomeState extends State<AdminHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text('ADMIN'),
+        title: Text('Stokkie Network'),
       ),
-      backgroundColor: Colors.brown[100],
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
