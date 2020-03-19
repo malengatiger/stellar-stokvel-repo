@@ -106,7 +106,6 @@ class LocalDB {
 
   static Future<List<Member>> getMembers() async {
     await _connectToLocalDB();
-    print('LocalDB: ... getMembers ......................');
     List<Member> mList = [];
     Carrier carrier = Carrier(
       db: databaseName,

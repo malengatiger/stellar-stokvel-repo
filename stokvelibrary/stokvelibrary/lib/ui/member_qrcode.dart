@@ -168,7 +168,7 @@ class MemberQRCodeState extends State<MemberQRCode> {
   }
 
   void _close() {
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
+    Navigator.pop(context, true);
+    Navigator.pop(context, true);
   }
 }

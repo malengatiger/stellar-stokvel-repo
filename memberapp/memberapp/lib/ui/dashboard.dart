@@ -44,20 +44,31 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   _getMember() async {
     _member = await Prefs.getMember();
     _member = await LocalDB.getMember(_member.memberId);
+    if (_member.stokvelIds.isNotEmpty) {
+      await genericBloc.configureFCM();
+    }
     _getDashboardWidgets();
     setState(() {});
   }
 
   _startQRcode() async {
-    print('starting qr code ....');
     await Navigator.push(
         context,
         SlideRightRoute(
           widget: MemberQRCode(),
         ));
-
-    await genericBloc.refreshAccount(memberId: _member.memberId);
+    setState(() {
+      isBusy = true;
+    });
+    _member = await genericBloc.refreshMember(_member.memberId);
     await genericBloc.refreshStokvels();
+    if (_member.stokvelIds.isNotEmpty) {
+      await genericBloc.configureFCM();
+    }
+    _getDashboardWidgets();
+    setState(() {
+      isBusy = false;
+    });
   }
 
   void _getDashboardWidgets() {

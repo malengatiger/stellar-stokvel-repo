@@ -78,34 +78,36 @@ class GenericBloc {
   }
 
   Future configureFCM() async {
-    print(
-        '✳️ ✳️ ✳️ ✳️ GenericBloc:_configureFCM: CONFIGURE FCM: ✳️ ✳️ ✳️ ✳️  ');
+    print('✳️ GenericBloc:_configureFCM: CONFIGURE FCM: ✳️ ✳️');
     fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         String messageType = message['data']['type'];
         print(
-            "\n\n️♻️♻️♻️️♻️♻️♻️  ✳️ ✳️ ✳️ ✳️ GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
+            "\n️♻️ ✳️ ✳ ️GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
         prettyPrint(message,
-            '♻️♻️♻️️♻️♻️ ............... message RECEIVED via FCM .............');
+            '♻️♻️️ ............... message RECEIVED via FCM ............. check type ... ');
         switch (messageType) {
-          case 'stokvels':
-            print("✳️ ✳️ FCM onMessage messageType: 🍎 STOKVEL arrived 🍎");
+          case 'stokvel':
+            print("✳️ FCM onMessage messageType: 🍎 STOKVEL arrived 🍎");
             _processStokvels(message);
             break;
-          case 'members':
-            print("✳️ ✳️ FCM onMessage messageType: 🍎 MEMBER arrived 🍎");
+          case 'member':
+            print("✳️ FCM onMessage messageType: 🍎 MEMBER arrived 🍎");
             _processMembers(message);
             break;
 
           case 'memberPayment':
-            print(
-                "✳️ ✳️ FCM onMessage messageType: 🍎 MEMBER PAYMENT arrived 🍎");
+            print("✳️ FCM onMessage messageType: 🍎 MEMBER PAYMENT arrived 🍎");
             _processMemberPayments(message);
             break;
           case 'stokvelPayment':
             print(
-                "✳️ ✳️ FCM onMessage messageType: 🍎 STOKVEL PAYMENT arrived 🍎");
+                "✳️ FCM onMessage messageType: 🍎 STOKVEL PAYMENT arrived 🍎");
             _processStokvelPayments(message);
+            break;
+          default:
+            print(
+                'This message has NOT been processed. 🍎 🍎 🍎 🍎 🍎 Check the type: $message 🍎 🍎');
             break;
         }
       },
@@ -125,7 +127,7 @@ class GenericBloc {
     });
     fcm.getToken().then((String token) {
       assert(token != null);
-//      print('♻️♻️♻️️♻️♻️️ GenericBloc:FCM token  ❤️ 🧡 💛️ $token ❤️ 🧡 💛');
+      print('♻️️️ GenericBloc:FCM token 💛️ $token ❤️');
     });
     subscribeToFCM();
 
@@ -285,24 +287,34 @@ class GenericBloc {
       {String stokvelId, String memberId}) async {
     if (stokvelId != null) {
       var cred = await LocalDB.getStokvelCredential(stokvelId);
+      if (cred == null) {
+        cred = await ListAPI.getStokvelCredential(stokvelId);
+        await LocalDB.addCredential(credential: cred);
+      }
       var seed = makerBloc.getDecryptedSeed(cred);
       var accountResponse = await Stellar.getAccount(seed: seed);
       _memberAccountResponses.add(accountResponse);
       _memberAccountResponseController.sink.add(_memberAccountResponses);
 
-      print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
+      print(
+          '🍎 GenericBloc:refreshAccount 🍎  account response from 🧡 Stellar Network 🍎 '
           'balances: ${accountResponse.balances.length} responses in list: ${_memberAccountResponses.length}');
       await LocalDB.addStokvelAccountResponse(accountResponse: accountResponse);
-
       return accountResponse;
     }
     if (memberId != null) {
       var cred = await LocalDB.getMemberCredential(memberId);
+      if (cred == null) {
+        cred = await ListAPI.getMemberCredential(memberId);
+        await LocalDB.addCredential(credential: cred);
+      }
       var seed = makerBloc.getDecryptedSeed(cred);
       var accountResponse = await Stellar.getAccount(seed: seed);
       _memberAccountResponses.add(accountResponse);
       _memberAccountResponseController.sink.add(_memberAccountResponses);
-      print('🍎 GenericBloc 🍎  account response from 🧡 Stellar Network 🍎 '
+
+      print(
+          '🍎 GenericBloc:refreshAccount: 🍎  account response from 🧡 Stellar Network 🍎 '
           'balances: ${accountResponse.balances.length} responses in list: ${_memberAccountResponses.length}');
       await LocalDB.addMemberAccountResponse(accountResponse: accountResponse);
       return accountResponse;
@@ -319,12 +331,22 @@ class GenericBloc {
       }
     });
     if (member == null) {
-      member = await ListAPI.getMember(memberId);
-      if (member != null) {
-        await LocalDB.addMember(member: member);
-      }
+      return await refreshMember(memberId);
     }
 
+    return member;
+  }
+
+  Future<Member> refreshMember(String memberId) async {
+    Member member;
+    member = await ListAPI.getMember(memberId);
+    if (member != null) {
+      await LocalDB.addMember(member: member);
+      _members.add(member);
+      _memberController.sink.add(_members);
+      await Prefs.saveMember(member);
+    }
+    _member = member;
     return member;
   }
 

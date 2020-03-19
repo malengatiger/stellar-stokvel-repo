@@ -81,9 +81,14 @@ class _DashboardState extends State<Dashboard>
 
   _startQRCode() async {
     await Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
-    memberResponse =
-        await genericBloc.refreshAccount(memberId: _member.memberId);
+    setState(() {
+      isBusy = true;
+    });
+    _member = await genericBloc.refreshMember(_member.memberId);
     await genericBloc.refreshStokvels();
+    setState(() {
+      isBusy = false;
+    });
   }
 
   @override
