@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 
 class StokvelAccountCard extends StatefulWidget {
   final String stokvelId;
   final double height, width;
+  final bool forceRefresh;
 
-  const StokvelAccountCard({Key key, this.stokvelId, this.height, this.width})
+  const StokvelAccountCard(
+      {Key key, this.stokvelId, this.height, this.width, this.forceRefresh})
       : super(key: key);
 
   @override
@@ -26,7 +29,11 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
     if (widget.stokvelId == null) {
       throw Exception('Both stokvelId is missing');
     }
-    _getAccount();
+    if (widget.forceRefresh) {
+      _refresh();
+    } else {
+      _getAccount();
+    }
   }
 
   _getAccount() async {
@@ -38,6 +45,33 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
     try {
       _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
       _accountResponse = await genericBloc.getStokvelAccount(widget.stokvelId);
+      print('.................. are we there yet? ...........................');
+      if (_accountResponse != null) {
+        _buildTable();
+      }
+    } catch (e) {
+      print(e);
+    }
+    if (mounted) {
+      setState(() {
+        isBusy = false;
+      });
+    }
+  }
+
+  _refresh() async {
+    print(
+        'StokvelAccountCard:_refresh: ...................  🔴 about to build data table ...........');
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
+      if (_stokvel == null) {
+        _stokvel = await ListAPI.getStokvelById(widget.stokvelId);
+      }
+      _accountResponse =
+          await genericBloc.refreshAccount(stokvelId: widget.stokvelId);
       print('.................. are we there yet? ...........................');
       if (_accountResponse != null) {
         _buildTable();
@@ -106,7 +140,7 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
                   _accountResponse = snapshot.data.last;
                 }
                 return GestureDetector(
-                  onTap: _getAccount,
+                  onTap: _refresh,
                   child: Card(
                     elevation: 2,
                     child: Padding(

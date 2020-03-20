@@ -47,7 +47,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     if (_member.stokvelIds.isNotEmpty) {
       await genericBloc.configureFCM();
     }
-    _getDashboardWidgets();
+    _getDashboardWidgets(false);
     setState(() {});
   }
 
@@ -65,14 +65,14 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     if (_member.stokvelIds.isNotEmpty) {
       await genericBloc.configureFCM();
     }
-    _getDashboardWidgets();
+    _getDashboardWidgets(true);
     setState(() {
       isBusy = false;
     });
   }
 
-  void _getDashboardWidgets() {
-    _widgets = getDashboardWidgets(_member);
+  void _getDashboardWidgets(bool forceRefresh) {
+    _widgets = getDashboardWidgets(_member, forceRefresh);
     setState(() {});
   }
 

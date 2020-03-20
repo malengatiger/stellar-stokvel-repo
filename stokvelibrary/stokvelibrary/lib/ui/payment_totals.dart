@@ -34,19 +34,23 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
     setState(() {
       isBusy = true;
     });
-
     try {
       if (widget.stokvelId != null) {
         _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
         if (_stokvel == null) {
-          throw Exception('Stokvel not found when need for payment query');
+          throw Exception('Stokvel not found when needed for payment query');
         }
         _stokvelPayments =
-            await genericBloc.getStokvelPayments(widget.stokvelId);
+            await genericBloc.refreshStokvelPayments(widget.stokvelId);
+        print(
+            '🌼 🌼 PaymentTotals: ${_stokvelPayments.length} stokvelPayments found ............');
       }
       if (widget.memberId != null) {
         _member = await LocalDB.getMember(widget.memberId);
-        _memberPayments = await genericBloc.getMemberPayments(widget.memberId);
+        _memberPayments =
+            await genericBloc.refreshMemberPayments(widget.memberId);
+        print(
+            '🌼 🌼 PaymentTotals: ${_memberPayments.length} memberPayments found ..............');
       }
     } catch (e) {
       print(e);
@@ -66,148 +70,122 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
           )
         : widget.stokvelId == null
             ? Container(
-                child: StreamBuilder<List<MemberPayment>>(
-                    stream: genericBloc.memberPaymentStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        print(
-                            '......... we have snapshot data here _memberPayments....');
-                        _memberPayments = snapshot.data;
-                      } else {
-                        print(
-                            '......... we have NO _memberPayments snapshot data here ....');
-                        _memberPayments = [];
-                      }
-                      return GestureDetector(
-                        onTap: _refresh,
-                        child: Card(
-                            child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
+                child: GestureDetector(
+                  onTap: _refresh,
+                  child: Card(
+                      child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              _member == null ? 'Member' : _member.name,
+                              style: Styles.greyLabelSmall,
+                            ),
+                            SizedBox(
+                              width: 48,
+                            ),
+                            Text(
+                              '${_memberPayments.length}',
+                              style: Styles.blackBoldMedium,
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              'Total',
+                              style: Styles.greyLabelSmall,
+                            ),
+                            SizedBox(
+                              width: 12,
+                            ),
+                            Text(
+                              _memberPayments == null
+                                  ? '0'
+                                  : _getMemberTotals(),
+                              style: Styles.tealBoldMedium,
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                      ],
+                    ),
+                  )),
+                ),
+              )
+            : Container(
+                child: GestureDetector(
+                  onTap: _refresh,
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Text(
-                                    _member == null ? 'Member' : _member.name,
-                                    style: Styles.greyLabelSmall,
-                                  ),
-                                  SizedBox(
-                                    width: 48,
-                                  ),
-                                  Text(
-                                    '${_memberPayments.length}',
-                                    style: Styles.blackBoldMedium,
-                                  ),
-                                  SizedBox(
-                                    width: 20,
-                                  ),
-                                ],
+                              Text(
+                                _stokvel == null ? 'Stokvel' : _stokvel.name,
+                                style: Styles.blackBoldSmall,
                               ),
                               SizedBox(
-                                height: 12,
+                                width: 12,
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Text(
-                                    'Total',
-                                    style: Styles.greyLabelSmall,
-                                  ),
-                                  SizedBox(
-                                    width: 12,
-                                  ),
-                                  Text(
-                                    _memberPayments == null
-                                        ? '0'
-                                        : _getMemberTotals(),
-                                    style: Styles.tealBoldMedium,
-                                  ),
-                                  SizedBox(
-                                    width: 20,
-                                  ),
-                                ],
+                              Text(''),
+                              SizedBox(
+                                width: 12,
+                              ),
+                              Text(
+                                '${_stokvelPayments.length}',
+                                style: Styles.blueBoldMedium,
                               ),
                               SizedBox(
-                                height: 12,
+                                width: 12,
                               ),
                             ],
                           ),
-                        )),
-                      );
-                    }),
-              )
-            : Container(
-                child: StreamBuilder<List<StokvelPayment>>(
-                    stream: genericBloc.stokvelPaymentStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        print('......... we have snapshot data here ....');
-                        _stokvelPayments = snapshot.data;
-                      } else {
-                        print('......... we have NO snapshot data here ....');
-                        _stokvelPayments = [];
-                      }
-                      return GestureDetector(
-                        onTap: _refresh,
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              children: <Widget>[
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Text(
-                                      _stokvel == null
-                                          ? 'Stokvel'
-                                          : _stokvel.name,
-                                      style: Styles.blackBoldSmall,
-                                    ),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                    Text(''),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                    Text(
-                                      '${_stokvelPayments.length}',
-                                      style: Styles.blueBoldMedium,
-                                    ),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 12,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Text(
-                                      'Total',
-                                      style: Styles.greyLabelSmall,
-                                    ),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                    Text(
-                                      _getStokvelTotals(),
-                                      style: Styles.blueBoldMedium,
-                                    ),
-                                    SizedBox(
-                                      width: 12,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                          SizedBox(
+                            height: 12,
                           ),
-                        ),
-                      );
-                    }),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[
+                              Text(
+                                'Total',
+                                style: Styles.greyLabelSmall,
+                              ),
+                              SizedBox(
+                                width: 12,
+                              ),
+                              Text(
+                                _getStokvelTotals(),
+                                style: Styles.blueBoldMedium,
+                              ),
+                              SizedBox(
+                                width: 12,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               );
   }
 

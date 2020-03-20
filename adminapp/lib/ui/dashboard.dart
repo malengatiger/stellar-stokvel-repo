@@ -1,6 +1,7 @@
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
+import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
@@ -50,7 +51,8 @@ class _DashboardState extends State<Dashboard>
 
   _getMember() async {
     _member = await Prefs.getMember();
-    _getDashboardWidgets();
+    _member = await LocalDB.getMember(_member.memberId);
+    _getDashboardWidgets(false);
     genericBloc.configureFCM();
     setState(() {});
     for (var id in _member.stokvelIds) {
@@ -61,10 +63,10 @@ class _DashboardState extends State<Dashboard>
         '🍏 🍏 🍏 🍏 Stokvel members, for ever stokvel this member belongs to; 🔴  found on Firestore: ${_members.length}');
   }
 
-  _refreshAccount() async {
+  refreshAccount() async {
     print(
         '🔵 🔵 🔵 Dashboard: _refresh Account from 🍏 Stellar 🍏 ...................');
-    memberResponse = await genericBloc.getMemberAccount(_member.memberId);
+    _getDashboardWidgets(true);
   }
 
   _startScanner() async {
@@ -132,7 +134,7 @@ class _DashboardState extends State<Dashboard>
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: () {
-                _refreshAccount();
+                refreshAccount();
               },
             ),
           ],
@@ -208,8 +210,8 @@ class _DashboardState extends State<Dashboard>
     );
   }
 
-  void _getDashboardWidgets() {
-    _widgets = getDashboardWidgets(_member);
+  void _getDashboardWidgets(bool forceRefresh) {
+    _widgets = getDashboardWidgets(_member, forceRefresh);
     setState(() {});
   }
 
@@ -231,7 +233,7 @@ class _DashboardState extends State<Dashboard>
         '🤟🤟🤟 Dashboard: Member scanned and updated on Firestore ...now has  🌶 ${member.stokvelIds.length} stokvels 🌶 ');
     prettyPrint(member.toJson(),
         '🤟🤟🤟 member scanned and updated, check stokvels in member rec');
-    _refreshAccount();
+    refreshAccount();
   }
 
   @override
@@ -264,7 +266,7 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onRefreshRequested() {
-    _refreshAccount();
+    refreshAccount();
   }
 
   @override

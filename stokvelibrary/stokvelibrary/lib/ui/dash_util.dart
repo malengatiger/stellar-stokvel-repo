@@ -6,7 +6,7 @@ import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/payment_totals.dart';
 import 'package:stokvelibrary/ui/stokvel_account_card.dart';
 
-List<Widget> getDashboardWidgets(Member member) {
+List<Widget> getDashboardWidgets(Member member, bool forceRefresh) {
   print(
       '.................  🔴 .... getting dashboard widgets .............. member has ${member.stokvelIds} stokvels');
   List<Widget> widgets = [];
@@ -15,6 +15,7 @@ List<Widget> getDashboardWidgets(Member member) {
   widgets.clear();
   widgets.add(MemberAccountCard(
     memberId: member.memberId,
+    forceRefresh: forceRefresh,
   ));
   widgets.add(SizedBox(
     height: 8,
@@ -23,6 +24,7 @@ List<Widget> getDashboardWidgets(Member member) {
   member.stokvelIds.forEach((stokvelId) {
     widgets.add(StokvelAccountCard(
       stokvelId: stokvelId,
+      forceRefresh: forceRefresh,
     ));
   });
   widgets.add(SizedBox(

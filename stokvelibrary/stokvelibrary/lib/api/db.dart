@@ -168,9 +168,21 @@ class LocalDB {
     return mList;
   }
 
+  static Future<AccountResponse> getLatestMemberAccountResponse(
+      String accountId) async {
+    var responses = await getMemberAccountResponses();
+    for (var response in responses) {
+      if (response.accountId == accountId) {
+        return response;
+      }
+    }
+    return null;
+  }
+
   static Future<List<AccountResponse>> getMemberAccountResponses() async {
     await _connectToLocalDB();
     List<AccountResponse> mList = [];
+    List<AccountResponseCache> cacheList = [];
     Carrier carrier = Carrier(
       db: databaseName,
       collection: Constants.MEMBER_ACCOUNT_RESPONSES,
@@ -178,20 +190,35 @@ class LocalDB {
     List result = await MobMongo.getAll(carrier);
     result.forEach((r) {
       try {
-        mList.add(AccountResponse.fromJson(jsonDecode(r)));
+        cacheList.add(AccountResponseCache.fromJson(jsonDecode(r)));
       } catch (e) {
-        print(e);
-        print(
-            'LocalDB: 🐸🐸🐸 getMemberAccountResponses: ......... 🐸the fuckup is here somewhere ....');
         throw Exception('Fuckup $e');
       }
     });
+    if (cacheList.isNotEmpty) {
+      cacheList.sort((a, b) => b.date.compareTo(a.date));
+    }
+    cacheList.forEach((c) {
+      mList.add(c.accountResponse);
+    });
     return mList;
+  }
+
+  static Future<AccountResponse> getLatestStokvelAccountResponse(
+      String accountId) async {
+    var responses = await getStokvelAccountResponses();
+    for (var response in responses) {
+      if (response.accountId == accountId) {
+        return response;
+      }
+    }
+    return null;
   }
 
   static Future<List<AccountResponse>> getStokvelAccountResponses() async {
     await _connectToLocalDB();
     List<AccountResponse> mList = [];
+    List<AccountResponseCache> cacheList = [];
     Carrier carrier = Carrier(
       db: databaseName,
       collection: Constants.STOKVEL_ACCOUNT_RESPONSES,
@@ -199,15 +226,16 @@ class LocalDB {
     List result = await MobMongo.getAll(carrier);
     result.forEach((r) {
       try {
-        mList.add(AccountResponse.fromJson(jsonDecode(r)));
+        cacheList.add(AccountResponseCache.fromJson(jsonDecode(r)));
       } catch (e) {
-        print(
-            '=================================== heita, look below  =============================');
-        print(e);
-        print(
-            'LocalDB: 🦠 🦠 🦠 getStokvelAccountResponses: .........  🦠 the fuckup is here somewhere .... 🦠 🦠 🦠');
         throw Exception('🔴 🔴 🔴 🔴 Fuckup 🔴 $e');
       }
+    });
+    if (cacheList.isNotEmpty) {
+      cacheList.sort((a, b) => b.date.compareTo(a.date));
+    }
+    cacheList.forEach((c) {
+      mList.add(c.accountResponse);
     });
     return mList;
   }
@@ -265,10 +293,12 @@ class LocalDB {
     prettyPrint(accountResponse.toJson(),
         "Stokvel AccountResponse TO BE ADDED TO local DB");
     var start = DateTime.now();
+    var cache = AccountResponseCache(
+        DateTime.now().toUtc().toIso8601String(), accountResponse);
     Carrier ca = Carrier(
         db: databaseName,
         collection: Constants.STOKVEL_ACCOUNT_RESPONSES,
-        data: accountResponse.toJson());
+        data: cache.toJson());
     await MobMongo.insert(ca);
     var end = DateTime.now();
     var elapsedSecs = end.difference(start).inMilliseconds;
@@ -283,11 +313,13 @@ class LocalDB {
     await _connectToLocalDB();
     prettyPrint(accountResponse.toJson(),
         "Member AccountResponse TO BE ADDED TO local DB");
+    var cache = AccountResponseCache(
+        DateTime.now().toUtc().toIso8601String(), accountResponse);
     var start = DateTime.now();
     Carrier ca = Carrier(
         db: databaseName,
         collection: Constants.MEMBER_ACCOUNT_RESPONSES,
-        data: accountResponse.toJson());
+        data: cache.toJson());
     await MobMongo.insert(ca);
     var end = DateTime.now();
     var elapsedSecs = end.difference(start).inMilliseconds;

@@ -254,8 +254,6 @@ class GenericBloc {
   Future<AccountResponse> getStokvelAccount(String stokvelId) async {
     var accountResponses = await LocalDB.getStokvelAccountResponses();
     if (accountResponses.isNotEmpty) {
-      accountResponses
-          .sort((m, n) => n.sequenceNumber.compareTo(m.sequenceNumber));
       _stokkieAccountResponses.add(accountResponses.first);
       _stokkieAccountResponseController.sink.add(_stokkieAccountResponses);
       print(
@@ -270,9 +268,7 @@ class GenericBloc {
   Future<AccountResponse> getMemberAccount(String memberId) async {
     var accountResponses = await LocalDB.getMemberAccountResponses();
     if (accountResponses.isNotEmpty) {
-      accountResponses
-          .sort((m, n) => n.sequenceNumber.compareTo(m.sequenceNumber));
-      _memberAccountResponses.add(accountResponses.first);
+      _memberAccountResponses.add(accountResponses.last);
       _memberAccountResponseController.sink.add(_memberAccountResponses);
       print(
           '🌈  GenericBloc 🌈   member account response from 🌈 MongoDB cache 🌈  '
@@ -398,6 +394,7 @@ class GenericBloc {
       stokvel: stokvel,
       stellarHash: null,
     );
+
     var res =
         await DataAPI.sendStokvelPaymentToStellar(payment: payment, seed: seed);
     _stokvelPayments.add(res);

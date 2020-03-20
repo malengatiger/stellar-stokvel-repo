@@ -36,6 +36,7 @@ class _SendMoneyState extends State<SendMoney>
     });
     try {
       _member = await Prefs.getMember();
+      _member = await genericBloc.refreshMember(_member.memberId);
       prettyPrint(_member.toJson(),
           '🔵 🔵 🔵 MEMBER doin the paying; check stokvelIds 🔵 🔵 🔵 ');
       if (_member.stokvelIds == null || _member.stokvelIds.isEmpty) {
@@ -132,37 +133,6 @@ class _SendMoneyState extends State<SendMoney>
   }
 
   bool isBusy = false, isStokvelPayment = true;
-
-//  void _listen() async {
-//    print(
-//        ' 🌽 🌽 🌽 SendMoney: Start listening to FCM payment messages via stream');
-//    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
-//      print(
-//          '🔵 🔵 🔵 SendMoney: Receiving memberPayment from stream ... ${payments.length}');
-//      if (mounted) {
-//        var mPayment = payments.last;
-//        AppSnackBar.showSnackBar(
-//            scaffoldKey: _key,
-//            message:
-//                'Member Payment processed ${getFormattedAmount(mPayment.amount, context)}',
-//            textColor: Colors.lightGreen,
-//            backgroundColor: Colors.black);
-//      }
-//    });
-//    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
-//      print(
-//          '🔵 🔵 🔵 SendMoney: Receiving stokvelPayment from stream ... ${payments.length}');
-//      if (mounted) {
-//        var mPayment = payments.last;
-//        AppSnackBar.showSnackBar(
-//            scaffoldKey: _key,
-//            message:
-//                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
-//            textColor: Colors.lightGreen,
-//            backgroundColor: Colors.black);
-//      }
-//    });
-//  }
 
   void _displayStokvelPaymentDialog() {
     print('🧩 🧩 ........ _displayStokvelPaymentDialog ..... ');
@@ -293,11 +263,12 @@ class _SendMoneyState extends State<SendMoney>
     });
     try {
       var me = await Prefs.getMember();
+      me = await LocalDB.getMember(me.memberId);
       var res = await genericBloc.sendStokvelPayment(
           member: me, amount: amountController.text, stokvel: _stokvel);
       prettyPrint(res.toJson(), "🍎 Stokvel Payment Result 🍎 ");
       Toast.show('Stokvel Payment Succeeded', context,
-          duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+          duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
       Navigator.pop(context, res);
     } catch (e) {
       print(e);

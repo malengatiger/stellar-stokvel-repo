@@ -8,9 +8,15 @@ import 'package:stokvelibrary/functions.dart';
 class MemberAccountCard extends StatefulWidget {
   final String stokvelId, memberId;
   final double height, width;
+  final bool forceRefresh;
 
   const MemberAccountCard(
-      {Key key, this.stokvelId, this.memberId, this.height, this.width})
+      {Key key,
+      this.stokvelId,
+      this.memberId,
+      this.height,
+      this.width,
+      this.forceRefresh})
       : super(key: key);
 
   @override
@@ -28,7 +34,11 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     if (widget.memberId == null) {
       throw Exception('memberId is missing');
     }
-    _getAccount();
+    if (widget.forceRefresh) {
+      refresh();
+    } else {
+      _getAccount();
+    }
   }
 
   _getAccount() async {
@@ -41,7 +51,31 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
       _member = await LocalDB.getMember(widget.memberId);
       prettyPrint(_member.toJson(), 'MEMBER');
       _accountResponse = await genericBloc.getMemberAccount(widget.memberId);
+      if (_accountResponse != null) {
+        _buildTable();
+      } else {
+        print('Account response not found... we have a problem!');
+      }
+    } catch (e) {
+      print(e);
+    }
+    if (mounted) {
+      setState(() {
+        isBusy = false;
+      });
+    }
+  }
 
+  refresh() async {
+    print(
+        'MemberAccountCard: _refresh: 🔴 about to build data table ...........');
+    setState(() {
+      isBusy = true;
+    });
+    try {
+      _member = await genericBloc.refreshMember(widget.memberId);
+      _accountResponse =
+          await genericBloc.refreshAccount(memberId: widget.memberId);
       if (_accountResponse != null) {
         _buildTable();
       } else {
@@ -112,7 +146,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                   _accountResponse = snapshot.data.last;
                 }
                 return GestureDetector(
-                  onTap: _getAccount,
+                  onTap: refresh,
                   child: Card(
 //              color: getRandomPastelColor(),
                     elevation: 2,
