@@ -112,7 +112,7 @@ class _SendMoneyState extends State<SendMoney>
     for (var stokvelId in _member.stokvelIds) {
       var members = await genericBloc.getStokvelMembers(stokvelId);
       print(
-          '🧩 🧩 .................... _getStokvelMembers: 🧩  found: ${members.length}');
+          'SendMoney: _getStokvelMembers: 🔵 🔵 🔵 ........: 🧩  found: ${members.length}');
       members.forEach((m) {
         if (m.memberId != _member.memberId) {
           _members.add(m);
@@ -120,11 +120,12 @@ class _SendMoneyState extends State<SendMoney>
       });
       _members.sort((a, b) => a.name.compareTo(b.name));
     }
-    print('SendMoney: 🔵 🔵 🔵 members found: 🔵 ${_members.length}');
+    print(
+        'SendMoney: 🔵 🔵 🔵 all stokvel members found: 🔵 ${_members.length}');
     if (_member.stokvelIds.length == 1) {
       _stokvel = await ListAPI.getStokvelById(_member.stokvelIds.first);
-      prettyPrint(
-          _stokvel.toJson(), "🧡 🧡 🧡  stokvel retrieved from Firestore");
+      prettyPrint(_stokvel.toJson(),
+          "🧡 🧡 🧡  stokvel retrieved from Firestore, only one stokvel for this member");
     }
 
     setState(() {
@@ -312,7 +313,21 @@ class _SendMoneyState extends State<SendMoney>
     });
   }
 
-  void _onSwitchChanged(bool value) {
+  void _onSwitchChanged(bool value) async {
+    if (value == false) {
+      _members.clear();
+      for (var stokvelId in _member.stokvelIds) {
+        var members = await genericBloc.getStokvelMembers(stokvelId);
+        members.forEach((m) {
+          if (m.memberId == _member.memberId) {
+            print('ignore this member: ${m.name} ');
+          } else {
+            _members.add(m);
+          }
+        });
+      }
+      _members.sort((a, b) => a.name.compareTo(b.name));
+    }
     setState(() {
       isStokvelPayment = value;
     });
@@ -433,7 +448,7 @@ class _SendMoneyState extends State<SendMoney>
                   _stokvel == null
                       ? Container()
                       : Text(
-                          _stokvel.name,
+                          isStokvelPayment ? _stokvel.name : '',
                           style: Styles.whiteBoldMedium,
                         ),
                   SizedBox(
@@ -499,7 +514,7 @@ class _SendMoneyState extends State<SendMoney>
         itemCount: _members.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 8, top: 4),
             child: GestureDetector(
               onTap: () {
                 _displayMemberPaymentDialog(_members.elementAt(index));

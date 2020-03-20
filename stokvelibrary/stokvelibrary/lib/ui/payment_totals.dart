@@ -82,7 +82,9 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
                           children: <Widget>[
                             Text(
                               _member == null ? 'Member' : _member.name,
-                              style: Styles.greyLabelSmall,
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
                               width: 48,

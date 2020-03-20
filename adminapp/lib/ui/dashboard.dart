@@ -201,7 +201,7 @@ class _DashboardState extends State<Dashboard>
             : _member == null
                 ? Container()
                 : Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: ListView(
                       children: _widgets,
                     ),

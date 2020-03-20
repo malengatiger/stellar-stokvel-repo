@@ -340,7 +340,6 @@ class GenericBloc {
       await LocalDB.addMember(member: member);
       _members.add(member);
       _memberController.sink.add(_members);
-      await Prefs.saveMember(member);
     }
     _member = member;
     return member;
@@ -350,7 +349,8 @@ class GenericBloc {
     _members.clear();
     _members = await ListAPI.getStokvelMembers(stokvelId);
     _memberController.sink.add(_members);
-    print(' 🔵  🔵 returning members found: ${_members.length}');
+    print(
+        'GenericBloc:getStokvelMembers: 🔵 🔵 returning members found: ${_members.length}');
     return _members;
   }
 

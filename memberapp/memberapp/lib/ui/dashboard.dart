@@ -160,7 +160,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                 ),
               )
             : Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(20.0),
                 child: _member == null
                     ? Container()
                     : ListView(
