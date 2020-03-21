@@ -176,7 +176,7 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
                               ),
                               Text(
                                 _getStokvelTotals(),
-                                style: Styles.blueBoldMedium,
+                                style: Styles.blackBoldMedium,
                               ),
                               SizedBox(
                                 width: 12,

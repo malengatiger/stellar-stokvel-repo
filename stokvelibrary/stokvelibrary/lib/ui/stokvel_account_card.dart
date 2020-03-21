@@ -101,7 +101,7 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
               )),
         DataCell(Text(
           getFormattedAmount(a.balance, context),
-          style: Styles.tealBoldMedium,
+          style: Styles.blackBoldMedium,
         )),
       ]));
     });

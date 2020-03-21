@@ -334,12 +334,12 @@ class Styles {
     color: Colors.brown,
   );
 
-  ///////
   static TextStyle whiteBoldSmall = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: small,
     color: Colors.white,
   );
+
   static TextStyle whiteBoldMedium = TextStyle(
     fontWeight: FontWeight.bold,
     fontSize: medium,

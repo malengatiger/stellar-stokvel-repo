@@ -9,6 +9,7 @@
 .history
 .svn/
 .env
+device-*
 
 # IntelliJ related
 *.iml
