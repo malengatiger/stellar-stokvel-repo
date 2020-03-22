@@ -110,7 +110,7 @@ class Member {
 class StokvelPayment {
   Member member;
   Stokvel stokvel;
-  String amount, date, seed, stellarHash;
+  String amount, date, seed, stellarHash, paymentId;
 
   StokvelPayment(
       {@required this.member,
@@ -118,12 +118,14 @@ class StokvelPayment {
       @required this.date,
       @required this.seed,
       @required this.stellarHash,
+      @required this.paymentId,
       @required this.stokvel});
 
   StokvelPayment.fromJson(Map map) {
     amount = map['amount'];
     date = map['date'];
     seed = map['seed'];
+    paymentId = map['paymentId'];
     stellarHash = map['stellarHash'];
 
     if (map['member'] != null) {
@@ -138,6 +140,7 @@ class StokvelPayment {
     Map<String, dynamic> map = {
       'amount': amount,
       'seed': seed,
+      'paymentId': paymentId,
       'stellarHash': stellarHash,
       'date': date,
       'member': member == null ? null : member.toJson(),
@@ -149,13 +152,14 @@ class StokvelPayment {
 
 class MemberPayment {
   Member fromMember, toMember;
-  String amount, date, seed, stellarHash;
+  String amount, date, seed, stellarHash, paymentId;
 
   MemberPayment(
       {@required this.fromMember,
       @required this.toMember,
       @required this.amount,
       @required this.date,
+      @required this.paymentId,
       this.seed,
       this.stellarHash});
 
@@ -163,6 +167,7 @@ class MemberPayment {
     amount = map['amount'];
     date = map['date'];
     seed = map['seed'];
+    paymentId = map['paymentId'];
     stellarHash = map['stellarHash'];
 
     if (map['fromMember'] != null) {
@@ -177,6 +182,7 @@ class MemberPayment {
     Map<String, dynamic> map = {
       'amount': amount,
       'seed': seed,
+      'paymentId': paymentId,
       'stellarHash': stellarHash,
       'date': date,
       'fromMember': fromMember == null ? null : fromMember.toJson(),

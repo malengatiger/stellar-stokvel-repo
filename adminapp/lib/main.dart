@@ -3,6 +3,7 @@ import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
+import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 
 void main() => runApp(MyApp());
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapShot) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
             title: 'Anchor',
             theme: snapShot.data == null
                 ? ThemeUtil.getTheme(themeIndex: themeIndex)

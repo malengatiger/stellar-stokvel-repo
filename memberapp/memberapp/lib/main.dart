@@ -3,6 +3,7 @@ import 'package:member/ui/dashboard.dart';
 import 'package:member/ui/welcome.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/bloc/theme.dart';
+import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 
 void main() => runApp(MemberApp());
@@ -18,6 +19,7 @@ class MemberApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Anchor',
+            navigatorKey: navigatorKey,
             theme: snapShot.data == null
                 ? ThemeUtil.getTheme(themeIndex: themeIndex)
                 : ThemeUtil.getTheme(themeIndex: snapShot.data),

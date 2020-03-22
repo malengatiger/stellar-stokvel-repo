@@ -7,6 +7,9 @@ import 'package:intl/intl.dart';
 List<String> logs = List();
 bool isBusy = false;
 
+///Global key to help navigate from anywhere the app;
+GlobalKey<NavigatorState> navigatorKey = GlobalKey();
+
 List<Color> _colors = List();
 Random _rand = Random(new DateTime.now().millisecondsSinceEpoch);
 

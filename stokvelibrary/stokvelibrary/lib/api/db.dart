@@ -332,8 +332,13 @@ class LocalDB {
   static Future<int> addMemberPayment(
       {@required MemberPayment memberPayment}) async {
     await _connectToLocalDB();
-    prettyPrint(
-        memberPayment.toJson(), "MemberPayment TO BE ADDED TO local DB");
+
+    //todo - check if payment exists before adding it
+    var mp = await getMemberPaymentById(memberPayment.paymentId);
+    if (mp != null) {
+      return 0;
+    }
+
     var start = DateTime.now();
     Carrier ca = Carrier(
         db: databaseName,
@@ -351,8 +356,10 @@ class LocalDB {
   static Future<int> addStokvelPayment(
       {@required StokvelPayment stokvelPayment}) async {
     await _connectToLocalDB();
-    prettyPrint(
-        stokvelPayment.toJson(), "StokvelPayment TO BE ADDED TO local DB");
+    var mp = await getStokvelPaymentById(stokvelPayment.paymentId);
+    if (mp != null) {
+      return 0;
+    }
 
     var start = DateTime.now();
     Carrier ca = Carrier(
@@ -401,6 +408,46 @@ class LocalDB {
       return null;
     }
 
+    return list.first;
+  }
+
+  static Future<MemberPayment> getMemberPaymentById(String paymentId) async {
+    await _connectToLocalDB();
+    Carrier carrier = Carrier(
+        db: databaseName,
+        collection: Constants.MEMBER_PAYMENTS,
+        query: {
+          "eq": {"paymentId": paymentId}
+        });
+    List results = await MobMongo.query(carrier);
+    List<MemberPayment> list = List();
+    results.forEach((r) {
+      var mm = MemberPayment.fromJson(jsonDecode(r));
+      list.add(mm);
+    });
+    if (list.isEmpty) {
+      return null;
+    }
+    return list.first;
+  }
+
+  static Future<StokvelPayment> getStokvelPaymentById(String paymentId) async {
+    await _connectToLocalDB();
+    Carrier carrier = Carrier(
+        db: databaseName,
+        collection: Constants.STOKVEL_PAYMENTS,
+        query: {
+          "eq": {"paymentId": paymentId}
+        });
+    List results = await MobMongo.query(carrier);
+    List<StokvelPayment> list = List();
+    results.forEach((r) {
+      var mm = StokvelPayment.fromJson(jsonDecode(r));
+      list.add(mm);
+    });
+    if (list.isEmpty) {
+      return null;
+    }
     return list.first;
   }
 

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:flutter_sms/flutter_sms_platform.dart';
@@ -14,12 +15,15 @@ import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stellarplugin/stellarplugin.dart';
 import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/auth.dart';
+import 'package:stokvelibrary/bloc/list_api.dart';
 import 'package:stokvelibrary/bloc/prefs.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:stokvelibrary/slide_right.dart';
+import 'package:stokvelibrary/ui/member_statement.dart';
+import 'package:uuid/uuid.dart';
 
 import 'data_api.dart';
-import 'list_api.dart';
 import 'maker.dart';
 
 GenericBloc genericBloc = GenericBloc();
@@ -289,12 +293,12 @@ class GenericBloc {
       }
       var seed = makerBloc.getDecryptedSeed(cred);
       var accountResponse = await Stellar.getAccount(seed: seed);
-      _memberAccountResponses.add(accountResponse);
-      _memberAccountResponseController.sink.add(_memberAccountResponses);
+      _stokkieAccountResponses.add(accountResponse);
+      _stokkieAccountResponseController.sink.add(_stokkieAccountResponses);
 
       print(
           '🍎 GenericBloc:refreshAccount 🍎  account response from 🧡 Stellar Network 🍎 '
-          'balances: ${accountResponse.balances.length} responses in list: ${_memberAccountResponses.length}');
+          'balances: ${accountResponse.balances.length} responses in list: ${_stokkieAccountResponses.length}');
       await LocalDB.addStokvelAccountResponse(accountResponse: accountResponse);
       return accountResponse;
     }
@@ -386,11 +390,13 @@ class GenericBloc {
     if (seed == null) {
       throw Exception('Seed not found on Firestore, cannot do payment');
     }
+    var uuid = Uuid();
     var payment = StokvelPayment(
       member: member,
       amount: amount,
       date: DateTime.now().toUtc().toIso8601String(),
       seed: seed,
+      paymentId: uuid.v4(),
       stokvel: stokvel,
       stellarHash: null,
     );
@@ -409,10 +415,12 @@ class GenericBloc {
     if (seed == null) {
       throw Exception('Seed not found, MemberToMemberPayment cannot be made');
     }
+    var uuid = Uuid();
     var payment = MemberPayment(
         fromMember: fromMember,
         toMember: toMember,
         amount: amount,
+        paymentId: uuid.v4(),
         date: DateTime.now().toUtc().toIso8601String());
     var res =
         await DataAPI.sendMemberPaymentToStellar(payment: payment, seed: seed);
@@ -546,6 +554,12 @@ class GenericBloc {
       print('♻️ Add received memberPayment to stream');
       _memberPaymentController.sink.add(_memberPayments);
       LocalDB.addMemberPayment(memberPayment: payment);
+      if (payment.fromMember.memberId == _member.memberId) {
+        if (navigatorKey.currentState != null) {
+          navigatorKey.currentState
+              .push(SlideRightRoute(widget: MemberStatement(_member.memberId)));
+        }
+      }
       return;
     } catch (e) {
       print('Something is really weird here ...');
@@ -569,6 +583,14 @@ class GenericBloc {
       print('♻️ Add received stokvelPayment to stream');
       _stokvelPaymentController.sink.add(_stokvelPayments);
       LocalDB.addStokvelPayment(stokvelPayment: payment);
+      _member.stokvelIds.forEach((id) {
+        if (id == payment.stokvel.stokvelId) {
+          if (navigatorKey.currentState != null) {
+            navigatorKey.currentState.push(
+                SlideRightRoute(widget: MemberStatement(_member.memberId)));
+          }
+        }
+      });
     } catch (e) {
       print(e);
     }
