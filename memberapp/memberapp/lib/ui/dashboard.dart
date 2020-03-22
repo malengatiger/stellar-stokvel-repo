@@ -25,28 +25,18 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   @override
   initState() {
     super.initState();
-    _listen();
-    genericBloc.configureFCM();
+//    _listen();
     _getMember();
   }
 
-  void _listen() async {
-    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... ${payments.length}');
-    });
-    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... ${payments.length}');
-    });
-  }
+//  void _listen() async {
+//    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {});
+//    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {});
+//  }
 
   _getMember() async {
     _member = await Prefs.getMember();
-    _member = await LocalDB.getMember(_member.memberId);
-    if (_member.stokvelIds.isNotEmpty) {
-      await genericBloc.configureFCM();
-    }
+    _member = await genericBloc.getMember(_member.memberId);
     _getDashboardWidgets(false);
     setState(() {});
   }

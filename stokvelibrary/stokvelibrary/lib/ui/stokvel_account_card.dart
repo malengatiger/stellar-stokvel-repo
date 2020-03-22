@@ -37,15 +37,12 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
   }
 
   _getAccount() async {
-    print(
-        'StokvelAccountCard:_getAccount: ...................  🔴 about to build data table ...........');
     setState(() {
       isBusy = true;
     });
     try {
       _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
       _accountResponse = await genericBloc.getStokvelAccount(widget.stokvelId);
-      print('.................. are we there yet? ...........................');
       if (_accountResponse != null) {
         _buildTable();
       }
@@ -60,8 +57,6 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
   }
 
   _refresh() async {
-    print(
-        'StokvelAccountCard:_refresh: ...................  🔴 about to build data table ...........');
     setState(() {
       isBusy = true;
     });
@@ -72,7 +67,6 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
       }
       _accountResponse =
           await genericBloc.refreshAccount(stokvelId: widget.stokvelId);
-      print('.................. are we there yet? ...........................');
       if (_accountResponse != null) {
         _buildTable();
       }

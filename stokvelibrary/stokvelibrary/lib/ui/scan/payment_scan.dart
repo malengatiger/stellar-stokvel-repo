@@ -53,10 +53,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
   }
 
   void _listen() async {
-    print(' 🌽 🌽 🌽 Start listening to FCM payment messages via stream');
     genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Receiving memberPayment from stream ... ${payments.length}');
       if (mounted) {
         var mPayment = payments.last;
         AppSnackBar.showSnackBar(

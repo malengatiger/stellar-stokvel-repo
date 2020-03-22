@@ -40,7 +40,7 @@ class ThemeBloc {
   changeToRandomTheme() {
     _themeIndex = _rand.nextInt(ThemeUtil.getThemeCount() - 1);
     _themeController.sink.add(_themeIndex);
-    print('✈️✈️ changeToRandomTheme: adding index to stream ....');
+    print('✈️✈️ ......... changeToRandomTheme: themeIndex: $_themeIndex');
     Prefs.setThemeIndex(_themeIndex);
   }
 
@@ -57,7 +57,7 @@ class ThemeUtil {
   static int index;
 
   static ThemeData getTheme({int themeIndex}) {
-    print('🌈 🌈 getting theme with index: 🌈 $index');
+    print('🌈 🌈 .......... getting theme with index: 🌈 $index');
     if (_themes.isEmpty) {
       _setThemes();
     }
@@ -115,7 +115,7 @@ class ThemeUtil {
         })));
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
-      primaryColor: Colors.pink,
+      primaryColor: Colors.pink.shade300,
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.pink[50],
@@ -160,7 +160,7 @@ class ThemeUtil {
         })));
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
-      primaryColor: Colors.pink,
+      primaryColor: Colors.pink.shade300,
       accentColor: Colors.yellow.shade900,
       cardColor: Colors.white,
       backgroundColor: Colors.pink.shade100,
@@ -205,7 +205,7 @@ class ThemeUtil {
         })));
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
-      primaryColor: Colors.blue,
+      primaryColor: Colors.blue.shade600,
       accentColor: Colors.red,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
@@ -235,7 +235,7 @@ class ThemeUtil {
         })));
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
-      primaryColor: Colors.purple,
+      primaryColor: Colors.purple.shade300,
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
@@ -250,7 +250,7 @@ class ThemeUtil {
         })));
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
-      primaryColor: Colors.amber.shade700,
+      primaryColor: Colors.amber.shade900,
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,

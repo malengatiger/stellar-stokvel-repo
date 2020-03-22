@@ -29,6 +29,11 @@ import 'maker.dart';
 GenericBloc genericBloc = GenericBloc();
 
 class GenericBloc {
+  GenericBloc() {
+    print('🅿️ 🅿️   🎽 🎽 🎽 🎽 ......... GenericBloc constructor .............. 🎽 🎽 🎽 🎽  🅿️ 🅿️ ');
+    getCachedMember();
+  }
+
   List<Member> _members = List();
   List<Stokvel> _stokvels = List();
   List<StokkieCredential> _creds = [];
@@ -82,14 +87,13 @@ class GenericBloc {
   }
 
   Future configureFCM() async {
-    print('✳️ GenericBloc:_configureFCM: CONFIGURE FCM: ✳️ ✳️');
     fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         String messageType = message['data']['type'];
         print(
             "\n️♻️ ✳️ ✳ ️GenericBloc:FCM onMessage messageType: 🍎 $messageType arrived 🍎 \n\n");
         prettyPrint(message,
-            '♻️♻️️ ............... message RECEIVED via FCM ............. check type ... ');
+            '♻️♻️️ ............... message RECEIVED via FCM .........messageType: 🍎 $messageType 🍎 ');
         switch (messageType) {
           case 'stokvel':
             print("✳️ FCM onMessage messageType: 🍎 STOKVEL arrived 🍎");
@@ -131,10 +135,9 @@ class GenericBloc {
     });
     fcm.getToken().then((String token) {
       assert(token != null);
-      print('♻️️️ GenericBloc:FCM token 💛️ $token ❤️');
     });
-    subscribeToFCM();
 
+    subscribeToFCM();
     return null;
   }
 
@@ -260,9 +263,6 @@ class GenericBloc {
     if (accountResponses.isNotEmpty) {
       _stokkieAccountResponses.add(accountResponses.first);
       _stokkieAccountResponseController.sink.add(_stokkieAccountResponses);
-      print(
-          '🌈  GenericBloc 🌈   stokvel account response from 🌈 MongoDB cache 🌈  '
-          'balances: ${accountResponses.first.balances.length} responses in list: ${_stokkieAccountResponses.length}');
       return accountResponses.first;
     } else {
       return await refreshAccount(stokvelId: stokvelId, memberId: null);
@@ -274,9 +274,6 @@ class GenericBloc {
     if (accountResponses.isNotEmpty) {
       _memberAccountResponses.add(accountResponses.last);
       _memberAccountResponseController.sink.add(_memberAccountResponses);
-      print(
-          '🌈  GenericBloc 🌈   member account response from 🌈 MongoDB cache 🌈  '
-          'balances: ${accountResponses.first.balances.length} responses in list: ${_stokkieAccountResponses.length}');
       return accountResponses.first;
     } else {
       return await refreshAccount(stokvelId: null, memberId: memberId);
@@ -295,10 +292,6 @@ class GenericBloc {
       var accountResponse = await Stellar.getAccount(seed: seed);
       _stokkieAccountResponses.add(accountResponse);
       _stokkieAccountResponseController.sink.add(_stokkieAccountResponses);
-
-      print(
-          '🍎 GenericBloc:refreshAccount 🍎  account response from 🧡 Stellar Network 🍎 '
-          'balances: ${accountResponse.balances.length} responses in list: ${_stokkieAccountResponses.length}');
       await LocalDB.addStokvelAccountResponse(accountResponse: accountResponse);
       return accountResponse;
     }
@@ -360,13 +353,16 @@ class GenericBloc {
 
   Member _member;
 
-  GenericBloc() {
-    print('🅿️ 🅿️  🎽 🎽 🎽 🎽  GenericBloc constructor ... 🅿️ 🅿️ ');
-    getCachedMember();
-  }
-
+  
   Future<Member> getCachedMember() async {
     _member = await Prefs.getMember();
+    _member = await getMember(_member.memberId);
+    prettyPrint(_member.toJson(), " 🅿️ 🅿️ GenericBloc: getCachedMember, called from constructor  🅿️ 🅿️");
+    if (_member.stokvelIds.isNotEmpty) {
+      await configureFCM();
+    } else {
+      print('............ This member has NO stokvels, 👿 👿 👿 what the fuck? 👿 👿 👿 ');
+    }
     return _member;
   }
 
@@ -505,8 +501,6 @@ class GenericBloc {
     for (var pay in _memberPayments) {
       await LocalDB.addMemberPayment(memberPayment: pay);
     }
-    print(
-        'GenericBloc:  🌎 🌎 🌎 refreshMemberPayments: found ${_stokvelPayments.length}  🔵 🔵 🔵 ');
 
     return _memberPayments;
   }
@@ -597,7 +591,11 @@ class GenericBloc {
   }
 
   Future subscribeToFCM() async {
-    _member = await Prefs.getMember();
+    if (_member == null) {
+      _member = await Prefs.getMember();
+      _member = await getMember(_member.memberId);
+    }
+    print('💜 GenericBloc: 💜 💜 Subscribing to FCM topics for member: 🍎 ${_member.name} 🍎 with ${_member.stokvelIds.length} stokvels 💜 💜 ');
     List<String> topics = List();
     topics.add('stokvels');
     _member.stokvelIds.forEach((id) {
@@ -605,10 +603,11 @@ class GenericBloc {
       topics.add('memberPayments_$id');
       topics.add('stokvelPayments_$id');
     });
-
     for (var t in topics) {
       await fcm.subscribeToTopic(t);
-      print('GenericBloc: 💜 💜 Subscribed to FCM topic: 🍎  $t  💜 💜 ');
+      print('💜 GenericBloc: 💜 💜 Subscribed to FCM topic: 🍎  $t  💜 💜 ');
     }
+    print('💜 GenericBloc: 💜 💜 Subscribed to ${topics.length} FCM topics');
+    return null;
   }
 }

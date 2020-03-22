@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
-import 'package:stokvelibrary/functions.dart';
 
 class ListAPI {
   static var _firestore = Firestore.instance;
@@ -72,8 +71,7 @@ class ListAPI {
     querySnapshot.documents.forEach((doc) {
       mList.add(Member.fromJson(doc.data));
     });
-    print(
-        '🔵 🔵 ListAPI: getStokvelMembers found 🔵 ${mList.length} 🔵 members');
+
     return mList;
   }
 
@@ -130,8 +128,7 @@ class ListAPI {
     querySnapshot.documents.forEach((doc) {
       mList.add(StokvelPayment.fromJson(doc.data));
     });
-    print('ListAPI: 🌎 🌎 🌎 getStokvelPayments found ${mList.length} '
-        'stokvel payments from Firestore, 🌎 id: $stokvelId');
+
     return mList;
   }
 
@@ -150,24 +147,18 @@ class ListAPI {
   }
 
   static Future<Member> getMember(String memberId) async {
-    print('ListAPI: 💜 💜 getMember: $memberId');
     var querySnapshot = await _firestore
         .collection('members')
         .where('memberId', isEqualTo: memberId)
         .limit(1)
         .getDocuments();
 
-    print(
-        'ListAPI: 💜 💜 getMember: ${querySnapshot.documents.length} members found');
     var mList = List<Member>();
     querySnapshot.documents.forEach((doc) {
       mList.add(Member.fromJson(doc.data));
     });
 
     if (mList.isNotEmpty) {
-      print(
-          'ListAPI: 💜 💜 getMember: member found ${mList.first.name}, returnin ....');
-      prettyPrint(mList.first.toJson(), 'Member returned from Firestore');
       return mList.first;
     }
     return null;

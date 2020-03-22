@@ -42,14 +42,11 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
   }
 
   _getAccount() async {
-    print(
-        'MemberAccountCard: _getAccount: 🔴 about to build data table ...........');
     setState(() {
       isBusy = true;
     });
     try {
       _member = await LocalDB.getMember(widget.memberId);
-      prettyPrint(_member.toJson(), 'MEMBER');
       _accountResponse = await genericBloc.getMemberAccount(widget.memberId);
       if (_accountResponse != null) {
         _buildTable();
@@ -67,8 +64,6 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
   }
 
   refresh() async {
-    print(
-        'MemberAccountCard: _refresh: 🔴 about to build data table ...........');
     setState(() {
       isBusy = true;
     });
@@ -92,8 +87,6 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
   }
 
   _buildTable() {
-    print(
-        'MemberAccountCard: 🔴 Building table to hold account details: balances: ${_accountResponse.balances.length}');
     _rows.clear();
     _accountResponse.balances.forEach((balance) {
       _rows.add(DataRow(cells: [

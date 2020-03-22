@@ -2,12 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6247a15a-d168-4fe2-a888-2a14ac210604" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/azureSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/memberapp.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../adminapp/.idea/dictionaries/aubs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../adminapp/.idea/dictionaries/aubs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../adminapp/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../adminapp/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/memberapp/lib/ui/dashboard.dart" beforeDir="false" afterPath="$PROJECT_DIR$/memberapp/lib/ui/dashboard.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/api/db.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/api/db.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/generic_bloc.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/generic_bloc.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/list_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/list_api.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/prefs.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/prefs.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/theme.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/bloc/theme.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/dash_util.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/dash_util.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/member_account_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/member_account_card.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/member_statement.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/member_statement.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/payment_totals.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/payment_totals.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/scan/payment_scan.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/scan/payment_scan.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/stokvel_account_card.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../stokvelibrary/stokvelibrary/lib/ui/stokvel_account_card.dart" afterDir="false" />
     </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,6 +45,21 @@
     <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
     <property name="show.migrate.to.gradle.popup" value="false" />
   </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="6247a15a-d168-4fe2-a888-2a14ac210604" name="Default Changelist" comment="" />
@@ -44,5 +69,16 @@
       <updated>1583888746357</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

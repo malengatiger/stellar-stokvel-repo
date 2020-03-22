@@ -108,6 +108,16 @@ class _MemberStatementState extends State<MemberStatement> {
       key: _key,
       appBar: AppBar(
         title: Text('Member Statement'),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                setState(() {
+                  isStokvelBusy = false;
+                });
+                _refreshMember();
+              }),
+        ],
         bottom: PreferredSize(
             child: Column(
               children: <Widget>[

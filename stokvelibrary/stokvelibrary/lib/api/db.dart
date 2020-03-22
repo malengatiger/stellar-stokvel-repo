@@ -21,8 +21,7 @@ class LocalDB {
     if (dbConnected) {
       return null;
     }
-    print(
-        '🔵 🔵 🔵 🔵 🔵 🔵 🔵 Connecting to MongoDB Mobile ... 🔵 🔵 🔵 🔵 🔵 🔵 🔵 ');
+   
     try {
       await MobMongo.setAppID({
         'appID': APP_ID,
@@ -85,9 +84,6 @@ class LocalDB {
         collection: Constants.STOKVEL_ACCOUNT_RESPONSES,
         index: {"accountId": 1});
     await MobMongo.createIndex(carr8);
-
-    print(
-        'LocalDB: 🧩 🧩 🧩  🧩 🧩 🧩 ALL local database indices built! - 👌 👌 👌 \n\n');
   }
 
   static Future<List<Stokvel>> getStokvels() async {
@@ -268,7 +264,6 @@ class LocalDB {
 
   static Future<int> addMember({@required Member member}) async {
     await _connectToLocalDB();
-    prettyPrint(member.toJson(), "MEMBER TO BE ADDED TO local DB");
     var start = DateTime.now();
     Carrier c = Carrier(db: databaseName, collection: Constants.MEMBERS, id: {
       'field': 'memberId',
@@ -290,8 +285,6 @@ class LocalDB {
   static Future<int> addStokvelAccountResponse(
       {@required AccountResponse accountResponse}) async {
     await _connectToLocalDB();
-    prettyPrint(accountResponse.toJson(),
-        "Stokvel AccountResponse TO BE ADDED TO local DB");
     var start = DateTime.now();
     var cache = AccountResponseCache(
         DateTime.now().toUtc().toIso8601String(), accountResponse);
@@ -311,8 +304,6 @@ class LocalDB {
   static Future<int> addMemberAccountResponse(
       {@required AccountResponse accountResponse}) async {
     await _connectToLocalDB();
-    prettyPrint(accountResponse.toJson(),
-        "Member AccountResponse TO BE ADDED TO local DB");
     var cache = AccountResponseCache(
         DateTime.now().toUtc().toIso8601String(), accountResponse);
     var start = DateTime.now();

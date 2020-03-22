@@ -32,40 +32,27 @@ class _DashboardState extends State<Dashboard>
   @override
   initState() {
     super.initState();
-    _listen();
+//    _listen();
     _getMember();
   }
 
-  void _listen() async {
-    print(
-        ' 🌽 🌽 🌽 Dashboard: Start listening to FCM payment messages via stream');
-    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Dashboard: Receiving memberPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
-    });
-    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {
-      print(
-          '🔵 🔵 🔵 Dashboard: Receiving stokvelPayment from stream ... 🐸 payments in stream: ${payments.length} 🐸');
-    });
-  }
+//  void _listen() async {
+//    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {});
+//    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {});
+//  }
 
   _getMember() async {
     _member = await Prefs.getMember();
     _member = await LocalDB.getMember(_member.memberId);
     _getDashboardWidgets(false);
-    genericBloc.configureFCM();
     setState(() {});
     for (var id in _member.stokvelIds) {
       var members = await ListAPI.getStokvelMembers(id);
       _members.addAll(members);
     }
-    print(
-        '🍏 🍏 🍏 🍏 Stokvel members, for ever stokvel this member belongs to; 🔴  found on Firestore: ${_members.length}');
   }
 
   refreshAccount() async {
-    print(
-        '🔵 🔵 🔵 Dashboard: _refresh Account from 🍏 Stellar 🍏 ...................');
     _getDashboardWidgets(true);
   }
 

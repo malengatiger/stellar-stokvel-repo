@@ -22,8 +22,6 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
   @override
   void initState() {
     super.initState();
-    print(
-        '🔴 🔴 🔴 🔴 🔴 PaymentsTotals: initState 🔴 stokvelId: ${widget.stokvelId} 🔴 memberId: ${widget.memberId}');
     if (widget.stokvelId == null && widget.memberId == null) {
       throw Exception('Missing stokvelId or memberId');
     }
@@ -42,15 +40,11 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
         }
         _stokvelPayments =
             await genericBloc.refreshStokvelPayments(widget.stokvelId);
-        print(
-            '🌼 🌼 PaymentTotals: ${_stokvelPayments.length} stokvelPayments found ............');
       }
       if (widget.memberId != null) {
         _member = await LocalDB.getMember(widget.memberId);
         _memberPayments =
             await genericBloc.refreshMemberPayments(widget.memberId);
-        print(
-            '🌼 🌼 PaymentTotals: ${_memberPayments.length} memberPayments found ..............');
       }
     } catch (e) {
       print(e);
