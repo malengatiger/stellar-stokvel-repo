@@ -353,10 +353,24 @@ class GenericBloc {
 
   Future<List<Member>> getStokvelMembers(String stokvelId) async {
     _members.clear();
-    _members = await ListAPI.getStokvelMembers(stokvelId);
+    _members = await LocalDB.getStokvelMembers(stokvelId);
+    if (_members.isEmpty) {
+      return await refreshStokvelMembers(stokvelId);
+    }
     _memberController.sink.add(_members);
     print(
         'GenericBloc:getStokvelMembers: 🔵 🔵 returning members found: ${_members.length}');
+    return _members;
+  }
+  Future<List<Member>> refreshStokvelMembers(String stokvelId) async {
+    _members.clear();
+    _members = await ListAPI.getStokvelMembers(stokvelId);
+    _memberController.sink.add(_members);
+    print(
+        'GenericBloc:refreshStokvelMembers: 🔵 🔵 returning members found: ${_members.length}');
+    for (var member in _members) {
+      await LocalDB.addMember(member: member);
+    }
     return _members;
   }
 
@@ -450,6 +464,14 @@ class GenericBloc {
     return _stokvelPayments;
   }
 
+  Future<Stokvel> getStokvelById(String stokvelId) async {
+    var stokvel = await LocalDB.getStokvelById(stokvelId);
+    if (stokvel == null) {
+      stokvel = await ListAPI.getStokvelById(stokvelId);
+      await LocalDB.addStokvel(stokvel: stokvel);
+    }
+    return stokvel;
+  }
   Future<List<Stokvel>> getStokvels() async {
     _stokvels = await LocalDB.getStokvels();
     if (_stokvels.isEmpty) {
@@ -604,7 +626,6 @@ class GenericBloc {
     if (string == null) {
       throw Exception('message data fucked somehow');
     }
-
     var mJSON = jsonDecode(string);
     prettyPrint(mJSON, 'STOKVEL PAYMENT from FCM');
     try {

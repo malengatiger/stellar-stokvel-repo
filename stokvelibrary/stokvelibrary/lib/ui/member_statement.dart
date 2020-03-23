@@ -98,7 +98,13 @@ class _MemberStatementState extends State<MemberStatement> {
           length: 2,
           child: Scaffold(
               appBar: AppBar(
-                title: Text('Member Statements'),
+                title: Text('Member Statements', style: Styles.whiteBoldSmall,),
+                leading: Container(),
+                actions: <Widget>[
+                  IconButton(icon: Icon(Icons.close), onPressed: () {
+                    Navigator.pop(context);
+                  }),
+                ],
                 bottom: PreferredSize(child: Column(
                   children: <Widget>[
                     Container(
@@ -107,7 +113,7 @@ class _MemberStatementState extends State<MemberStatement> {
                     SizedBox(height: 8,),
                     TabBar(
                       tabs: <Widget>[
-                        Tab(icon: Icon(Icons.account_balance), text: "Member Payments",),
+                        Tab(icon: Icon(Icons.people), text: "Member Payments",),
                         Tab(icon: Icon(Icons.business_center), text: "Stokvel Payments",)
                       ],
                     ),
@@ -266,7 +272,7 @@ class MemberPaymentsWidget extends StatelessWidget implements PaymentWidget {
                           ),
                           Text(' paid to'),
                           SizedBox(
-                            width: 4,
+                            width: 12,
                           ),
                           Text(
                             payment.toMember.name,
@@ -275,7 +281,7 @@ class MemberPaymentsWidget extends StatelessWidget implements PaymentWidget {
                         ],
                       ),
                       SizedBox(
-                        height: 8,
+                        height: 20,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -300,6 +306,7 @@ class MemberPaymentsWidget extends StatelessWidget implements PaymentWidget {
                           ),
                         ],
                       ),
+                      SizedBox(height: 8,)
                     ],
                   ),
                 ),

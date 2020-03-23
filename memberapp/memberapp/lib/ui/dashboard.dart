@@ -10,7 +10,10 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/ui/dash_util.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
+import 'package:stokvelibrary/ui/member_statement.dart';
+import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
+import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -109,6 +112,8 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: <Widget>[
+                    Text('The Stokkie Network',style: Styles.whiteBoldSmall,),
+                    SizedBox(height: 16,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
@@ -116,7 +121,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                           'Member',
                           style: TextStyle(
                               color: Theme.of(context).primaryColor,
-                              fontSize: 20,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
@@ -130,7 +135,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                           _member == null
                               ? '0'
                               : '${_member.stokvelIds.length}',
-                          style: Styles.blackBoldLarge,
+                          style: Styles.blackBoldMedium,
                         ),
                       ],
                     ),
@@ -173,20 +178,23 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
 
   @override
   onMemberStatementRequested() {
-    // TODO: implement onMemberStatementRequested
-    return null;
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: MemberStatement(_member.memberId),
+    ));
   }
 
   @override
   onMembershipScannerRequested() {
-    // TODO: implement onMembershipScannerRequested
-    return null;
+
   }
 
   @override
   onQRCodeRequested() {
-    // TODO: implement onQRCodeRequested
-    return null;
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: MemberQRCode(),
+    ));
   }
 
   @override
@@ -197,20 +205,30 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
 
   @override
   onRefreshRequested() {
-    // TODO: implement onRefreshRequested
-    return null;
+
   }
 
   @override
   onStokvelStatementRequested() {
-    // TODO: implement onStokvelStatementRequested
-    return null;
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: MemberStatement(_member.memberId),
+    ));
   }
 
   @override
   onWelcomeRequested() {
-    // TODO: implement onWelcomeRequested
-    return null;
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: Welcome(_member),
+    ));
+  }
+  @override
+  onStokvelMembersRequested() {
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: MembersList(memberId: _member.memberId,),
+    ));
   }
 }
 
@@ -233,6 +251,18 @@ class MemberDrawer extends StatelessWidget {
           ),
           SizedBox(
             height: 40,
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onStokvelMembersRequested();
+            },
+            child: ListTile(
+              title: Text("Stokvel Members"),
+              leading: Icon(
+                Icons.people,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
           GestureDetector(
             onTap: () {
@@ -321,4 +351,5 @@ abstract class MemberDrawerListener {
   onInvitationsRequested();
   onMemberStatementRequested();
   onStokvelStatementRequested();
+  onStokvelMembersRequested();
 }

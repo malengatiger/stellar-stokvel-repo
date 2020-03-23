@@ -61,18 +61,6 @@ List<Widget> getDashboardWidgets(Member member, bool forceRefresh) {
   widgets.add(SizedBox(
     height: 20,
   ));
-  //add member list card
-  widgets.add(Text(
-    'Stokvel Members',
-    style: Styles.greyLabelSmall,
-  ));
-  widgets.add(SizedBox(
-    height: 8,
-  ));
 
-  widgets.add(MembersList(memberId: member.memberId));
-  widgets.add(SizedBox(
-    height: 20,
-  ));
   return widgets;
 }

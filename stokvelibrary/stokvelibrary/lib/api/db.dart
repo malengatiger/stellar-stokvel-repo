@@ -101,6 +101,18 @@ class LocalDB {
     return mList;
   }
 
+  static Future<List<Member>> getStokvelMembers(String stokvelId) async {
+    List<Member> mList = await getMembers();
+    List<Member> sList = [];
+    mList.forEach((m) {
+      m.stokvelIds.forEach((id) {
+        if (id == stokvelId) {
+          sList.add(m);
+        }
+      });
+    });
+    return sList;
+  }
   static Future<List<Member>> getMembers() async {
     await _connectToLocalDB();
     List<Member> mList = [];

@@ -12,6 +12,7 @@ import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/ui/dash_util.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
 import 'package:stokvelibrary/ui/member_statement.dart';
+import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
@@ -69,15 +70,6 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  _startStatement() async {
-      Navigator.push(
-          context,
-          SlideRightRoute(
-              widget: MemberStatement(
-                _member.memberId
-              )));
-
-  }
   _startQRCode() async {
     await Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
     setState(() {
@@ -140,6 +132,8 @@ class _DashboardState extends State<Dashboard>
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: <Widget>[
+                    Text('The Stokkie Network',style: Styles.whiteBoldSmall,),
+                    SizedBox(height: 12,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
@@ -160,7 +154,7 @@ class _DashboardState extends State<Dashboard>
                           'Administrator',
                           style: TextStyle(
                               color: Theme.of(context).primaryColor,
-                              fontSize: 20,
+                              fontSize: 14,
                               fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
@@ -174,14 +168,15 @@ class _DashboardState extends State<Dashboard>
                           _member == null
                               ? '0'
                               : '${_member.stokvelIds.length}',
-                          style: Styles.blackBoldLarge,
+                          style: Styles.blackBoldMedium,
                         ),
                       ],
                     ),
+                    SizedBox(height: 12,)
                   ],
                 ),
               ),
-              preferredSize: Size.fromHeight(80)),
+              preferredSize: Size.fromHeight(100)),
         ),
 //        backgroundColor: Colors.brown[100],
         bottomNavigationBar: StokkieNavBar(_member == null? null: _member.memberId, TYPE_ADMIN),
@@ -242,8 +237,10 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onMemberStatementRequested() {
-    // TODO: implement onMemberStatementRequested
-    return null;
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: MemberStatement(_member.memberId,),
+    ));
   }
 
   @override
@@ -274,8 +271,16 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onStokvelStatementRequested() {
-    // TODO: implement onStokvelStatementRequested
-    return null;
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: MemberStatement(_member.memberId,),
+    ));
+  }
+  @override
+  onStokvelMembersRequested() {
+    Navigator.push(context, SlideRightRoute(
+      widget: MembersList(memberId: _member.memberId,),
+    ));
   }
 
   @override
@@ -303,6 +308,18 @@ class StokkieDrawer extends StatelessWidget {
           ),
           SizedBox(
             height: 40,
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onStokvelMembersRequested();
+            },
+            child: ListTile(
+              title: Text("Stokvel Members"),
+              leading: Icon(
+                Icons.people,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
           GestureDetector(
             onTap: () {
@@ -391,4 +408,5 @@ abstract class StokkieDrawerListener {
   onStokvelAccountRefreshRequested();
   onMemberStatementRequested();
   onStokvelStatementRequested();
+  onStokvelMembersRequested();
 }
