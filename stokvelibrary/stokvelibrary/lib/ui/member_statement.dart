@@ -1,10 +1,7 @@
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
-import 'package:stokvelibrary/ui/member_account_card.dart';
-import 'package:stokvelibrary/ui/stokvel_account_card.dart';
 
 import '../functions.dart';
 import '../snack.dart';
@@ -27,17 +24,16 @@ class _MemberStatementState extends State<MemberStatement> {
   Map<String, List<StokvelPayment>> _stokvelPaymentsMap = Map();
   bool isMemberBusy = false;
   bool isStokvelBusy = false;
-  List<Widget> _stokvelWidgets = [];
   var _key = GlobalKey<ScaffoldState>();
   static const LIMIT = 5;
 
   @override
   void initState() {
     super.initState();
-    _refreshMember();
+    refreshMember();
   }
 
-  _refreshMember() async {
+  refreshMember() async {
     setState(() {
       isMemberBusy = true;
     });

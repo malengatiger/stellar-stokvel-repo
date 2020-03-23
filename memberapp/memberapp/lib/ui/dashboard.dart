@@ -199,8 +199,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
 
   @override
   onRandomThemeRequested() {
-    // TODO: implement onRandomThemeRequested
-    return null;
+    themeBloc.changeToRandomTheme();
   }
 
   @override

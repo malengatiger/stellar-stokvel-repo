@@ -606,12 +606,6 @@ class GenericBloc {
       print('♻️ Add received memberPayment to stream');
       _memberPaymentMadeController.sink.add(_memberPaymentsMade);
       LocalDB.addMemberPayment(memberPayment: payment);
-      if (payment.fromMember.memberId == _member.memberId) {
-        if (navigatorKey.currentState != null) {
-          navigatorKey.currentState
-              .push(SlideRightRoute(widget: MemberStatement(_member.memberId)));
-        }
-      }
       return;
     } catch (e) {
       print('Something is really weird here ...');
@@ -634,14 +628,7 @@ class GenericBloc {
       print('♻️ Add received stokvelPayment to stream');
       _stokvelPaymentController.sink.add(_stokvelPayments);
       LocalDB.addStokvelPayment(stokvelPayment: payment);
-      _member.stokvelIds.forEach((id) {
-        if (id == payment.stokvel.stokvelId) {
-          if (navigatorKey.currentState != null) {
-            navigatorKey.currentState.push(
-                SlideRightRoute(widget: MemberStatement(_member.memberId)));
-          }
-        }
-      });
+
     } catch (e) {
       print(e);
     }
