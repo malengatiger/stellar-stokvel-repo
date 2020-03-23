@@ -211,7 +211,7 @@ class StokvelPaymentsWidget extends StatelessWidget implements PaymentWidget {
         }),
         Positioned(child: Card(
           color: Theme.of(context).primaryColor,
-          elevation: 16,
+          elevation: 24,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
@@ -307,7 +307,7 @@ class MemberPaymentsWidget extends StatelessWidget implements PaymentWidget {
             }),
         Positioned(child: Card(
           color: Theme.of(context).primaryColor,
-          elevation: 16,
+          elevation: 24,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
