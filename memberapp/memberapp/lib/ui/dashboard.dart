@@ -142,7 +142,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
         drawer: MemberDrawer(
           listener: this,
         ),
-        bottomNavigationBar: StokkieNavBar(TYPE_MEMBER),
+        bottomNavigationBar: StokkieNavBar(_member == null? null: _member.memberId, TYPE_ADMIN),
         body: isBusy
             ? Center(
                 child: CircularProgressIndicator(

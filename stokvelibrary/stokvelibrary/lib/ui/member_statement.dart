@@ -1,3 +1,4 @@
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
@@ -19,14 +20,16 @@ class MemberStatement extends StatefulWidget {
 
 class _MemberStatementState extends State<MemberStatement> {
   Member _member;
-  List<MemberPayment> _memberPayments = [];
-  AccountResponse _memberAccountResponse;
+  List<MemberPayment> _memberPaymentsMade = [];
+  List<MemberPayment> _memberPaymentsReceived = [];
+  List<MemberPayment> _memberPaymentsCombined = [];
   List<AccountResponse> _stokvelAccountResponses = [];
   Map<String, List<StokvelPayment>> _stokvelPaymentsMap = Map();
   bool isMemberBusy = false;
   bool isStokvelBusy = false;
-  List<Widget> _widgets = [];
+  List<Widget> _stokvelWidgets = [];
   var _key = GlobalKey<ScaffoldState>();
+  static const LIMIT = 5;
 
   @override
   void initState() {
@@ -43,10 +46,14 @@ class _MemberStatementState extends State<MemberStatement> {
       if (_member == null) {
         throw Exception('Member not found');
       }
-      _memberAccountResponse =
-          await genericBloc.refreshAccount(memberId: _member.memberId);
-      _memberPayments =
-          await genericBloc.refreshMemberPayments(_member.memberId);
+
+      _memberPaymentsMade =
+          await genericBloc.refreshMemberPaymentsMade(_member.memberId);
+      _memberPaymentsReceived =
+          await genericBloc.refreshMemberPaymentsReceived(_member.memberId);
+      _memberPaymentsCombined.addAll(_memberPaymentsMade);
+      _memberPaymentsCombined.addAll(_memberPaymentsReceived);
+      _memberPaymentsCombined.sort((a, b) => b.date.compareTo(a.date));
       setState(() {
         isMemberBusy = false;
       });
@@ -83,77 +90,236 @@ class _MemberStatementState extends State<MemberStatement> {
     });
   }
 
-  Widget _getStokvelWidgets() {
-    if (_member == null) {
-      return Container();
-    }
-    _widgets.clear();
-    _member.stokvelIds.forEach((stokvelId) {
-      _widgets.add(StokvelAccountCard(
-        stokvelId: stokvelId,
-        forceRefresh: true,
-      ));
-    });
-    return Container(
-      height: _member == null ? 0.0 : _member.stokvelIds.length * 300.0,
-      child: Column(
-        children: _widgets,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _key,
-      appBar: AppBar(
-        title: Text('Member Statement'),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () {
-                setState(() {
-                  isStokvelBusy = false;
-                });
-                _refreshMember();
-              }),
-        ],
-        bottom: PreferredSize(
-            child: Column(
-              children: <Widget>[
-                Text(
-                  _member == null ? '' : _member.name,
-                  style: Styles.whiteBoldMedium,
-                ),
-                SizedBox(
-                  height: 20,
-                )
-              ],
-            ),
-            preferredSize: Size.fromHeight(80)),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              isMemberBusy
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : MemberAccountCard(
-                      memberId: _member.memberId,
-                      forceRefresh: true,
+    return SafeArea(
+      child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+              appBar: AppBar(
+                title: Text('Member Statements'),
+                bottom: PreferredSize(child: Column(
+                  children: <Widget>[
+                    Container(
+                      child: Text(_member == null? '': _member.name, style: Styles.whiteBoldMedium,),
                     ),
-              isStokvelBusy
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : _getStokvelWidgets()
-            ],
-          ),
-        ),
-      ),
+                    SizedBox(height: 8,),
+                    TabBar(
+                      tabs: <Widget>[
+                        Tab(icon: Icon(Icons.account_balance), text: "Member Payments",),
+                        Tab(icon: Icon(Icons.business_center), text: "Stokvel Payments",)
+                      ],
+                    ),
+                    SizedBox(height: 8,)
+                  ],
+                ), preferredSize: Size.fromHeight(120)),
+              ),
+              body: Stack(
+                children: <Widget>[
+                  TabBarView(children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: MemberPaymentsWidget(
+                          member: _member,
+                          memberPaymentsCombined: _memberPaymentsCombined,
+                          context: context),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: StokvelPaymentsWidget(
+                          stokvelPaymentsMap: _stokvelPaymentsMap, context: context),
+                    ),
+                  ]),
+                ],
+              ))),
     );
   }
 }
+
+class StokvelPaymentsWidget extends StatelessWidget implements PaymentWidget {
+  const StokvelPaymentsWidget({
+    Key key,
+    @required Map<String, List<StokvelPayment>> stokvelPaymentsMap,
+    @required this.context,
+  })  : _stokvelPaymentsMap = stokvelPaymentsMap,
+        super(key: key);
+
+  final Map<String, List<StokvelPayment>> _stokvelPaymentsMap;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    var combined = List<StokvelPayment>();
+    _stokvelPaymentsMap.values.toList().forEach((m) {
+      m.forEach((r) {
+        combined.add(r);
+      });
+    });
+    combined.sort((a,b) => b.date.compareTo(a.date));
+    return Stack(
+      children: <Widget>[
+    ListView.builder(
+    itemCount: combined.length,
+        itemBuilder: (context, index) {
+          var payment = combined.elementAt(index);
+          return Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        '${payment.member.name}',
+                        style: Styles.greyLabelSmall,
+                      ),
+                      SizedBox(
+                        width: 28,
+                      ),
+                      Text(
+                        '${getFormattedAmount(payment.amount, context)}',
+                        style: Styles.blackBoldSmall,
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8,),
+                  Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text('${payment.stokvel.name}', style: Styles.greyLabelSmall,),
+                        ],
+                      ),
+                      SizedBox(width: 20,),
+                      Row(
+                        children: <Widget>[
+                          Text(getFormattedDateShortWithTime(payment.date, context), style: Styles.greyLabelSmall,),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        Positioned(child: Card(
+          color: Theme.of(context).primaryColor,
+          elevation: 16,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: <Widget>[
+                Text('${combined.length}', style: Styles.whiteBoldSmall,),
+              ],
+            ),
+          ),
+        ), left: 2, top: 2,),
+      ],
+    );
+  }
+}
+
+class MemberPaymentsWidget extends StatelessWidget implements PaymentWidget {
+  const MemberPaymentsWidget({
+    Key key,
+    @required Member member,
+    @required List<MemberPayment> memberPaymentsCombined,
+    @required this.context,
+  })  : _member = member,
+        _memberPaymentsCombined = memberPaymentsCombined,
+        super(key: key);
+
+  final Member _member;
+  final List<MemberPayment> _memberPaymentsCombined;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        ListView.builder(
+            itemCount: _memberPaymentsCombined.length,
+            itemBuilder: (context, index) {
+              var payment = _memberPaymentsCombined.elementAt(index);
+              return Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: <Widget>[
+                      Wrap(
+                        direction: Axis.horizontal,
+                        children: <Widget>[
+                          Text(
+                            payment.fromMember.name,
+                            style: Styles.blackBoldSmall,
+                          ),
+                          SizedBox(
+                            width: 4,
+                          ),
+                          Text(' paid to'),
+                          SizedBox(
+                            width: 4,
+                          ),
+                          Text(
+                            payment.toMember.name,
+                            style: Styles.greyLabelSmall,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          Text(
+                            getFormattedDateShortWithTime(
+                                payment.date, context),
+                            style: Styles.greyLabelSmall,
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            '${getFormattedAmount(payment.amount, context)}',
+                            style:
+                            payment.fromMember.memberId == _member.memberId
+                                ? Styles.pinkBoldSmall
+                                : Styles.tealBoldSmall,
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+        Positioned(child: Card(
+          color: Theme.of(context).primaryColor,
+          elevation: 16,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Text('${_memberPaymentsCombined.length}', style: Styles.whiteBoldSmall,),
+              ],
+            ),
+          ),
+        ), left: 2, top: 2,),
+      ],
+    );
+  }
+}
+
+abstract class PaymentWidget {}

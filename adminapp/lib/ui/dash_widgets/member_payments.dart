@@ -20,7 +20,7 @@ class _MemberPaymentsCardState extends State<MemberPaymentsCard> {
 
   _refresh() async {
     _member = await Prefs.getMember();
-    _payments = await genericBloc.getMemberPayments(_member.memberId);
+    _payments = await genericBloc.getMemberPaymentsMade(_member.memberId);
     print('MemberPaymentsCard: 🦠 🦠 🦠 Member payments: ${_payments.length}');
   }
 
@@ -30,7 +30,7 @@ class _MemberPaymentsCardState extends State<MemberPaymentsCard> {
       height: 100,
       width: 160,
       child: StreamBuilder<List<MemberPayment>>(
-          stream: genericBloc.memberPaymentStream,
+          stream: genericBloc.memberPaymentMadeStream,
           builder: (context, snapshot) {
             var cnt = snapshot.hasData ? snapshot.data.length : 0;
             var tot = 0.00;

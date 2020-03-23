@@ -31,7 +31,8 @@ class LocalDB {
       dbConnected = true;
       print(
           '👌 Connected to MongoDB Mobile. 🥬 DATABASE: $databaseName  🥬 APP_ID: $APP_ID  👌 👌 👌 '
-          ' necessary indices created for routes and landmarks 🧩 🧩 🧩 \n');
+          ' necessary indices created for all models 🧩 🧩 🧩 \n');
+      return null;
     } on PlatformException catch (e) {
       print('👿👿👿👿👿👿👿👿👿👿 ${e.message}  👿👿👿👿');
       throw Exception(e);
@@ -53,7 +54,7 @@ class LocalDB {
 
     var carr4 = Carrier(
         db: databaseName,
-        collection: Constants.STOKVEL_PAYMENTS,
+        collection: Constants.STOKVEL_PAYMENTS_RECEIVED,
         index: {"stokvel.stokvelId": 1});
     await MobMongo.createIndex(carr4);
 
@@ -115,33 +116,52 @@ class LocalDB {
   }
 
   static Future<Member> getMember(String memberId) async {
-    List<Member> mList = await getMembers();
-    Member member;
-    mList.forEach((m) {
-      if (m.memberId == memberId) {
-        member = m;
-      }
+    await _connectToLocalDB();
+    Carrier carrier = Carrier(
+        db: databaseName,
+        collection: Constants.MEMBERS,
+        query: {
+          "eq": {"memberId": memberId}
+        });
+    List results = await MobMongo.query(carrier);
+    List<Member> list = List();
+    results.forEach((r) {
+      var mm = Member.fromJson(jsonDecode(r));
+      list.add(mm);
     });
-    if (member == null) {
-      member = await ListAPI.getMember(memberId);
-      if (member != null) {
-        await addMember(member: member);
-      }
+    if (list.isEmpty) {
+      return null;
     }
-    return member;
+    return list.first;
   }
 
-  static Future<List<MemberPayment>> getMemberPayments(String memberId) async {
+  static Future<List<MemberPayment>> getMemberPaymentsMade(String memberId) async {
     await _connectToLocalDB();
     List<MemberPayment> mList = [];
 
     Carrier carrier =
-        Carrier(db: databaseName, collection: Constants.CREDS, query: {
-      "eq": {"memberId": memberId}
+        Carrier(db: databaseName, collection: Constants.MEMBER_PAYMENTS, query: {
+      "eq": {"fromMember.memberId": memberId}
     });
     List result = await MobMongo.query(carrier);
     result.forEach((r) {
-      mList.add(MemberPayment.fromJson(jsonDecode(r)));
+      var mp = MemberPayment.fromJson(jsonDecode(r));
+      mList.add(mp);
+    });
+    return mList;
+  }
+  static Future<List<MemberPayment>> getMemberPaymentsReceived(String memberId) async {
+    await _connectToLocalDB();
+    List<MemberPayment> mList = [];
+
+    Carrier carrier =
+    Carrier(db: databaseName, collection: Constants.MEMBER_PAYMENTS, query: {
+      "eq": {"toMember.memberId": memberId}
+    });
+    List result = await MobMongo.query(carrier);
+    result.forEach((r) {
+      var mp = MemberPayment.fromJson(jsonDecode(r));
+      mList.add(mp);
     });
     return mList;
   }
@@ -153,7 +173,7 @@ class LocalDB {
 
     Carrier carrier = Carrier(
         db: databaseName,
-        collection: Constants.STOKVEL_PAYMENTS,
+        collection: Constants.STOKVEL_PAYMENTS_RECEIVED,
         query: {
           "eq": {"stokvelId": stokvelId}
         });
@@ -355,7 +375,7 @@ class LocalDB {
     var start = DateTime.now();
     Carrier ca = Carrier(
         db: databaseName,
-        collection: Constants.STOKVEL_PAYMENTS,
+        collection: Constants.STOKVEL_PAYMENTS_RECEIVED,
         data: stokvelPayment.toJson());
     await MobMongo.insert(ca);
     var end = DateTime.now();
@@ -421,12 +441,31 @@ class LocalDB {
     }
     return list.first;
   }
+  static Future<Member> getMemberById(String memberId) async {
+    await _connectToLocalDB();
+    Carrier carrier = Carrier(
+        db: databaseName,
+        collection: Constants.MEMBERS,
+        query: {
+          "eq": {"memberId": memberId}
+        });
+    List results = await MobMongo.query(carrier);
+    List<Member> list = List();
+    results.forEach((r) {
+      var mm = Member.fromJson(jsonDecode(r));
+      list.add(mm);
+    });
+    if (list.isEmpty) {
+      return null;
+    }
+    return list.first;
+  }
 
   static Future<StokvelPayment> getStokvelPaymentById(String paymentId) async {
     await _connectToLocalDB();
     Carrier carrier = Carrier(
         db: databaseName,
-        collection: Constants.STOKVEL_PAYMENTS,
+        collection: Constants.STOKVEL_PAYMENTS_RECEIVED,
         query: {
           "eq": {"paymentId": paymentId}
         });

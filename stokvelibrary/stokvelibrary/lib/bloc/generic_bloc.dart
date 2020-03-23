@@ -37,7 +37,8 @@ class GenericBloc {
   List<Member> _members = List();
   List<Stokvel> _stokvels = List();
   List<StokkieCredential> _creds = [];
-  List<MemberPayment> _memberPayments = [];
+  List<MemberPayment> _memberPaymentsMade = [];
+  List<MemberPayment> _memberPaymentsReceived = [];
   List<StokvelPayment> _stokvelPayments = [];
   List<Contact> _contacts = [];
 
@@ -50,8 +51,10 @@ class GenericBloc {
       StreamController.broadcast();
   StreamController<List<StokkieCredential>> _credController =
       StreamController.broadcast();
-  StreamController<List<MemberPayment>> _memberPaymentController =
+  StreamController<List<MemberPayment>> _memberPaymentMadeController =
       StreamController.broadcast();
+  StreamController<List<MemberPayment>> _memberPaymentReceivedController =
+  StreamController.broadcast();
   StreamController<List<StokvelPayment>> _stokvelPaymentController =
       StreamController.broadcast();
   StreamController<List<Contact>> _contactController =
@@ -64,8 +67,10 @@ class GenericBloc {
   Stream<List<Member>> get memberStream => _memberController.stream;
   Stream<List<Stokvel>> get stokvelStream => _stokvelController.stream;
   Stream<List<StokkieCredential>> get credStream => _credController.stream;
-  Stream<List<MemberPayment>> get memberPaymentStream =>
-      _memberPaymentController.stream;
+  Stream<List<MemberPayment>> get memberPaymentMadeStream =>
+      _memberPaymentMadeController.stream;
+  Stream<List<MemberPayment>> get memberPaymentReceivedStream =>
+      _memberPaymentReceivedController.stream;
   Stream<List<StokvelPayment>> get stokvelPaymentStream =>
       _stokvelPaymentController.stream;
   Stream<List<Contact>> get contactStream => _contactController.stream;
@@ -76,7 +81,7 @@ class GenericBloc {
       _stokkieAccountResponseController.stream;
 
   void close() {
-    _memberPaymentController.close();
+    _memberPaymentMadeController.close();
     _memberController.close();
     _stokvelPaymentController.close();
     _stokvelController.close();
@@ -84,6 +89,7 @@ class GenericBloc {
     _contactController.close();
     _memberAccountResponseController.close();
     _stokkieAccountResponseController.close();
+    _memberPaymentReceivedController.close();
   }
 
   Future configureFCM() async {
@@ -292,6 +298,9 @@ class GenericBloc {
       var accountResponse = await Stellar.getAccount(seed: seed);
       _stokkieAccountResponses.add(accountResponse);
       _stokkieAccountResponseController.sink.add(_stokkieAccountResponses);
+      print(
+          '🍎 GenericBloc:refresh stokvel Account: 🍎 account response from 🧡 Stellar Network 🍎 '
+              '# balances: ${accountResponse.balances.length}, # responses in list: ${_stokkieAccountResponses.length}');
       await LocalDB.addStokvelAccountResponse(accountResponse: accountResponse);
       return accountResponse;
     }
@@ -307,8 +316,8 @@ class GenericBloc {
       _memberAccountResponseController.sink.add(_memberAccountResponses);
 
       print(
-          '🍎 GenericBloc:refreshAccount: 🍎  account response from 🧡 Stellar Network 🍎 '
-          'balances: ${accountResponse.balances.length} responses in list: ${_memberAccountResponses.length}');
+          '🍎 GenericBloc:refresh member Account: 🍎 account response from 🧡 Stellar Network 🍎 '
+          '# balances: ${accountResponse.balances.length} # responses in list: ${_memberAccountResponses.length}');
       await LocalDB.addMemberAccountResponse(accountResponse: accountResponse);
       return accountResponse;
     }
@@ -420,8 +429,8 @@ class GenericBloc {
         date: DateTime.now().toUtc().toIso8601String());
     var res =
         await DataAPI.sendMemberPaymentToStellar(payment: payment, seed: seed);
-    _memberPayments.add(res);
-    _memberPaymentController.sink.add(_memberPayments);
+    _memberPaymentsMade.add(res);
+    _memberPaymentMadeController.sink.add(_memberPaymentsMade);
 
     return res;
   }
@@ -478,31 +487,58 @@ class GenericBloc {
     return _stokvelPayments;
   }
 
-  Future<List<MemberPayment>> getMemberPayments(String memberId) async {
+  Future<List<MemberPayment>> getMemberPaymentsMade(String memberId) async {
     if (_member == null) {
       _member = await getCachedMember();
     }
-    _memberPayments = await LocalDB.getMemberPayments(memberId);
-    if (_memberPayments.isEmpty) {
-      return await refreshMemberPayments(memberId);
+    _memberPaymentsMade = await LocalDB.getMemberPaymentsMade(memberId);
+    if (_memberPaymentsMade.isEmpty) {
+      return await refreshMemberPaymentsMade(memberId);
     }
-    _memberPaymentController.sink.add(_memberPayments);
+    _memberPaymentMadeController.sink.add(_memberPaymentsMade);
     print(
-        'GenericBloc:  🔵 🔵 🔵 getMemberPayments, found ${_memberPayments.length}');
-    return _memberPayments;
+        'GenericBloc:  🔵 🔵 🔵 getMemberPaymentsMade, found ${_memberPaymentsMade.length}');
+    return _memberPaymentsMade;
+  }
+  Future<List<MemberPayment>> getMemberPaymentsReceived(String memberId) async {
+    if (_member == null) {
+      _member = await getCachedMember();
+    }
+    _memberPaymentsReceived = await LocalDB.getMemberPaymentsReceived(memberId);
+    if (_memberPaymentsReceived.isEmpty) {
+      return await refreshMemberPaymentsReceived(memberId);
+    }
+    _memberPaymentReceivedController.sink.add(_memberPaymentsReceived);
+    print(
+        'GenericBloc:  🔵 🔵 🔵 getMemberPaymentsReceived, found ${_memberPaymentsReceived.length}');
+    return _memberPaymentsReceived;
   }
 
-  Future<List<MemberPayment>> refreshMemberPayments(String memberId) async {
+  Future<List<MemberPayment>> refreshMemberPaymentsMade(String memberId) async {
     if (_member == null) {
       _member = await getCachedMember();
     }
-    _memberPayments = await ListAPI.getMemberPayments(memberId);
-    _memberPaymentController.sink.add(_memberPayments);
-    for (var pay in _memberPayments) {
+    _memberPaymentsMade = await ListAPI.getMemberPaymentsMade(memberId);
+    _memberPaymentMadeController.sink.add(_memberPaymentsMade);
+    for (var pay in _memberPaymentsMade) {
       await LocalDB.addMemberPayment(memberPayment: pay);
     }
-
-    return _memberPayments;
+    print(
+        'GenericBloc:  🔵 🔵 🔵 refreshMemberPaymentsMade, found ${_memberPaymentsMade.length}');
+    return _memberPaymentsMade;
+  }
+  Future<List<MemberPayment>> refreshMemberPaymentsReceived(String memberId) async {
+    if (_member == null) {
+      _member = await getCachedMember();
+    }
+    _memberPaymentsReceived = await ListAPI.getMemberPaymentsReceived(memberId);
+    _memberPaymentReceivedController.sink.add(_memberPaymentsReceived);
+    for (var pay in _memberPaymentsReceived) {
+      await LocalDB.addMemberPayment(memberPayment: pay);
+    }
+    print(
+        'GenericBloc:  🔵 🔵 🔵 refreshMemberPaymentsReceived, found ${_memberPaymentsReceived.length}');
+    return _memberPaymentsReceived;
   }
 
   Future<List<Stokvel>> getStokvelsAdministered(String memberId) async {
@@ -544,9 +580,9 @@ class GenericBloc {
     prettyPrint(mJSON, 'MEMBER PAYMENT from FCM');
     try {
       var payment = MemberPayment.fromJson(mJSON);
-      _memberPayments.add(payment);
+      _memberPaymentsMade.add(payment);
       print('♻️ Add received memberPayment to stream');
-      _memberPaymentController.sink.add(_memberPayments);
+      _memberPaymentMadeController.sink.add(_memberPaymentsMade);
       LocalDB.addMemberPayment(memberPayment: payment);
       if (payment.fromMember.memberId == _member.memberId) {
         if (navigatorKey.currentState != null) {

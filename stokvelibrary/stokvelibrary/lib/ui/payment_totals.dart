@@ -44,7 +44,7 @@ class _PaymentsTotalsState extends State<PaymentsTotals> {
       if (widget.memberId != null) {
         _member = await LocalDB.getMember(widget.memberId);
         _memberPayments =
-            await genericBloc.refreshMemberPayments(widget.memberId);
+            await genericBloc.refreshMemberPaymentsMade(widget.memberId);
       }
     } catch (e) {
       print(e);

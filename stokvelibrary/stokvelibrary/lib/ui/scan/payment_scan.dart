@@ -53,7 +53,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
   }
 
   void _listen() async {
-    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {
+    genericBloc.memberPaymentMadeStream.listen((List<MemberPayment> payments) {
       if (mounted) {
         var mPayment = payments.last;
         AppSnackBar.showSnackBar(

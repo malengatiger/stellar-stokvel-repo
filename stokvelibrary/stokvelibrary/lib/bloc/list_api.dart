@@ -132,11 +132,24 @@ class ListAPI {
     return mList;
   }
 
-  static Future<List<MemberPayment>> getMemberPayments(String memberId) async {
+  static Future<List<MemberPayment>> getMemberPaymentsMade(String memberId) async {
     var querySnapshot = await _firestore
         .collection('memberPayments')
         .orderBy('date', descending: true)
         .where('fromMember.memberId', isEqualTo: memberId)
+        .limit(PAYMENT_LIST_LIMIT)
+        .getDocuments();
+    var mList = List<MemberPayment>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(MemberPayment.fromJson(doc.data));
+    });
+    return mList;
+  }
+  static Future<List<MemberPayment>> getMemberPaymentsReceived(String memberId) async {
+    var querySnapshot = await _firestore
+        .collection('memberPayments')
+        .orderBy('date', descending: true)
+        .where('toMember.memberId', isEqualTo: memberId)
         .limit(PAYMENT_LIST_LIMIT)
         .getDocuments();
     var mList = List<MemberPayment>();

@@ -11,6 +11,7 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/ui/dash_util.dart';
 import 'package:stokvelibrary/ui/member_qrcode.dart';
+import 'package:stokvelibrary/ui/member_statement.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 import 'package:stokvelibrary/ui/scan/member_scan.dart';
 
@@ -52,7 +53,7 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
-  refreshAccount() async {
+  _refreshAccount() async {
     _getDashboardWidgets(true);
   }
 
@@ -68,6 +69,15 @@ class _DashboardState extends State<Dashboard>
     }
   }
 
+  _startStatement() async {
+      Navigator.push(
+          context,
+          SlideRightRoute(
+              widget: MemberStatement(
+                _member.memberId
+              )));
+
+  }
   _startQRCode() async {
     await Navigator.push(context, SlideRightRoute(widget: MemberQRCode()));
     setState(() {
@@ -121,7 +131,7 @@ class _DashboardState extends State<Dashboard>
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: () {
-                refreshAccount();
+                _refreshAccount();
               },
             ),
           ],
@@ -174,7 +184,7 @@ class _DashboardState extends State<Dashboard>
               preferredSize: Size.fromHeight(80)),
         ),
 //        backgroundColor: Colors.brown[100],
-        bottomNavigationBar: StokkieNavBar(TYPE_ADMIN),
+        bottomNavigationBar: StokkieNavBar(_member == null? null: _member.memberId, TYPE_ADMIN),
         drawer: StokkieDrawer(
           listener: this,
         ),
@@ -220,7 +230,7 @@ class _DashboardState extends State<Dashboard>
         '🤟🤟🤟 Dashboard: Member scanned and updated on Firestore ...now has  🌶 ${member.stokvelIds.length} stokvels 🌶 ');
     prettyPrint(member.toJson(),
         '🤟🤟🤟 member scanned and updated, check stokvels in member rec');
-    refreshAccount();
+    _refreshAccount();
   }
 
   @override
@@ -253,7 +263,7 @@ class _DashboardState extends State<Dashboard>
 
   @override
   onRefreshRequested() {
-    refreshAccount();
+    _refreshAccount();
   }
 
   @override

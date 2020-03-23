@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
 import 'package:stokvelibrary/api/db.dart';
@@ -86,34 +87,37 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     }
   }
 
-  _buildTable() {
+  Widget _buildTable() {
     _rows.clear();
+    _rows.add(Text('${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)}'));
+    _rows.add(SizedBox(height: 12,));
     _accountResponse.balances.forEach((balance) {
-      _rows.add(DataRow(cells: [
-        DataCell(balance.assetType == 'native'
-            ? Text(
-                'XLM',
-                style: Styles.greyLabelSmall,
-              )
-            : Text(
-                balance.assetType,
-                style: Styles.blackBoldSmall,
-              )),
-        DataCell(Text(
-          getFormattedAmount(balance.balance, context),
-          style: Styles.tealBoldMedium,
-        )),
-      ]));
+      _rows.add(Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('Balance', style: Styles.greyLabelSmall,),
+          SizedBox(width: 20,),
+          Text('${getFormattedAmount(balance.balance, context)}', style: Styles.blackBoldMedium,),
+          SizedBox(width: 20,),
+          Text(balance.assetType == 'native'? 'XLM': balance.assetType, style: Styles.greyLabelMedium,),
+        ],
+      ));
     });
+    return Container(
+      height: _accountResponse.balances.length * 80.0,
+      child: Column(
+        children: _rows,
+      ),
+    );
     setState(() {});
   }
 
-  var _rows = List<DataRow>();
+  var _rows = List<Widget>();
   double _getHeight() {
     if (_accountResponse == null) {
       return 280;
     }
-    var height = _accountResponse.balances.length * 180.0;
+    var height = _accountResponse.balances.length * 140.0;
     height += 120;
     return height;
   }
@@ -141,7 +145,6 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                 return GestureDetector(
                   onTap: refresh,
                   child: Card(
-//              color: getRandomPastelColor(),
                     elevation: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
@@ -174,18 +177,7 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
                           SizedBox(
                             height: 20,
                           ),
-                          DataTable(columns: [
-                            DataColumn(
-                                label: Text(
-                              'Asset',
-                              style: Styles.greyLabelSmall,
-                            )),
-                            DataColumn(
-                                label: Text(
-                              'Amount',
-                              style: Styles.greyLabelSmall,
-                            ))
-                          ], rows: _rows)
+                          _buildTable()
                         ],
                       ),
                     ),
