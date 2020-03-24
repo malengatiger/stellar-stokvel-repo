@@ -176,13 +176,6 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
     return null;
   }
 
-  @override
-  onMemberStatementRequested() {
-    Navigator.pop(context);
-    Navigator.push(context, SlideRightRoute(
-      widget: MemberStatement(_member.memberId),
-    ));
-  }
 
   @override
   onMembershipScannerRequested() {
@@ -200,15 +193,11 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   @override
   onRandomThemeRequested() {
     themeBloc.changeToRandomTheme();
+    Navigator.pop(context);
   }
 
   @override
-  onRefreshRequested() {
-
-  }
-
-  @override
-  onStokvelStatementRequested() {
+  onStatementRequested() {
     Navigator.pop(context);
     Navigator.push(context, SlideRightRoute(
       widget: MemberStatement(_member.memberId),
@@ -263,24 +252,13 @@ class MemberDrawer extends StatelessWidget {
               ),
             ),
           ),
+
           GestureDetector(
             onTap: () {
-              listener.onStokvelStatementRequested();
+              listener.onStatementRequested();
             },
             child: ListTile(
-              title: Text("Stokvel Statements"),
-              leading: Icon(
-                Icons.format_list_bulleted,
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              listener.onMemberStatementRequested();
-            },
-            child: ListTile(
-              title: Text("Member Statements"),
+              title: Text("Statements"),
               leading: Icon(
                 Icons.format_list_bulleted,
                 color: Colors.grey[600],
@@ -346,9 +324,7 @@ abstract class MemberDrawerListener {
   onMembershipScannerRequested();
   onRandomThemeRequested();
   onWelcomeRequested();
-  onRefreshRequested();
   onInvitationsRequested();
-  onMemberStatementRequested();
-  onStokvelStatementRequested();
+  onStatementRequested();
   onStokvelMembersRequested();
 }

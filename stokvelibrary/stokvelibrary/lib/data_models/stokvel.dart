@@ -406,45 +406,66 @@ class StokvelPayments {
 class StokvelGoal {
   String name,
       date,
-      stokvelId,
-      accountId,
+      targetDate,
+      stokvelGoalId,
       amountToCollect,
-      amountCollected,
       description;
+  List<StokvelPayment> payments;
+  Stokvel stokvel;
+  Member beneficiary;
   bool isActive;
 
   StokvelGoal(
       {this.name,
       this.date,
-      this.stokvelId,
-      this.accountId,
+      this.beneficiary,
+      this.targetDate,
       this.amountToCollect,
-      this.amountCollected,
+      this.payments,
+      this.stokvel,
+      this.stokvelGoalId,
       this.description,
       this.isActive});
 
   StokvelGoal.fromJson(Map map) {
     name = map['name'];
-    accountId = map['accountId'];
-    stokvelId = map['stokvelId'];
     amountToCollect = map['amountToCollect'];
     description = map['description'];
-    accountId = map['accountId'];
-    amountCollected = map['amountCollected'];
+    stokvelGoalId = map['stokvelGoalId'];
     date = map['date'];
+    targetDate = map['targetDate'];
     isActive = map['isActive'];
+    payments = [];
+    if (map['payments'] != null) {
+      List mList = map['payments'];
+      mList.forEach((m) {
+        payments.add(StokvelPayment.fromJson(m));
+      });
+    }
+    if (map['beneficiary'] != null) {
+      beneficiary = Member.fromJson(map['beneficiary']);
+    }
+    if (map['stokvel'] != null) {
+      stokvel = Stokvel.fromJson(map['stokvel']);
+    }
   }
 
   Map<String, dynamic> toJson() {
+    var mList = [];
+    payments.forEach((p) {
+      mList.add(p.toJson());
+    });
     Map<String, dynamic> map = {
       'name': name,
-      'accountId': accountId,
-      'stokvelId': stokvelId,
+      'stokvelGoalId': stokvelGoalId,
       'date': date,
+      'targetDate': targetDate,
       'amountToCollect': amountToCollect,
       'description': description,
-      'amountCollected': amountCollected,
+      'payments': mList,
       'isActive': isActive,
+      'beneficiary': beneficiary == null ? null : beneficiary.toJson(),
+      'stokvel': stokvel == null ? null : stokvel.toJson(),
     };
     return map;
   }
