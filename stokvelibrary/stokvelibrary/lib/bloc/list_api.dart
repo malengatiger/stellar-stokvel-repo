@@ -116,7 +116,37 @@ class ListAPI {
     }
     return null;
   }
+  static Future<StokvelGoal> getStokvelGoalById(
+      String stokvelGoalId) async {
+    var querySnapshot = await _firestore
+        .collection('stokvelGoals')
+        .where('stokvelGoalId', isEqualTo: stokvelGoalId)
+        .limit(1)
+        .getDocuments();
+    var mList = List<StokvelGoal>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(StokvelGoal.fromJson(doc.data));
+    });
 
+    if (mList.isEmpty) {
+      return null;
+    }
+    return mList.first;
+  }
+  static Future<List<StokvelGoal>> getStokvelGoals(
+      String stokvelId) async {
+    var querySnapshot = await _firestore
+        .collection('stokvelGoals')
+        .where('stokvel.stokvelId', isEqualTo: stokvelId)
+        .limit(PAYMENT_LIST_LIMIT)
+        .getDocuments();
+    var mList = List<StokvelGoal>();
+    querySnapshot.documents.forEach((doc) {
+      mList.add(StokvelGoal.fromJson(doc.data));
+    });
+
+    return mList;
+  }
   static Future<List<StokvelPayment>> getStokvelPayments(
       String stokvelId) async {
     var querySnapshot = await _firestore

@@ -1,5 +1,6 @@
 class Constants {
   static const String STOKVELS = 'stokvels';
+  static const String STOKVEL_GOALS = 'stokvelGoals';
   static const String MEMBERS = 'members';
   static const String STOKVEL_PAYMENTS_RECEIVED = 'stokvelPaymentsReceived';
   static const String STOKVEL_PAYMENTS_MADE = 'stokvelPaymentsMade';

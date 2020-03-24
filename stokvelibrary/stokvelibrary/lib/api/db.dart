@@ -178,8 +178,7 @@ class LocalDB {
     return mList;
   }
 
-  static Future<List<StokvelPayment>> getStokvelPayments(
-      String stokvelId) async {
+  static Future<List<StokvelPayment>> getStokvelPayments( String stokvelId) async {
     await _connectToLocalDB();
     List<StokvelPayment> mList = [];
 
@@ -195,6 +194,23 @@ class LocalDB {
     });
     return mList;
   }
+  static Future<List<StokvelGoal>> getStokvelGoals(String stokvelId) async {
+    await _connectToLocalDB();
+    List<StokvelGoal> mList = [];
+    Carrier carrier = Carrier(
+        db: databaseName,
+        collection: Constants.STOKVEL_GOALS,
+        query: {
+          "eq": {"stokvel.stokvelId": stokvelId}
+        });
+    List result = await MobMongo.query(carrier);
+    result.forEach((r) {
+      mList.add(StokvelGoal.fromJson(jsonDecode(r)));
+    });
+    mList.sort((a,b) => b.date.compareTo(a.date));
+    return mList;
+  }
+
 
   static Future<AccountResponse> getLatestMemberAccountResponse(
       String accountId) async {
@@ -268,6 +284,30 @@ class LocalDB {
     return mList;
   }
 
+  static Future<int> addStokvelGoal({@required StokvelGoal goal}) async {
+    await _connectToLocalDB();
+    prettyPrint(goal.toJson(),
+        ",,,,,,,,,,,,,,,,,,,,,,, STOKVEL GOAL TO BE ADDED TO local DB, check name etc.");
+    var start = DateTime.now();
+    Carrier c = Carrier(db: databaseName, collection: Constants.STOKVEL_GOALS, id: {
+      'field': 'stokvelGoalId',
+      'value': goal.stokvelGoalId,
+    });
+    var resDelete = await MobMongo.delete(c);
+    print('🦠  Result of stokvelGoal delete: 🍎 $resDelete 🍎 ');
+
+    Carrier ca = Carrier(
+        db: databaseName,
+        collection: Constants.STOKVEL_GOALS,
+        data: goal.toJson());
+    var res = await MobMongo.insert(ca);
+    print('🦠  Result of addStokvelGoal insert: 🍎 $res 🍎 ');
+    var end = DateTime.now();
+    var elapsedSecs = end.difference(start).inMilliseconds;
+    print(
+        '🍎 addStokvelGoal: 🌼 1 added...: ${goal.name} 🔵 🔵  elapsed: $elapsedSecs milliseconds 🔵 🔵 ');
+    return 0;
+  }
   static Future<int> addStokvel({@required Stokvel stokvel}) async {
     await _connectToLocalDB();
     prettyPrint(stokvel.toJson(),

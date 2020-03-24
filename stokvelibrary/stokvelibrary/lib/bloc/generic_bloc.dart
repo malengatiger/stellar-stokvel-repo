@@ -29,9 +29,10 @@ import 'maker.dart';
 GenericBloc genericBloc = GenericBloc();
 
 class GenericBloc {
-  GenericBloc() {
+  GenericBloc()  {
     print('🅿️ 🅿️   🎽 🎽 🎽 🎽 ......... GenericBloc constructor .............. 🎽 🎽 🎽 🎽  🅿️ 🅿️ ');
     getCachedMember();
+
   }
 
   List<Member> _members = List();
@@ -40,6 +41,7 @@ class GenericBloc {
   List<MemberPayment> _memberPaymentsMade = [];
   List<MemberPayment> _memberPaymentsReceived = [];
   List<StokvelPayment> _stokvelPayments = [];
+  List<StokvelGoal> _stokvelGoals = [];
   List<Contact> _contacts = [];
 
   List<AccountResponse> _memberAccountResponses = List();
@@ -57,6 +59,8 @@ class GenericBloc {
   StreamController.broadcast();
   StreamController<List<StokvelPayment>> _stokvelPaymentController =
       StreamController.broadcast();
+  StreamController<List<StokvelGoal>> _stokvelGoalController =
+  StreamController.broadcast();
   StreamController<List<Contact>> _contactController =
       StreamController.broadcast();
   StreamController<List<AccountResponse>> _memberAccountResponseController =
@@ -73,6 +77,8 @@ class GenericBloc {
       _memberPaymentReceivedController.stream;
   Stream<List<StokvelPayment>> get stokvelPaymentStream =>
       _stokvelPaymentController.stream;
+  Stream<List<StokvelGoal>> get stokvelGoalStream =>
+      _stokvelGoalController.stream;
   Stream<List<Contact>> get contactStream => _contactController.stream;
 
   Stream<List<AccountResponse>> get memberAccountResponseStream =>
@@ -90,6 +96,7 @@ class GenericBloc {
     _memberAccountResponseController.close();
     _stokkieAccountResponseController.close();
     _memberPaymentReceivedController.close();
+    _stokvelGoalController.close();
   }
 
   Future configureFCM() async {
@@ -375,14 +382,20 @@ class GenericBloc {
   }
 
   Member _member;
+  bool alreadySubscribed = false;
 
   
   Future<Member> getCachedMember() async {
     _member = await Prefs.getMember();
-    _member = await getMember(_member.memberId);
+    _member = await refreshMember(_member.memberId);
+    await LocalDB.addMember(member: _member);
+    Prefs.saveMember(_member);
     prettyPrint(_member.toJson(), " 🅿️ 🅿️ GenericBloc: getCachedMember, called from constructor  🅿️ 🅿️");
     if (_member.stokvelIds.isNotEmpty) {
-      await configureFCM();
+      if (!alreadySubscribed) {
+        await configureFCM();
+        alreadySubscribed = true;
+      }
     } else {
       print('............ This member has NO stokvels, 👿 👿 👿 what the fuck? 👿 👿 👿 ');
     }
@@ -399,6 +412,40 @@ class GenericBloc {
 
   Future addInvitation(Invitation invite) async {
     return await DataAPI.addInvitation(invite);
+  }
+
+  Future<StokvelGoal> addStokvelGoal(StokvelGoal goal) async {
+    var mg = await DataAPI.addStokvelGoal(goal);
+    _stokvelGoals.add(mg);
+    _stokvelGoalController.sink.add(_stokvelGoals);
+    return mg;
+  }
+  Future <StokvelGoal> addStokvelGoalPayment(String stokvelGoalId, StokvelPayment payment) async {
+    return await DataAPI.addStokvelGoalPayment(stokvelGoalId: stokvelGoalId,payment: payment);
+  }
+  Future<StokvelGoal> addStokvelGoalUrl(String stokvelGoalId, String url) async {
+    StokvelGoal goal = await DataAPI.addStokvelGoalUrl(stokvelGoalId: stokvelGoalId,url: url);
+    return goal;
+  }
+  Future updateStokvelGoal(StokvelGoal stokvelGoal) async {
+    _stokvelGoals.remove(stokvelGoal);
+    await DataAPI.updateStokvelGoal(stokvelGoal);
+    _stokvelGoals.add(stokvelGoal);
+    _stokvelGoalController.sink.add(_stokvelGoals);
+    return null;
+  }
+  Future<List<StokvelGoal>> getStokvelGoals(String stokvelId) async {
+    var goals = await LocalDB.getStokvelGoals(stokvelId);
+    if (goals.isEmpty) {
+      return await refreshStokvelGoals(stokvelId);
+    }
+
+    return goals;
+
+  }
+  Future<List<StokvelGoal>> refreshStokvelGoals(String stokvelId) async{
+    var goals = await ListAPI.getStokvelGoals(stokvelId);
+    return goals;
   }
 
   Future<StokvelPayment> sendStokvelPayment(

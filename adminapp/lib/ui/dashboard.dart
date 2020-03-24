@@ -1,3 +1,4 @@
+import 'package:adminapp/ui/stokvel_goal_list.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';
@@ -236,41 +237,25 @@ class _DashboardState extends State<Dashboard>
   }
 
   @override
-  onMemberStatementRequested() {
-    Navigator.pop(context);
-    Navigator.push(context, SlideRightRoute(
-      widget: MemberStatement(_member.memberId,),
-    ));
-  }
-
-  @override
   onMembershipScannerRequested() {
+    Navigator.pop(context);
     _startScanner();
   }
 
   @override
   onQRCodeRequested() {
+    Navigator.pop(context);
     _startQRCode();
   }
 
   @override
   onRandomThemeRequested() {
+    Navigator.pop(context);
     themeBloc.changeToRandomTheme();
   }
 
   @override
-  onRefreshRequested() {
-    _refreshAccount();
-  }
-
-  @override
-  onStokvelAccountRefreshRequested() {
-    // TODO: implement onStokvelAccountRefreshRequested
-    return null;
-  }
-
-  @override
-  onStokvelStatementRequested() {
+  onStatementRequested() {
     Navigator.pop(context);
     Navigator.push(context, SlideRightRoute(
       widget: MemberStatement(_member.memberId,),
@@ -278,13 +263,22 @@ class _DashboardState extends State<Dashboard>
   }
   @override
   onStokvelMembersRequested() {
+    Navigator.pop(context);
     Navigator.push(context, SlideRightRoute(
       widget: MembersList(memberId: _member.memberId,),
+    ));
+  }
+  @override
+  onStokvelGoalsRequested() {
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: StokvelGoalList(),
     ));
   }
 
   @override
   onWelcomeRequested() {
+    Navigator.pop(context);
     _startWelcome(context);
   }
 }
@@ -311,10 +305,10 @@ class StokkieDrawer extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              listener.onStokvelMembersRequested();
+              listener.onStokvelGoalsRequested();
             },
             child: ListTile(
-              title: Text("Stokvel Members"),
+              title: Text("Stokvel Goals"),
               leading: Icon(
                 Icons.people,
                 color: Colors.grey[600],
@@ -323,24 +317,12 @@ class StokkieDrawer extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              listener.onStokvelStatementRequested();
+              listener.onStatementRequested();
             },
             child: ListTile(
-              title: Text("Stokvel Statements"),
+              title: Text("Statements"),
               leading: Icon(
-                Icons.format_list_bulleted,
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              listener.onMemberStatementRequested();
-            },
-            child: ListTile(
-              title: Text("Member Statements"),
-              leading: Icon(
-                Icons.format_list_bulleted,
+                Icons.description,
                 color: Colors.grey[600],
               ),
             ),
@@ -404,9 +386,7 @@ abstract class StokkieDrawerListener {
   onMembershipScannerRequested();
   onRandomThemeRequested();
   onWelcomeRequested();
-  onRefreshRequested();
-  onStokvelAccountRefreshRequested();
-  onMemberStatementRequested();
-  onStokvelStatementRequested();
+  onStatementRequested();
+  onStokvelGoalsRequested();
   onStokvelMembersRequested();
 }

@@ -408,9 +408,10 @@ class StokvelGoal {
       date,
       targetDate,
       stokvelGoalId,
-      amountToCollect,
+      targetAmount,
       description;
   List<StokvelPayment> payments;
+  List<String> imageUrls;
   Stokvel stokvel;
   Member beneficiary;
   bool isActive;
@@ -420,7 +421,7 @@ class StokvelGoal {
       this.date,
       this.beneficiary,
       this.targetDate,
-      this.amountToCollect,
+      this.targetAmount,
       this.payments,
       this.stokvel,
       this.stokvelGoalId,
@@ -429,7 +430,7 @@ class StokvelGoal {
 
   StokvelGoal.fromJson(Map map) {
     name = map['name'];
-    amountToCollect = map['amountToCollect'];
+    targetAmount = map['targetAmount'];
     description = map['description'];
     stokvelGoalId = map['stokvelGoalId'];
     date = map['date'];
@@ -441,6 +442,11 @@ class StokvelGoal {
       mList.forEach((m) {
         payments.add(StokvelPayment.fromJson(m));
       });
+    }
+    imageUrls = [];
+    if (map['imageUrls'] != null) {
+      List mList = map['payments'];
+      imageUrls = mList;
     }
     if (map['beneficiary'] != null) {
       beneficiary = Member.fromJson(map['beneficiary']);
@@ -455,14 +461,19 @@ class StokvelGoal {
     payments.forEach((p) {
       mList.add(p.toJson());
     });
+    var uList = [];
+    imageUrls.forEach((p) {
+      uList.add(p);
+    });
     Map<String, dynamic> map = {
       'name': name,
       'stokvelGoalId': stokvelGoalId,
       'date': date,
       'targetDate': targetDate,
-      'amountToCollect': amountToCollect,
+      'targetAmount': targetAmount,
       'description': description,
       'payments': mList,
+      'imageUrls': uList,
       'isActive': isActive,
       'beneficiary': beneficiary == null ? null : beneficiary.toJson(),
       'stokvel': stokvel == null ? null : stokvel.toJson(),

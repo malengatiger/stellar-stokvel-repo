@@ -521,7 +521,6 @@ class _SendMoneyState extends State<SendMoney>
               },
               child: Card(
                 elevation: 2,
-                color: getRandomPastelColor(),
                 child: ListTile(
                   leading: Icon(
                     Icons.person,
@@ -551,7 +550,6 @@ class _SendMoneyState extends State<SendMoney>
               },
               child: Card(
                 elevation: 2,
-                color: getRandomPastelColor(),
                 child: ListTile(
                   leading: Icon(
                     Icons.apps,
