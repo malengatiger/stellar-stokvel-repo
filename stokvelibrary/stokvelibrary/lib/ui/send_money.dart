@@ -169,36 +169,44 @@ class _SendMoneyState extends State<SendMoney>
                 ),
               ),
               actions: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: FlatButton(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Select Goal',
-                        style: Styles.pinkBoldSmall,
+                Container(
+                  height: 80, width: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: RaisedButton(
+                      color: Colors.pink[700],
+                      elevation: 4.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Select Stokvel Goal',
+                          style: Styles.whiteSmall,
+                        ),
                       ),
+                      onPressed: () {
+                        _navigateToGoals();
+                      },
                     ),
-                    onPressed: () {
-                      _navigateToGoals();
-                    },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20.0),
-                  child: RaisedButton(
-                    color: Colors.blue,
-                    elevation: 4.0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Send Payment',
-                        style: Styles.whiteSmall,
+                Container(
+                  height: 80, width: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: RaisedButton(
+                      color: Colors.blue[700],
+                      elevation: 4.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Just Send Payment',
+                          style: Styles.whiteSmall,
+                        ),
                       ),
+                      onPressed: () {
+                        _sendStokkiePayment(null);
+                      },
                     ),
-                    onPressed: () {
-                      _sendStokkiePayment(null);
-                    },
                   ),
                 ),
               ],
