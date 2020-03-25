@@ -117,7 +117,7 @@ class AppSnackBar {
     var snackBar = new SnackBar(
       content: _getText(message, Colors.white),
       duration: new Duration(seconds: 20),
-      backgroundColor: Colors.red.shade700,
+      backgroundColor: Theme.of(scaffoldKey.currentContext).primaryColor,
       action: SnackBarAction(
         label: actionLabel == null? '': actionLabel,
         onPressed: () {

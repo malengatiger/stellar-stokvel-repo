@@ -415,6 +415,7 @@ class GenericBloc {
   }
 
   Future<StokvelGoal> addStokvelGoal(StokvelGoal goal) async {
+    prettyPrint(goal.toJson(), '🌎 🌎 🌎 GOAL to be added to Firestore');
     var mg = await DataAPI.addStokvelGoal(goal);
     _stokvelGoals.add(mg);
     _stokvelGoalController.sink.add(_stokvelGoals);

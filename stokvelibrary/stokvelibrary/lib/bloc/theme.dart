@@ -165,7 +165,7 @@ class ThemeUtil {
       cardColor: Colors.white,
       backgroundColor: Colors.pink.shade100,
       scaffoldBackgroundColor: Colors.pink[50],
-      appBarTheme: AppBarTheme(color: Colors.pink.shade400),
+      appBarTheme: AppBarTheme(color: Colors.pink.shade300),
       textTheme: GoogleFonts.ralewayTextTheme(),
       buttonColor: Colors.blue,
     ).copyWith(

@@ -6,8 +6,9 @@ import 'package:stokvelibrary/functions.dart';
 
 class MembersList extends StatefulWidget {
   final String stokvelId, memberId;
+  final bool returnTappedMember;
 
-  const MembersList({Key key, this.stokvelId, this.memberId}) : super(key: key);
+  const MembersList({Key key, this.stokvelId, this.returnTappedMember, this.memberId}) : super(key: key);
   @override
   _MembersListState createState() => _MembersListState();
 }
@@ -134,20 +135,30 @@ class _MembersListState extends State<MembersList> {
   }
 
   void _addMember(MemberBag bag) {
-    _widgets.add(Card(
-      elevation: 2,
-      child: ListTile(
-        leading: Icon(
-          Icons.person,
-          color: getRandomColor(),
-        ),
-        title: Text(
-          bag.member.name,
-          style: Styles.blackBoldSmall,
-        ),
-        subtitle: Text(
-          bag.member.email,
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+    _widgets.add(GestureDetector(
+      onTap: () {
+        if (widget.returnTappedMember != null) {
+          if (widget.returnTappedMember) {
+            Navigator.pop(context, bag.member);
+          }
+        }
+
+      },
+      child: Card(
+        elevation: 2,
+        child: ListTile(
+          leading: Icon(
+            Icons.person,
+            color: getRandomColor(),
+          ),
+          title: Text(
+            bag.member.name,
+            style: Styles.blackBoldSmall,
+          ),
+          subtitle: Text(
+            bag.member.email,
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
         ),
       ),
     ));

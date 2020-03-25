@@ -413,17 +413,17 @@ class StokvelGoal {
   List<StokvelPayment> payments;
   List<String> imageUrls;
   Stokvel stokvel;
-  Member beneficiary;
+  List<Member> beneficiaries;
   bool isActive;
 
   StokvelGoal(
       {this.name,
       this.date,
-      this.beneficiary,
+      this.beneficiaries,
       this.targetDate,
       this.targetAmount,
       this.payments,
-      this.stokvel,
+      this.stokvel, this.imageUrls,
       this.stokvelGoalId,
       this.description,
       this.isActive});
@@ -436,20 +436,27 @@ class StokvelGoal {
     date = map['date'];
     targetDate = map['targetDate'];
     isActive = map['isActive'];
-    payments = [];
+    //
+    payments = List<StokvelPayment>();
     if (map['payments'] != null) {
       List mList = map['payments'];
       mList.forEach((m) {
         payments.add(StokvelPayment.fromJson(m));
       });
     }
-    imageUrls = [];
+    imageUrls = List<String>();
     if (map['imageUrls'] != null) {
-      List mList = map['payments'];
-      imageUrls = mList;
+      List mList = map['imageUrls'];
+      mList.forEach((u) {
+        imageUrls.add(u as String);
+      });
     }
-    if (map['beneficiary'] != null) {
-      beneficiary = Member.fromJson(map['beneficiary']);
+    beneficiaries = List<Member>();
+    if (map['beneficiaries'] != null) {
+      List mList = map['beneficiaries'];
+      mList.forEach((m) {
+        beneficiaries.add(Member.fromJson(m));
+      });
     }
     if (map['stokvel'] != null) {
       stokvel = Stokvel.fromJson(map['stokvel']);
@@ -461,7 +468,11 @@ class StokvelGoal {
     payments.forEach((p) {
       mList.add(p.toJson());
     });
-    var uList = [];
+    var bList = [];
+    beneficiaries.forEach((p) {
+      bList.add(p.toJson());
+    });
+    var uList = List<String>();
     imageUrls.forEach((p) {
       uList.add(p);
     });
@@ -475,7 +486,7 @@ class StokvelGoal {
       'payments': mList,
       'imageUrls': uList,
       'isActive': isActive,
-      'beneficiary': beneficiary == null ? null : beneficiary.toJson(),
+      'beneficiaries': bList,
       'stokvel': stokvel == null ? null : stokvel.toJson(),
     };
     return map;

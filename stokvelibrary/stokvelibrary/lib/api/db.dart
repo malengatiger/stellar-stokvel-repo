@@ -204,10 +204,12 @@ class LocalDB {
           "eq": {"stokvel.stokvelId": stokvelId}
         });
     List result = await MobMongo.query(carrier);
+    print('getStokvelGoals ..... MobMongo result found ${result.length} goals');
     result.forEach((r) {
       mList.add(StokvelGoal.fromJson(jsonDecode(r)));
     });
     mList.sort((a,b) => b.date.compareTo(a.date));
+    print('getStokvelGoals ..... found ${mList.length} goals');
     return mList;
   }
 
@@ -286,8 +288,7 @@ class LocalDB {
 
   static Future<int> addStokvelGoal({@required StokvelGoal goal}) async {
     await _connectToLocalDB();
-    prettyPrint(goal.toJson(),
-        ",,,,,,,,,,,,,,,,,,,,,,, STOKVEL GOAL TO BE ADDED TO local DB, check name etc.");
+
     var start = DateTime.now();
     Carrier c = Carrier(db: databaseName, collection: Constants.STOKVEL_GOALS, id: {
       'field': 'stokvelGoalId',
