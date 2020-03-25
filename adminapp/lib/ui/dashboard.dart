@@ -1,4 +1,4 @@
-import 'package:adminapp/ui/stokvel_goal_list.dart';
+import 'package:stokvelibrary/ui/stokvel_goal_list.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:stellarplugin/data_models/account_response.dart';

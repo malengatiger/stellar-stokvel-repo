@@ -8,6 +8,7 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/scan/payment_scan.dart';
+import 'package:stokvelibrary/ui/stokvel_goal_list.dart';
 import 'package:toast/toast.dart';
 
 class SendMoney extends StatefulWidget {
@@ -137,6 +138,18 @@ class _SendMoneyState extends State<SendMoney>
 
   void _displayStokvelPaymentDialog() {
     print('🧩 🧩 ........ _displayStokvelPaymentDialog ..... ');
+    if (amountController.text.isEmpty) {
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Please enter amount');
+      return;
+    }
+    _dismissKeyboard();
+    double amount = double.parse(amountController.text);
+    if (amount == 0) {
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Please enter amount');
+      return;
+    }
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -146,7 +159,7 @@ class _SendMoneyState extends State<SendMoney>
                 child: Column(
                   children: <Widget>[
                     Text(
-                      'You are about to make a Stokvel payment of ${amountController.text} to ${_stokvel.name}',
+                      'You are about to make a Stokvel payment of ${amountController.text} to ${_stokvel.name}. Do you want to select the Goal you are contributing to?',
                       style: Styles.blackSmall,
                     ),
                     SizedBox(
@@ -162,11 +175,13 @@ class _SendMoneyState extends State<SendMoney>
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        'Cancel',
+                        'Select Goal',
                         style: Styles.pinkBoldSmall,
                       ),
                     ),
-                    onPressed: _close,
+                    onPressed: () {
+                      _navigateToGoals();
+                    },
                   ),
                 ),
                 Padding(
@@ -181,7 +196,9 @@ class _SendMoneyState extends State<SendMoney>
                         style: Styles.whiteSmall,
                       ),
                     ),
-                    onPressed: _sendStokkiePayment,
+                    onPressed: () {
+                      _sendStokkiePayment(null);
+                    },
                   ),
                 ),
               ],
@@ -190,6 +207,7 @@ class _SendMoneyState extends State<SendMoney>
 
   void _displayMemberPaymentDialog(Member member) {
     print('🧩 🧩 ........ _displayMemberPaymentDialog ..... ');
+    _dismissKeyboard();
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
@@ -199,7 +217,7 @@ class _SendMoneyState extends State<SendMoney>
                 child: Column(
                   children: <Widget>[
                     Text(
-                      'You are about to make a Member payment of ${amountController.text} to ${_stokvel.name}',
+                      'You are about to make a Member payment of ${amountController.text} to ${member.name}',
                       style: Styles.blackSmall,
                     ),
                     SizedBox(
@@ -250,9 +268,14 @@ class _SendMoneyState extends State<SendMoney>
     }
   }
 
-  void _sendStokkiePayment() async {
+  void _sendStokkiePayment(StokvelGoal goal) async {
     Navigator.pop(context);
     _dismissKeyboard();
+    if (amountController.text.isEmpty) {
+      AppSnackBar.showErrorSnackBar(
+          scaffoldKey: _key, message: 'Please enter amount');
+      return;
+    }
     double amount = double.parse(amountController.text);
     if (amount == 0) {
       AppSnackBar.showErrorSnackBar(
@@ -263,11 +286,15 @@ class _SendMoneyState extends State<SendMoney>
       isBusy = true;
     });
     try {
-      var me = await Prefs.getMember();
-      me = await LocalDB.getMember(me.memberId);
+      var me = await genericBloc.getCachedMember();
       var res = await genericBloc.sendStokvelPayment(
           member: me, amount: amountController.text, stokvel: _stokvel);
       prettyPrint(res.toJson(), "🍎 Stokvel Payment Result 🍎 ");
+
+      if (goal != null) {
+        await genericBloc.addStokvelGoalPayment(goal.stokvelGoalId, res);
+      }
+
       Toast.show('Stokvel Payment Succeeded', context,
           duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
       Navigator.pop(context, res);
@@ -379,7 +406,17 @@ class _SendMoneyState extends State<SendMoney>
 
   List<DropdownMenuItem<Stokvel>> items = [];
   var amountController = TextEditingController();
-//0793605714
+
+  void _navigateToGoals() async {
+    var result = await Navigator.push(context, SlideRightRoute(
+        widget: StokvelGoalList(returnStokvelGoalOnTap: true,)
+    ));
+    if (result != null) {
+      if (result is StokvelGoal) {
+          _sendStokkiePayment(result);
+      }
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -596,4 +633,6 @@ class _SendMoneyState extends State<SendMoney>
       _stokvel = value;
     });
   }
+
+
 }

@@ -153,9 +153,9 @@ class DataAPI {
       goal.payments = [];
     }
     goal.payments.add(payment);
-    var mRes = await updateStokvelGoal(goal);
+    await updateStokvelGoal(goal);
     print(
-        '💊 DataAPI: StokvelGoal updated (added payment), path: ${mRes.path}');
+        '💊 DataAPI: addStokvelGoalPayment: StokvelGoal updated (added payment)');
     return goal;
   }
 
