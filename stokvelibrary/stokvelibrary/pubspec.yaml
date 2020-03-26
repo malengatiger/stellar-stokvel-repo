@@ -39,6 +39,7 @@ dependencies:
   responsive_builder: ^0.1.5
   device_preview: ^0.3.0+1
   animations: ^1.0.0+5
+  mime_type: ^0.2.7
 
 
 dev_dependencies:

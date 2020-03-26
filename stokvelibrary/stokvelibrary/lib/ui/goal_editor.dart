@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:stokvelibrary/api/cloud_storage.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/members_list.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class StokvelGoalEditor extends StatefulWidget {
   final StokvelGoal stokvelGoal;
@@ -22,6 +25,7 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
   var _beneficiaries = List<Member>();
   var _stokvels = List<Stokvel>();
   var _urls = List<String>();
+  DateTime _targetDate;
   Member _member;
   Stokvel _stokvel;
   var _memberItems = List<DropdownMenuItem<Member>>();
@@ -125,6 +129,17 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
+                      RaisedButton(
+                          elevation: 8,
+                          color: Theme.of(context).primaryColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'Pick Image',
+                              style: Styles.whiteSmall,
+                            ),
+                          ),
+                          onPressed: _pickImage),
                       SizedBox(
                         width: 20,
                       ),
@@ -134,11 +149,11 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Text(
-                              'Pick Images or Video',
+                              'Capture Image',
                               style: Styles.whiteSmall,
                             ),
                           ),
-                          onPressed: _pickOrTakeImage),
+                          onPressed: _makeImage),
                     ],
                   ),
                   SizedBox(
@@ -375,7 +390,7 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
   }
 
   var _benWidgets = List<Widget>();
-  DateTime _targetDate;
+
   void _displayDatePicker() async {
     var firstDate = DateTime(DateTime.now().year, DateTime.now().month,
         DateTime.now().day, DateTime.now().hour + 1);
@@ -436,8 +451,66 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
 
   void _submitUpdate() {}
 
-  void _pickOrTakeImage() {}
+  void _pickImage() async {
+    print(' 🌽 🌽 🌽 PICK image for storing in cloud storage ,,,,');
+    await requestPermission(_mediaPermissionGroup);
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      print('🌼🌼 Image found image: 🌼 ${image.path} ... starting upload ....');
+      var url = await cloudStorageBloc.uploadFile(image);
+      _urls.add(url);
+    }
 
+  }
+  Future<void> _makeImage() async {
+    print(' 🌽 🌽 🌽 MAKE image for storing in cloud storage ,,,,');
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    print('🌼🌼 Image made image: 🌼 ${image.path}');
+  }
+  Future<void> retrieveLostData() async {
+    final LostDataResponse response =
+    await ImagePicker.retrieveLostData();
+    if (response == null) {
+      return;
+    }
+    if (response.file != null) {
+      setState(() {
+        if (response.type == RetrieveType.video) {
+//          _handleVideo(response.file);
+        } else {
+//          _handleImage(response.file);
+        }
+      });
+    } else {
+//      _handleError(response.exception);
+    }
+  }
+  PermissionGroup _cameraPermissionGroup = PermissionGroup.camera;
+  PermissionGroup _mediaPermissionGroup = PermissionGroup.mediaLibrary;
+  PermissionStatus _permissionStatus = PermissionStatus.unknown;
+  void checkServiceStatus(BuildContext context, PermissionGroup permission) {
+    PermissionHandler()
+        .checkServiceStatus(permission)
+        .then((ServiceStatus serviceStatus) {
+      final SnackBar snackBar =
+      SnackBar(content: Text(serviceStatus.toString()));
+
+      Scaffold.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  Future<void> requestPermission(PermissionGroup permission) async {
+    final List<PermissionGroup> permissions = <PermissionGroup>[permission];
+    final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
+    await PermissionHandler().requestPermissions(permissions);
+
+    print('🔵 🔵 🔵 PERMISSION: $permissionRequestResult 🔵 🔵 🔵 ');
+    setState(() {
+      print(permissionRequestResult);
+      var _permissionStatus = permissionRequestResult[permission];
+      print(_permissionStatus);
+    });
+  }
   void _onDropDownChanged(Stokvel stokvel) {
     setState(() {
       _stokvel = stokvel;

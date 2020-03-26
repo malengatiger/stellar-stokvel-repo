@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:stokvelibrary/bloc/maker.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
@@ -145,15 +146,13 @@ class _StokvelEditorState extends State<StokvelEditor> {
         adminMember: widget.member,
         date: DateTime.now().toUtc().toIso8601String(),
       );
-//
-//      var res = await makerBloc.createStokvelNewAdmin(
-//          stokvel: stokvel, member: widget.member);
-//      print(
-//          '💛️ 💛️ Stokvel seems to have been created: check stokvelId below');
-//      prettyPrint(res.toJson(), '💛️ 💛️ New Stokvel back from AdminBloc');
+
+      var res = await makerBloc.createNewStokvelWithExistingMember(widget.member, stokvel);
+      print(
+          '💛️ 💛️ Stokvel seems to have been created: check stokvelId below');
+      prettyPrint(res.toJson(), '💛️ 💛️ New Stokvel back from AdminBloc');
 
       Navigator.pop(context);
-//      Navigator.pop(context, res);
       Navigator.push(context, SlideRightRoute(widget: Dashboard()));
     } catch (e) {
       print(e);

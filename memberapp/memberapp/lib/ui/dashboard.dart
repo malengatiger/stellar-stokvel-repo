@@ -28,19 +28,13 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
   @override
   initState() {
     super.initState();
-//    _listen();
     _getMember();
   }
-
-//  void _listen() async {
-//    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {});
-//    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {});
-//  }
 
   _getMember() async {
     _member = await Prefs.getMember();
     _member = await genericBloc.getMember(_member.memberId);
-    _getDashboardWidgets(false);
+    _getDashboardWidgets(true);
     setState(() {});
   }
 
@@ -106,6 +100,12 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                     ));
               },
             ),
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                _getDashboardWidgets(true);
+              },
+            ),
           ],
           bottom: PreferredSize(
               child: Padding(
@@ -155,7 +155,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                 ),
               )
             : Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(12.0),
                 child: _member == null
                     ? Container()
                     : ListView(

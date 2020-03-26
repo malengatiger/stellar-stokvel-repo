@@ -37,7 +37,7 @@ List<Widget> getDashboardWidgets(Member member, bool forceRefresh) {
   widgets.add(SizedBox(
     height: 8,
   ));
-  widgets.add(PaymentsTotals(
+  widgets.add(MemberPaymentsTotals(
     memberId: member.memberId,
   ));
   widgets.add(SizedBox(
@@ -54,7 +54,7 @@ List<Widget> getDashboardWidgets(Member member, bool forceRefresh) {
     height: 8,
   ));
   member.stokvelIds.forEach((id) {
-    widgets.add(PaymentsTotals(
+    widgets.add(StokvelPaymentsTotals(
       stokvelId: id,
     ));
   });

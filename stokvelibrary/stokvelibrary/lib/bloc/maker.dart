@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -21,7 +22,8 @@ bool isDevelopmentStatus = true;
 
 class MakerBloc {
   Firestore fs = Firestore.instance;
-  FirebaseMessaging auth = FirebaseMessaging();
+  FirebaseMessaging firebaseMessaging = FirebaseMessaging();
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   MakerBloc() {
     _getStatus();
@@ -75,15 +77,19 @@ class MakerBloc {
     return res.path;
   }
 
-  Future<Member> createMemberAccount(Member member) async {
-    print('$em2 DataAPI: creating Stellar account for the Member  ...');
+  Future<Member> createMemberAccount(Member member, String password) async {
+    print('$em2 DataAPI: 🍏 🍏 creating Stellar account for the Member  ...');
     var memberAccountResponse =
         await Stellar.createAccount(isDevelopmentStatus: isDevelopmentStatus);
     member.accountId = memberAccountResponse.accountResponse.accountId;
-    var uuid = Uuid();
-    member.memberId = uuid.v1();
-    var token = await auth.getToken();
+
+    var token = await firebaseMessaging.getToken();
     member.fcmToken = token;
+    var mRes = await auth.createUserWithEmailAndPassword(email: member.email, password: password);
+    member.memberId = mRes.user.uid;
+    var authResult = await auth.signInWithEmailAndPassword(email: member.email, password: password);
+    member.memberId = authResult.user.uid;
+    print('🍏 🍏 User created and signed on Firebase: 🍏 🍏  ${authResult.user.uid} 🍏 🍏 🍏 🍏 🍏 🍏 ');
 
     var fortunaKey = CryptKey().genFortuna();
     var cryptKey = CryptKey().genDart(8);
@@ -172,7 +178,7 @@ class MakerBloc {
 
   static const String em1 = '🔆', em2 = '🔵 🔵 🔵';
   static const chacha20 = "ChaCha20/12";
-  Future createNewStokvelAndAdmin(Member member, Stokvel stokvel) async {
+  Future createNewStokvelAndAdmin(Member member, Stokvel stokvel, String password) async {
     var stokvelAccount = await Stellar.createAccount(isDevelopmentStatus: true);
     stokvel.accountId = stokvelAccount.accountResponse.accountId;
     prettyPrint(
@@ -183,8 +189,13 @@ class MakerBloc {
     member.stokvelIds.add(stokvel.stokvelId);
     stokvel.adminMember = member;
 
-    var token = await auth.getToken();
+    var token = await firebaseMessaging.getToken();
     member.fcmToken = token;
+
+    var authResult = await auth.createUserWithEmailAndPassword(email: member.email, password: password);
+    member.memberId = authResult.user.uid;
+    authResult = await auth.signInWithEmailAndPassword(email: member.email, password: password);
+    print('🍏 🍏 User created and signed on Firebase: ${authResult.user.uid} 🍏 🍏 🍏 🍏 🍏 🍏 ');
     prettyPrint(memberAccount.toJson(),
         '🔑 🔑 🔑 Member Account from Stellar 🔑 🔑 🔑');
     print('🍏 🍏 ACCOUNTS from Stellar seem OK 🍏 🍏 🍏 🍏 🍏 🍏 ');
@@ -261,8 +272,11 @@ class MakerBloc {
 
   Future createNewStokvelWithExistingMember(
       Member member, Stokvel stokvel) async {
+
+    var uuid = Uuid();
+    stokvel.stokvelId = uuid.v4();
     member.stokvelIds.add(stokvel.stokvelId);
-    var token = await auth.getToken();
+    var token = await firebaseMessaging.getToken();
     member.fcmToken = token;
 
     var stokvelAccount = await Stellar.createAccount(isDevelopmentStatus: true);
@@ -292,6 +306,7 @@ class MakerBloc {
         seed: ee);
 
     await _saveStokvelData(stokvelCredential, stokvel, stokvelAccount, member);
+
   }
 
   Future _saveStokvelData(StokkieCredential stokvelCredential, Stokvel stokvel,
@@ -305,7 +320,8 @@ class MakerBloc {
         '🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵 🔵   🍎 Trying to write to Firestore without shitting the bed !   🍎  🔵  🔵  🔵  🔵  🔵  🔵  🔵  🔵 ');
     await writeCredential(stokvelCredential);
     await writeStokvel(stokvel);
-    await DataAPI.updateMember(member);
+    await genericBloc.updateMember(member);
+
     await Prefs.saveMember(member);
     Prefs.addStokvelAccountResponseBag(bag);
   }

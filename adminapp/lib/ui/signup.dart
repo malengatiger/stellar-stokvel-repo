@@ -350,7 +350,7 @@ class _SignUpState extends State<SignUp> {
       date: DateTime.now().toUtc().toIso8601String(),
     );
 
-    await makerBloc.createNewStokvelAndAdmin(member, stokvel);
+    await makerBloc.createNewStokvelAndAdmin(member, stokvel, passwordEditor.text);
 
     return;
   }

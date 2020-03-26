@@ -430,24 +430,24 @@ class _SendMoneyState extends State<SendMoney>
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Send Money'),
+        title: Text('Send Money', style: Styles.whiteBoldSmall,),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.refresh), onPressed: _refresh),
         ],
         bottom: PreferredSize(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
                   SizedBox(
-                    height: 20,
+                    height: 8,
                   ),
                   Text(
                     'You can send a payment to the Stokvel that you are a member of and you can send a payment to any of the other members',
                     style: Styles.whiteSmall,
                   ),
                   SizedBox(
-                    height: 28,
+                    height: 12,
                   ),
                   isBusy
                       ? Row(
@@ -471,7 +471,7 @@ class _SendMoneyState extends State<SendMoney>
                     children: <Widget>[
                       Text(
                         'Send to ',
-                        style: Styles.whiteMedium,
+                        style: Styles.whiteSmall,
                       ),
                       SizedBox(
                         width: 12,
@@ -488,7 +488,7 @@ class _SendMoneyState extends State<SendMoney>
                     ],
                   ),
                   SizedBox(
-                    height: 20,
+                    height: 8,
                   ),
                   _stokvel == null
                       ? Container()
@@ -497,12 +497,9 @@ class _SendMoneyState extends State<SendMoney>
                           style: Styles.whiteBoldMedium,
                         ),
                   SizedBox(
-                    height: 20,
+                    height: 8,
                   ),
-//                  DropdownButton(items: items, onChanged: onStokvelChanged),
-                  _stokvel == null
-                      ? Container()
-                      : TextField(
+                   TextField(
                           style: Styles.blackBoldMedium,
                           controller: amountController,
                           keyboardType:
@@ -540,7 +537,7 @@ class _SendMoneyState extends State<SendMoney>
                 ],
               ),
             ),
-            preferredSize: Size.fromHeight(400)),
+            preferredSize: Size.fromHeight(isStokvelPayment? 300: 389)),
       ),
       backgroundColor: Colors.brown[100],
       body: isBusy
@@ -558,12 +555,12 @@ class _SendMoneyState extends State<SendMoney>
     return ListView.builder(
         itemCount: _members.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 8, top: 4),
-            child: GestureDetector(
-              onTap: () {
-                _displayMemberPaymentDialog(_members.elementAt(index));
-              },
+          return GestureDetector(
+            onTap: () {
+              _displayMemberPaymentDialog(_members.elementAt(index));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left:16.0, right: 16, top: 8),
               child: Card(
                 elevation: 2,
                 child: ListTile(
@@ -586,13 +583,13 @@ class _SendMoneyState extends State<SendMoney>
     return ListView.builder(
         itemCount: _stokvels.length,
         itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () {
-                _stokvel = _stokvels.elementAt(index);
-                _displayStokvelPaymentDialog();
-              },
+          return GestureDetector(
+            onTap: () {
+              _stokvel = _stokvels.elementAt(index);
+              _displayStokvelPaymentDialog();
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left:16.0, right: 16, top: 8),
               child: Card(
                 elevation: 2,
                 child: ListTile(

@@ -56,9 +56,7 @@ class Auth {
             '🔷🔷🔷🔷 User has been created on Firebase auth: ${res.user.email}');
         member.memberId = res.user.uid;
         await _auth.signOut();
-        await _auth.signInWithEmailAndPassword(
-            email: member.email, password: memberPassword);
-        var mm = await makerBloc.createMemberAccount(member);
+        var mm = await makerBloc.createMemberAccount(member, memberPassword);
         return mm;
       } else {
         throw Exception('Member create failed');
@@ -66,14 +64,6 @@ class Auth {
     } else {
       throw Exception('Firebase Admin user not found');
     }
-  }
-
-  static Future<Member> _createStellarAccount(
-      String status, Member member) async {
-    print(
-        '🔷🔷🔷🔷 ....... Creating Stellar account for the Member: ${member.name}...');
-    var mm = await makerBloc.createMemberAccount(member);
-    return mm;
   }
 
   static final GoogleSignIn googleSignIn = GoogleSignIn(
@@ -119,7 +109,7 @@ class Auth {
         url: user.photoUrl);
     await DotEnv().load('.env');
     String status = DotEnv().env['status'];
-    return await _createStellarAccount(status, member);
+    return null;
   }
 
   static const emoji = '🔵 🔵 🔵 ';

@@ -5,6 +5,7 @@ import 'package:stokvelibrary/api/db.dart';
 import 'package:stokvelibrary/bloc/generic_bloc.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:stokvelibrary/snack.dart';
 
 class MemberAccountCard extends StatefulWidget {
   final String stokvelId, memberId;
@@ -91,6 +92,9 @@ class _MemberAccountCardState extends State<MemberAccountCard> {
     _rows.clear();
     _rows.add(Text('${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)}'));
     _rows.add(SizedBox(height: 12,));
+    if (_accountResponse == null) {
+      throw Exception('Account Response is null');
+    }
     _accountResponse.balances.forEach((balance) {
       _rows.add(Row(
         mainAxisAlignment: MainAxisAlignment.center,

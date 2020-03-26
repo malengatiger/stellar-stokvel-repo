@@ -161,6 +161,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                         Text('${goal.beneficiaries.length}', style: Styles.blackBoldSmall,)
                       ],
                     ),
+                    SizedBox(height: 12,),
                     Row(
                       children: <Widget>[
                         Text('Contributions:', style: Styles.greyLabelSmall,),
@@ -172,6 +173,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                         Text('${_getPaymentTotals(goal)}', style: Styles.tealBoldSmall,)
                       ],
                     ),
+
                     Row(
                       children: <Widget>[
                         Text('Amount To Target:', style: Styles.greyLabelSmall,),

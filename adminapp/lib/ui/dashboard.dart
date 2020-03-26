@@ -1,3 +1,4 @@
+import 'package:adminapp/ui/stokvel_editor.dart';
 import 'package:stokvelibrary/ui/stokvel_goal_list.dart';
 import 'package:adminapp/ui/welcome.dart';
 import 'package:flutter/material.dart';
@@ -39,15 +40,11 @@ class _DashboardState extends State<Dashboard>
     _getMember();
   }
 
-//  void _listen() async {
-//    genericBloc.memberPaymentStream.listen((List<MemberPayment> payments) {});
-//    genericBloc.stokvelPaymentStream.listen((List<StokvelPayment> payments) {});
-//  }
 
   _getMember() async {
     _member = await Prefs.getMember();
     _member = await LocalDB.getMember(_member.memberId);
-    _getDashboardWidgets(false);
+    _getDashboardWidgets(true);
     setState(() {});
     for (var id in _member.stokvelIds) {
       var members = await ListAPI.getStokvelMembers(id);
@@ -194,7 +191,7 @@ class _DashboardState extends State<Dashboard>
             : _member == null
                 ? Container()
                 : Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(12.0),
                     child: ListView(
                       children: _widgets,
                     ),
@@ -281,6 +278,14 @@ class _DashboardState extends State<Dashboard>
     Navigator.pop(context);
     _startWelcome(context);
   }
+
+  @override
+  onNewStokvelRequired() {
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: StokvelEditor(member: _member,),
+    ));
+  }
 }
 
 class StokkieDrawer extends StatelessWidget {
@@ -315,6 +320,19 @@ class StokkieDrawer extends StatelessWidget {
               ),
             ),
           ),
+          GestureDetector(
+            onTap: () {
+              listener.onStokvelMembersRequested();
+            },
+            child: ListTile(
+              title: Text("Stokvel Members"),
+              leading: Icon(
+                Icons.people,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+
           GestureDetector(
             onTap: () {
               listener.onStatementRequested();
@@ -365,6 +383,18 @@ class StokkieDrawer extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
+              listener.onNewStokvelRequired();
+            },
+            child: ListTile(
+              title: Text("Create New Stokvel"),
+              leading: Icon(
+                Icons.people,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
               listener.onRandomThemeRequested();
             },
             child: ListTile(
@@ -389,4 +419,5 @@ abstract class StokkieDrawerListener {
   onStatementRequested();
   onStokvelGoalsRequested();
   onStokvelMembersRequested();
+  onNewStokvelRequired();
 }

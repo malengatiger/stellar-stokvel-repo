@@ -67,9 +67,10 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
       }
       if (forceRefresh) {
         _accountResponse =
-        await genericBloc.refreshAccount(stokvelId: widget.stokvelId);
+            await genericBloc.refreshAccount(stokvelId: widget.stokvelId);
       } else {
-        _accountResponse = await genericBloc.getStokvelAccount(_stokvel.stokvelId);
+        _accountResponse =
+            await genericBloc.getStokvelAccount(_stokvel.stokvelId);
       }
     } catch (e) {
       print(e);
@@ -83,17 +84,33 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
 
   Widget _buildTable() {
     _rows.clear();
-    _rows.add(Text('${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)}'));
-    _rows.add(SizedBox(height: 12,));
+    _rows.add(Text(
+        '${getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)}'));
+    _rows.add(SizedBox(
+      height: 12,
+    ));
     _accountResponse.balances.forEach((balance) {
       _rows.add(Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text('Balance', style: Styles.greyLabelSmall,),
-          SizedBox(width: 20,),
-          Text('${getFormattedAmount(balance.balance, context)}', style: Styles.blackBoldMedium,),
-          SizedBox(width: 20,),
-          Text(balance.assetType == 'native'? 'XLM': balance.assetType, style: Styles.greyLabelMedium,),
+          Text(
+            'Balance',
+            style: Styles.greyLabelSmall,
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          Text(
+            '${getFormattedAmount(balance.balance, context)}',
+            style: Styles.blackBoldMedium,
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          Text(
+            balance.assetType == 'native' ? 'XLM' : balance.assetType,
+            style: Styles.greyLabelMedium,
+          ),
         ],
       ));
     });
@@ -117,7 +134,6 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       height: widget.height == null ? _getHeight() : widget.height,
       width: widget.width == null ? 400 : widget.width,
@@ -127,56 +143,48 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
                 strokeWidth: 4,
               ),
             )
-          : StreamBuilder<List<AccountResponse>>(
-              stream: genericBloc.stokvelAccountResponseStream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  _accountResponse = snapshot.data.last;
-                }
-                return GestureDetector(
-                  onTap: () {
-                    _refresh(true);
-                  },
-                  child: Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                            'Stokvel Account',
-                            style: Styles.greyLabelMedium,
-                          ),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          _getStokvel(),
-                          SizedBox(
-                            height: 12,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 40.0, right: 40),
-                            child: Text(
-                              _accountResponse == null
-                                  ? ''
-                                  : _accountResponse.accountId,
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey[400],
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          _buildTable(),
-                        ],
+          : GestureDetector(
+              onTap: () {
+                _refresh(true);
+              },
+              child: Card(
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Stokvel Account',
+                        style: Styles.greyLabelMedium,
                       ),
-                    ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      _getStokvel(),
+                      SizedBox(
+                        height: 12,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 40.0, right: 40),
+                        child: Text(
+                          _accountResponse == null
+                              ? ''
+                              : _accountResponse.accountId,
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[400],
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      _buildTable(),
+                    ],
                   ),
-                );
-              }),
+                ),
+              ),
+            ),
     );
   }
 

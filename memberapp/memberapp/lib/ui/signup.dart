@@ -288,7 +288,8 @@ class _MemberSignUpState extends State<MemberSignUp> {
         isActive: true,
         stokvelIds: [],
       );
-      var res = await makerBloc.createMemberAccount(member);
+      print('🍏 🍏 🍏 🍏 🍏 🍏 🍏 🍏 🍏 🍏  SignUp: submit and start: makerBloc.createMemberAccount');
+      var res = await makerBloc.createMemberAccount(member, passwordEditor.text);
       Navigator.pop(context, res);
       Navigator.pop(context, res);
       Navigator.push(context, SlideRightRoute(widget: Dashboard()));
