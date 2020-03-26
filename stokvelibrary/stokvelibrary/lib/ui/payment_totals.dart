@@ -145,7 +145,7 @@ class _StokvelPaymentsTotalsState extends State<StokvelPaymentsTotals> {
     try {
       _stokvel = await genericBloc.getStokvelById(widget.stokvelId);
       if (_stokvel == null) {
-        throw Exception('Stokvel not found ');
+        throw Exception('Group not found ');
       }
       _stokvelPayments =
           await genericBloc.refreshStokvelPayments(widget.stokvelId);

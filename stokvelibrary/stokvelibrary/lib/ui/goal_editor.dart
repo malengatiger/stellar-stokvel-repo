@@ -98,7 +98,7 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
       key: _key,
       appBar: AppBar(
         title: Text(
-          'Stokvel Goal Editor',
+          'Group Goal Editor',
           style: Styles.whiteBoldSmall,
         ),
         bottom: PreferredSize(

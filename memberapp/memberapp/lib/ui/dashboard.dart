@@ -14,6 +14,7 @@ import 'package:stokvelibrary/ui/member_statement.dart';
 import 'package:stokvelibrary/ui/members_list.dart';
 import 'package:stokvelibrary/ui/nav_bar.dart';
 import 'package:stokvelibrary/ui/scan/member_scan.dart';
+import 'package:stokvelibrary/ui/stokvel_goal_list.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -218,6 +219,14 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
       widget: MembersList(memberId: _member.memberId,),
     ));
   }
+
+  @override
+  onStokvelGoalsRequested() {
+    Navigator.pop(context);
+    Navigator.push(context, SlideRightRoute(
+      widget: StokvelGoalList(),
+    ));
+  }
 }
 
 class MemberDrawer extends StatelessWidget {
@@ -239,6 +248,18 @@ class MemberDrawer extends StatelessWidget {
           ),
           SizedBox(
             height: 40,
+          ),
+          GestureDetector(
+            onTap: () {
+              listener.onStokvelGoalsRequested();
+            },
+            child: ListTile(
+              title: Text("Stokvel Goals"),
+              leading: Icon(
+                Icons.people,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
           GestureDetector(
             onTap: () {
@@ -327,4 +348,5 @@ abstract class MemberDrawerListener {
   onInvitationsRequested();
   onStatementRequested();
   onStokvelMembersRequested();
+  onStokvelGoalsRequested();
 }

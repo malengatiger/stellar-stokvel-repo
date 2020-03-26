@@ -94,7 +94,7 @@ class _MemberStatementState extends State<MemberStatement> {
           length: 2,
           child: Scaffold(
               appBar: AppBar(
-                title: Text('Member Statements', style: Styles.whiteBoldSmall,),
+                title: Text('Member Statements', style: Styles.whiteSmall,),
                 leading: Container(),
                 actions: <Widget>[
                   IconButton(icon: Icon(Icons.close), onPressed: () {
@@ -110,7 +110,7 @@ class _MemberStatementState extends State<MemberStatement> {
                     TabBar(
                       tabs: <Widget>[
                         Tab(icon: Icon(Icons.people), text: "Member Payments",),
-                        Tab(icon: Icon(Icons.business_center), text: "Stokvel Payments",)
+                        Tab(icon: Icon(Icons.business_center), text: "Group Payments",)
                       ],
                     ),
                     SizedBox(height: 8,)

@@ -36,7 +36,7 @@ class _StokvelEditorState extends State<StokvelEditor> {
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Stokvel Editor'),
+        title: Text('Group Editor'),
         bottom: PreferredSize(
             child: Padding(
               padding: const EdgeInsets.all(16.0),

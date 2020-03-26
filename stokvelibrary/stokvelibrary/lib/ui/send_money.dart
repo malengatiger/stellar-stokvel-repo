@@ -302,13 +302,13 @@ class _SendMoneyState extends State<SendMoney>
         await genericBloc.addStokvelGoalPayment(goal.stokvelGoalId, res);
       }
 
-      Toast.show('Stokvel Payment Succeeded', context,
+      Toast.show('Group Payment Succeeded', context,
           duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
       Navigator.pop(context, res);
     } catch (e) {
       print(e);
       AppSnackBar.showErrorSnackBar(
-          scaffoldKey: _key, message: 'Stokvel Payment failed');
+          scaffoldKey: _key, message: 'Group Payment failed');
     }
 
     setState(() {
@@ -387,8 +387,8 @@ class _SendMoneyState extends State<SendMoney>
             type: SCAN_MEMBER_PAYMENT,
             scannerListener: this,
             amount: amountController.text,
-            memberId: _member.memberId,
-            stokvelId: _stokvel.stokvelId,
+            memberId: _member == null? null:_member.memberId,
+            stokvelId: _stokvel == null? null: _stokvel.stokvelId,
           )));
     }
   }
@@ -518,7 +518,10 @@ class _SendMoneyState extends State<SendMoney>
                                   style: Styles.whiteSmall,
                                 ),
                               ),
-                              onPressed: _startScanToPay,
+                              onPressed: () {
+                                _dismissKeyboard();
+                                _startScanToPay();
+                              },
                             ),
                           ],
                         ),

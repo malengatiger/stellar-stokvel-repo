@@ -255,7 +255,7 @@ class _SignUpState extends State<SignUp> {
                             controller: stokvelEditor,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
-                              labelText: 'Stokvel Name',
+                              labelText: 'Group Name',
                               hintText: 'Enter Stokvel Name',
                               border: OutlineInputBorder(),
                             ),

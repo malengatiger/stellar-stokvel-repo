@@ -38,6 +38,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
   bool isBusy = false, isStokvelPayment = true;
   var amountController = TextEditingController();
   Member _member;
+
   @override
   initState() {
     super.initState();
@@ -72,7 +73,7 @@ class _PaymentScannerState extends State<PaymentScanner> {
         AppSnackBar.showSnackBar(
             scaffoldKey: _key,
             message:
-                'Stokvel Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
+                'Group Payment processed: ${getFormattedAmount(mPayment.amount, context)}',
             textColor: Colors.lightGreen,
             backgroundColor: Colors.black);
       }
@@ -103,8 +104,10 @@ class _PaymentScannerState extends State<PaymentScanner> {
   }
 
   void _getStokkie() async {
-    _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
-    setState(() {});
+    if (widget.stokvelId != null) {
+      _stokvel = await LocalDB.getStokvelById(widget.stokvelId);
+      setState(() {});
+    }
   }
 
   var _key = GlobalKey<ScaffoldState>();
@@ -162,20 +165,39 @@ class _PaymentScannerState extends State<PaymentScanner> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: Icon(Icons.camera),
-        label: Padding(
-          padding: const EdgeInsets.all(48.0),
-          child: Text("Start Member Scan"),
-        ),
-        elevation: 16,
-        onPressed: _startScan,
-        backgroundColor: Theme.of(context).accentColor,
-      ),
+      floatingActionButton: isScanned
+          ? FloatingActionButton(
+              child: Icon(Icons.done, color: Colors.white,),
+              backgroundColor: Theme.of(context).primaryColor,
+              elevation: 16,
+              onPressed: () {
+                Navigator.pop(context);
+              })
+          : FloatingActionButton.extended(
+              icon: Icon(Icons.camera),
+              label: Padding(
+                padding: const EdgeInsets.all(48.0),
+                child: Text("Start Member Scan"),
+              ),
+              elevation: 16,
+              onPressed: _startScan,
+              backgroundColor: Theme.of(context).accentColor,
+            ),
       backgroundColor: Colors.brown[100],
       body: isScanned
           ? Column(
-              children: <Widget>[],
+              children: <Widget>[
+                SizedBox(height: 20,),
+                Padding(
+                  padding: const EdgeInsets.only(left:16.0),
+                  child: Text('Payment Transaction OK', style: Styles.pinkBoldSmall,),
+                ),
+                SizedBox(height: 8,),
+                Padding(
+                  padding: const EdgeInsets.only(left:16.0),
+                  child: Text(getFormattedDateShortWithTime(DateTime.now().toIso8601String(), context)),
+                ),
+              ],
             )
           : Center(
               child: Text(
@@ -190,7 +212,8 @@ class _PaymentScannerState extends State<PaymentScanner> {
   Future _startScan() async {
     try {
       var barcode = await scanner.scan();
-      print('👌👌👌 barcode: $barcode 👌👌👌');
+      print('👌👌👌 barcode scanned: $barcode 👌👌👌');
+      _dismissKeyboard();
       setState(() => this.barcode = barcode);
 
       var decoded = base64.decode(barcode);
@@ -204,20 +227,26 @@ class _PaymentScannerState extends State<PaymentScanner> {
         try {
           print(
               '🍎 will 🍎 process a MEMBER 🍎 payment here ...................');
+          setState(() {
+            isBusy = true;
+          });
           _member = await genericBloc.getMember(parts[0]);
-          setState(() {});
+
           var me = await Prefs.getMember();
           await genericBloc.sendMemberToMemberPayment(
             fromMember: me,
             toMember: _member,
             amount: amountController.text,
           );
-          setState(() {});
+          isScanned = true;
         } catch (e) {
           print(e);
           AppSnackBar.showErrorSnackBar(
               scaffoldKey: _key, message: 'Unable to scan');
         }
+        setState(() {
+          isBusy = false;
+        });
       }
     } on PlatformException catch (e) {
       print(e);
@@ -239,31 +268,6 @@ class _PaymentScannerState extends State<PaymentScanner> {
     } else {
       setState(() => this.barcode = 'Unknown error: $e');
     }
-  }
-
-  Widget _buildImage() {
-    return SizedBox(
-      height: 500.0,
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.only(top: 64),
-          child: Container(
-            child: Column(
-              children: <Widget>[
-                Text(
-                  "Scanned!",
-                  style: new TextStyle(
-                      fontSize: 45.0, fontWeight: FontWeight.bold),
-                ),
-                Container(
-                    child:
-                        Icon(Icons.beenhere, size: 200, color: Colors.green)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

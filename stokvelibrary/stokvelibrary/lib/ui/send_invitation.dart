@@ -384,7 +384,7 @@ class _SendInvitationState extends State<SendInvitation>
       selectedStokvel = value;
     });
 
-    print('Stokvel selected : ${selectedStokvel.name}');
+    print('Group selected : ${selectedStokvel.name}');
   }
 
   void _onTextChanged(String value) {

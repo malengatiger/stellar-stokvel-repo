@@ -46,7 +46,7 @@ List<Widget> getDashboardWidgets(Member member, bool forceRefresh) {
   widgets.add(Padding(
     padding: const EdgeInsets.only(left: 8.0),
     child: Text(
-      'Stokvel Payments',
+      'Group Payments',
       style: Styles.greyLabelSmall,
     ),
   ));

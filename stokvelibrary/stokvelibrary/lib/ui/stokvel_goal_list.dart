@@ -56,7 +56,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
   Widget build(BuildContext context) {
     return Scaffold(key: _key,
       appBar: AppBar(
-        title: Text('Stokvel Goal List', style: Styles.whiteBoldSmall,),
+        title: Text('Group Goal List', style: Styles.whiteBoldSmall,),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.add), onPressed: _navigateToEditor),
           IconButton(icon: Icon(Icons.refresh), onPressed: _getData),
@@ -68,7 +68,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text('Stokvel Goals'),
+                  Text('Group Goals'),
                   SizedBox(width: 12,),
                   Text('${_goals.length}', style: Styles.whiteBoldSmall,),
                   SizedBox(width: 12,),
@@ -116,6 +116,10 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                if (widget.returnStokvelGoalOnTap) {
                  Navigator.pop(context, goal);
                }
+              } else {
+                Navigator.push(context, SlideRightRoute(
+                  widget: GoalDetail(stokvelGoal: goal,),
+                ));
               }
             },
             child: Card(
@@ -127,12 +131,12 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                   children: <Widget>[
                     Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(goal.stokvel.name, style: Styles.greyLabelSmall,)),
+                        child: Text(goal.stokvel.name, style: Styles.greyLabelMedium,)),
                     SizedBox(height: 0,),
                     Align(
                         alignment: Alignment.centerLeft,
                         child: Text(goal.name, style: Styles.blackBoldSmall,)),
-                    SizedBox(height: 0,),
+                    SizedBox(height: 8,),
                     Row(
                       children: <Widget>[
                         Text('Active:', style: Styles.greyLabelSmall,),
@@ -150,6 +154,14 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                     ),
                     Row(
                       children: <Widget>[
+                        Text('Member Beneficiaries:', style: Styles.greyLabelSmall,),
+                        SizedBox(width: 8,),
+                        Text('${goal.beneficiaries.length}', style: Styles.blackBoldSmall,)
+                      ],
+                    ),
+                    SizedBox(height: 4,),
+                    Row(
+                      children: <Widget>[
                         Text('Images & Video:', style: Styles.greyLabelSmall,),
                         SizedBox(width: 8,),
                         Text('${goal.imageUrls.length}', style: Styles.blackBoldSmall,),
@@ -161,14 +173,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                         )
                       ],
                     ),
-                    Row(
-                      children: <Widget>[
-                        Text('Member Beneficiaries:', style: Styles.greyLabelSmall,),
-                        SizedBox(width: 8,),
-                        Text('${goal.beneficiaries.length}', style: Styles.blackBoldSmall,)
-                      ],
-                    ),
-                    SizedBox(height: 12,),
+
                     Row(
                       children: <Widget>[
                         Text('Contributions:', style: Styles.greyLabelSmall,),
@@ -180,7 +185,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                         Text('${_getPaymentTotals(goal)}', style: Styles.tealBoldSmall,)
                       ],
                     ),
-
+                    SizedBox(height: 8,),
                     Row(
                       children: <Widget>[
                         Text('Amount To Target:', style: Styles.greyLabelSmall,),
@@ -188,7 +193,7 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                         Text('${_getAmountToTarget(goal)}', style: Styles.pinkBoldSmall,),
                       ],
                     ),
-                    SizedBox(height: 12,),
+                    SizedBox(height: 20,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
@@ -243,4 +248,107 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
     ));
   }
 }
+
+class GoalDetail extends StatelessWidget {
+  final StokvelGoal stokvelGoal;
+
+  const GoalDetail({Key key, this.stokvelGoal}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    String _getPaymentTotals(StokvelGoal stokvelGoal) {
+      var tot = 0.00;
+      stokvelGoal.payments.forEach((p) {
+        var amount = double.parse(p.amount);
+        tot += amount;
+      });
+      return getFormattedAmount(tot.toString(), context);
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Group Goal Detail', style: Styles.whiteSmall,),
+        bottom: PreferredSize(child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: <Widget>[
+              Text('${stokvelGoal.name}', style: Styles.whiteBoldSmall,),
+              SizedBox(height: 8,),
+              Text('${stokvelGoal.stokvel.name}', style: Styles.whiteSmall,),
+              SizedBox(height: 20,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text('Contributions:', style: Styles.whiteSmall,),
+                  SizedBox(width: 8,),
+                  Text('${stokvelGoal.payments.length}', style: Styles.blackBoldSmall,),
+                  SizedBox(width: 12,),
+                  Text('Total:', style: Styles.whiteSmall,),
+                  SizedBox(width: 8,),
+                  Text('${_getPaymentTotals(stokvelGoal)}', style: Styles.blackBoldSmall,),
+                  SizedBox(width: 20,),
+                ],
+              ),
+              SizedBox(height: 20,),
+            ],
+          ),
+        ), preferredSize: Size.fromHeight(140)),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+            itemCount: stokvelGoal.payments.length,
+            itemBuilder: (context, index) {
+          var payment = stokvelGoal.payments.elementAt(index);
+          return Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        '${payment.member.name}',
+                        style: Styles.greyLabelSmall,
+                      ),
+                      SizedBox(
+                        width: 28,
+                      ),
+                      Text(
+                        '${getFormattedAmount(payment.amount, context)}',
+                        style: Styles.blackBoldSmall,
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8,),
+                  Column(
+                    children: <Widget>[
+//                      Row(
+//                        children: <Widget>[
+//                          Text('${payment.stokvel.name}', style: Styles.greyLabelSmall,),
+//                        ],
+//                      ),
+//                      SizedBox(width: 20,),
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.done, color: Colors.teal[700],),
+                          SizedBox(width: 12,),
+                          Text(getFormattedDateShortWithTime(payment.date, context), style: Styles.greyLabelSmall,),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
 

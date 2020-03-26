@@ -154,7 +154,7 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
                   child: Column(
                     children: <Widget>[
                       Text(
-                        'Stokvel Account',
+                        'Group Account',
                         style: Styles.greyLabelMedium,
                       ),
                       SizedBox(
@@ -192,7 +192,7 @@ class _StokvelAccountCardState extends State<StokvelAccountCard> {
     if (_stokvel != null) {
       return Text(_stokvel.name);
     } else {
-      return Text('Stokvel Name Here');
+      return Text('GroupName Here');
     }
   }
 }

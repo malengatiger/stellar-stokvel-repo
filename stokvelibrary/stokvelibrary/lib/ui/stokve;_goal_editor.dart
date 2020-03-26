@@ -35,7 +35,7 @@ class _StokvelGoalEditorState extends State<StokvelGoalEditor> {
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Stokvel Goal Editor'),
+        title: Text('Group Goal Editor'),
         bottom: PreferredSize(child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(

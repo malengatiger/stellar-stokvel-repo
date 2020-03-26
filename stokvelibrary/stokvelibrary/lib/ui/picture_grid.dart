@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stokvelibrary/data_models/stokvel.dart';
 import 'package:stokvelibrary/functions.dart';
+import 'package:stokvelibrary/slide_right.dart';
 
 class PictureGrid extends StatelessWidget {
   final StokvelGoal stokvelGoal;
@@ -28,13 +29,39 @@ class PictureGrid extends StatelessWidget {
           itemCount: stokvelGoal.imageUrls.length,
           itemBuilder: (context, index) {
             return GridTile(
-                child: Image.network(
-                  stokvelGoal.imageUrls.elementAt(index),
-                  height: 200,
-                  width: 200,
-                  fit: BoxFit.cover,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, SlideRightRoute(
+                      widget: PictureDetail(url: stokvelGoal.imageUrls.elementAt(index),),
+                    ));
+                  },
+                  child: Image.network(
+                    stokvelGoal.imageUrls.elementAt(index),
+                    height: 200,
+                    width: 200,
+                    fit: BoxFit.cover,
+                  ),
                 ));
           }),
     );
   }
 }
+
+class PictureDetail extends StatelessWidget {
+  final String url;
+
+  const PictureDetail({Key key, this.url}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Image.network(
+        url,
+        height: double.infinity,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+}
+
