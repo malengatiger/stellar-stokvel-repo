@@ -115,7 +115,7 @@ class ThemeUtil {
         })));
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
-      primaryColor: Colors.pink.shade300,
+      primaryColor: Colors.pink.shade400,
       accentColor: Colors.teal,
       cardColor: Colors.white,
       backgroundColor: Colors.pink[50],
