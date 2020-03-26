@@ -5,6 +5,7 @@ import 'package:stokvelibrary/functions.dart';
 import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/snack.dart';
 import 'package:stokvelibrary/ui/goal_editor.dart';
+import 'package:stokvelibrary/ui/picture_grid.dart';
 
 
 class StokvelGoalList extends StatefulWidget {
@@ -151,7 +152,13 @@ class _StokvelGoalListState extends State<StokvelGoalList> {
                       children: <Widget>[
                         Text('Images & Video:', style: Styles.greyLabelSmall,),
                         SizedBox(width: 8,),
-                        Text('${goal.imageUrls.length}', style: Styles.blackBoldSmall,)
+                        Text('${goal.imageUrls.length}', style: Styles.blackBoldSmall,),
+                        SizedBox(width: 20,),
+                        goal.imageUrls.isEmpty? Container(): FlatButton(
+                          onPressed: () {
+                            Navigator.push(context, SlideRightRoute(widget: PictureGrid(stokvelGoal: goal,)));
+                          }, child: Text('Show Images', style: Styles.blueBoldSmall,),
+                        )
                       ],
                     ),
                     Row(

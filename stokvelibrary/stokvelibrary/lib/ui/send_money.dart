@@ -27,7 +27,6 @@ class _SendMoneyState extends State<SendMoney>
   @override
   void initState() {
     super.initState();
-//    _listen();
     _getMember();
   }
 
@@ -172,12 +171,12 @@ class _SendMoneyState extends State<SendMoney>
                 Container(
                   height: 80, width: 300,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
+                    padding: const EdgeInsets.only(bottom: 20.0, left: 20, right: 20),
                     child: RaisedButton(
-                      color: Colors.pink[700],
+                      color: Theme.of(context).primaryColor,
                       elevation: 4.0,
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           'Select Stokvel Goal',
                           style: Styles.whiteSmall,
@@ -192,12 +191,12 @@ class _SendMoneyState extends State<SendMoney>
                 Container(
                   height: 80, width: 300,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
+                    padding: const EdgeInsets.only(bottom: 20.0, left: 20, right: 20),
                     child: RaisedButton(
-                      color: Colors.blue[700],
+                      color: Theme.of(context).accentColor,
                       elevation: 4.0,
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           'Just Send Payment',
                           style: Styles.whiteSmall,
@@ -242,7 +241,7 @@ class _SendMoneyState extends State<SendMoney>
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'Cancel',
-                        style: Styles.pinkBoldSmall,
+                        style: TextStyle(color: Theme.of(context).accentColor),
                       ),
                     ),
                     onPressed: _close,
@@ -251,10 +250,10 @@ class _SendMoneyState extends State<SendMoney>
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
                   child: RaisedButton(
-                    color: Colors.blue,
+                    color: Theme.of(context).primaryColor,
                     elevation: 4.0,
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
                         'Send Payment',
                         style: Styles.whiteSmall,
@@ -427,6 +426,7 @@ class _SendMoneyState extends State<SendMoney>
   }
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: _key,
       appBar: AppBar(
@@ -488,16 +488,7 @@ class _SendMoneyState extends State<SendMoney>
                     ],
                   ),
                   SizedBox(
-                    height: 8,
-                  ),
-                  _stokvel == null
-                      ? Container()
-                      : Text(
-                          isStokvelPayment ? _stokvel.name : '',
-                          style: Styles.whiteBoldMedium,
-                        ),
-                  SizedBox(
-                    height: 8,
+                    height: 20,
                   ),
                    TextField(
                           style: Styles.blackBoldMedium,
@@ -532,12 +523,12 @@ class _SendMoneyState extends State<SendMoney>
                           ],
                         ),
                   SizedBox(
-                    height: 8,
+                    height: 20,
                   ),
                 ],
               ),
             ),
-            preferredSize: Size.fromHeight(isStokvelPayment? 300: 389)),
+            preferredSize: Size.fromHeight(isStokvelPayment? getStokvelSize(): getMemberSize())),
       ),
       backgroundColor: Colors.brown[100],
       body: isBusy
@@ -546,6 +537,27 @@ class _SendMoneyState extends State<SendMoney>
             )
           : isStokvelPayment ? _buildStokvelList() : _buildMemberList(),
     );
+  }
+
+  double getMemberSize() {
+    var pixelRatio =MediaQuery.of(context).devicePixelRatio;
+    print('👽 👽 👽 👽 pixelRatio: $pixelRatio  🍑 ');
+    if (pixelRatio > 2) {
+      return 360.0;
+    } else {
+      return 300;
+    }
+
+  }
+  double getStokvelSize() {
+    var pixelRatio =MediaQuery.of(context).devicePixelRatio;
+    print('👽 👽 👽 👽 pixelRatio: $pixelRatio  🍑 ');
+    if (pixelRatio > 2) {
+      return 280.0;
+    } else {
+      return 240;
+    }
+
   }
 
   ListView _buildMemberList() {
