@@ -94,7 +94,7 @@ class _MemberStatementState extends State<MemberStatement> {
           length: 2,
           child: Scaffold(
               appBar: AppBar(
-                title: Text('Member Statements', style: Styles.whiteSmall,),
+                title: Text('Statements', style: Styles.whiteSmall,),
                 leading: Container(),
                 actions: <Widget>[
                   IconButton(icon: Icon(Icons.close), onPressed: () {

@@ -326,12 +326,6 @@ class GoalDetail extends StatelessWidget {
                   SizedBox(height: 8,),
                   Column(
                     children: <Widget>[
-//                      Row(
-//                        children: <Widget>[
-//                          Text('${payment.stokvel.name}', style: Styles.greyLabelSmall,),
-//                        ],
-//                      ),
-//                      SizedBox(width: 20,),
                       Row(
                         children: <Widget>[
                           Icon(Icons.done, color: Colors.teal[700],),

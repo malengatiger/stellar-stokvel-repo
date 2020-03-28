@@ -14,10 +14,20 @@ dependencies:
   stokvelibrary:
     path: ../../stellar-stokvel-repo/stokvelibrary/stokvelibrary
 
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path_ios: "assets/logo.png"
+  image_path_android: "assets/logo.png"
+#  adaptive_icon_background: "assets/launcher/background.png"
+#  adaptive_icon_foreground: "assets/launcher/foreground.png"
+#  flutter packages pub run flutter_launcher_icons:main
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  flutter_launcher_icons: "^0.7.0"
 
 flutter:
 
@@ -36,4 +46,6 @@ flutter:
     - images19.jpeg
     - images22.jpeg
     - images14.png
+    - logo.png
+    - logo_white.png
 

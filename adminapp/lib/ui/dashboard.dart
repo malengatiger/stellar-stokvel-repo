@@ -127,11 +127,17 @@ class _DashboardState extends State<Dashboard>
           ],
           bottom: PreferredSize(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   children: <Widget>[
-                    Text('The Stokkie Network',style: Styles.whiteBoldSmall,),
-                    SizedBox(height: 12,),
+                    Row(
+                      children: <Widget>[
+                        Image.asset('assets/logo_white.png', height: 36, width: 36,),
+                        SizedBox(width: 12,),
+                        Text('The Stokkie Network',style: Styles.whiteBoldSmall,),
+                      ],
+                    ),
+                    SizedBox(height: 4,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
@@ -301,8 +307,8 @@ class StokkieDrawer extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage("assets/download3.jpeg"),
-                    fit: BoxFit.cover)),
+                    image: AssetImage("assets/logo.png"),
+                    fit: BoxFit.fitHeight)),
             child: Container(),
           ),
           SizedBox(

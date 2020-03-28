@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'Stokkie',
               style: TextStyle(
-                  fontSize: 60,
+                  fontSize: 72,
                   fontWeight: FontWeight.w900,
                   color: Theme.of(context).primaryColor),
             ),

@@ -68,7 +68,7 @@ class _AdminHomeState extends State<AdminHome> {
             Text(
               'Stokkie',
               style: TextStyle(
-                  fontSize: 60,
+                  fontSize: 72,
                   fontWeight: FontWeight.w900,
                   color: Theme.of(context).primaryColor),
             ),

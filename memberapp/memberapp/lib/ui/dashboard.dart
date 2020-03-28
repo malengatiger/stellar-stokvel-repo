@@ -113,7 +113,13 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: <Widget>[
-                    Text('The Stokkie Network',style: Styles.whiteBoldSmall,),
+                    Row(
+                      children: <Widget>[
+                        Image.asset('assets/logo_white.png', height: 36, width: 36,),
+                        SizedBox(width: 12,),
+                        Text('The Stokkie Network',style: Styles.whiteBoldSmall,),
+                      ],
+                    ),
                     SizedBox(height: 16,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -143,7 +149,7 @@ class _DashboardState extends State<Dashboard> implements MemberDrawerListener {
                   ],
                 ),
               ),
-              preferredSize: Size.fromHeight(80)),
+              preferredSize: Size.fromHeight(100)),
         ),
         drawer: MemberDrawer(
           listener: this,
@@ -242,8 +248,8 @@ class MemberDrawer extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage("assets/download3.jpeg"),
-                    fit: BoxFit.cover)),
+                    image: AssetImage("assets/logo.png"),
+                    fit: BoxFit.fitHeight)),
             child: Container(),
           ),
           SizedBox(

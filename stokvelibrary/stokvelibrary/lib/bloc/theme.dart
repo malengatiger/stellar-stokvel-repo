@@ -131,7 +131,7 @@ class ThemeUtil {
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.josefinSans().toString(),
       primaryColor: Colors.teal,
-      accentColor: Colors.purple,
+      accentColor: Colors.amber[900],
       cardColor: Colors.white,
       backgroundColor: Colors.brown.shade100,
       scaffoldBackgroundColor: Colors.teal[50],
@@ -161,7 +161,7 @@ class ThemeUtil {
     _themes.add(ThemeData(
       fontFamily: GoogleFonts.raleway().toString(),
       primaryColor: Colors.pink.shade300,
-      accentColor: Colors.yellow.shade900,
+      accentColor: Colors.yellow.shade400,
       cardColor: Colors.white,
       backgroundColor: Colors.pink.shade100,
       scaffoldBackgroundColor: Colors.pink[50],

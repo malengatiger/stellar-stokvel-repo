@@ -67,14 +67,14 @@ class _SendMoneyState extends State<SendMoney>
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-              title: new Text("Stokvel Unavailable",
+              title: new Text("Group Unavailable",
                   style: Styles.blackBoldMedium),
               content: Container(
                 height: 200.0,
                 child: Column(
                   children: <Widget>[
                     Text(
-                      'Your account does not belong to any Stokvels yet. You may start your own Stokvel or be invited to one.',
+                      'Your account does not belong to any Stokvels yet. You may start your own Group or be invited to one.',
                       style: Styles.blackMedium,
                     ),
                     SizedBox(
@@ -152,13 +152,13 @@ class _SendMoneyState extends State<SendMoney>
     showDialog(
         context: context,
         builder: (_) => new AlertDialog(
-              title: new Text("Stokvel Payment", style: Styles.blackBoldMedium),
+              title: new Text("Group Payment", style: Styles.blackBoldMedium),
               content: Container(
                 height: 140.0,
                 child: Column(
                   children: <Widget>[
                     Text(
-                      'You are about to make a Stokvel payment of ${amountController.text} to ${_stokvel.name}. Do you want to select the Goal you are contributing to?',
+                      'You are about to make a Group payment of ${amountController.text} to ${_stokvel.name}. Do you want to select the Goal you are contributing to?',
                       style: Styles.blackSmall,
                     ),
                     SizedBox(
@@ -178,7 +178,7 @@ class _SendMoneyState extends State<SendMoney>
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'Select Stokvel Goal',
+                          'Select Group Goal',
                           style: Styles.whiteSmall,
                         ),
                       ),
@@ -296,7 +296,7 @@ class _SendMoneyState extends State<SendMoney>
       var me = await genericBloc.getCachedMember();
       var res = await genericBloc.sendStokvelPayment(
           member: me, amount: amountController.text, stokvel: _stokvel);
-      prettyPrint(res.toJson(), "🍎 Stokvel Payment Result 🍎 ");
+      prettyPrint(res.toJson(), "🍎 Group Payment Result 🍎 ");
 
       if (goal != null) {
         await genericBloc.addStokvelGoalPayment(goal.stokvelGoalId, res);
@@ -430,20 +430,21 @@ class _SendMoneyState extends State<SendMoney>
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Send Money', style: Styles.whiteBoldSmall,),
+        title: Text('Send Money', style: Styles.whiteSmall,),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.refresh), onPressed: _refresh),
         ],
         bottom: PreferredSize(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: <Widget>[
+                  Image.asset('assets/logo_white.png', height: 36, width: 36,),
                   SizedBox(
-                    height: 8,
+                    height: 12,
                   ),
                   Text(
-                    'You can send a payment to the Stokvel that you are a member of and you can send a payment to any of the other members',
+                    'You can send a payment to the Group that you are a member of and you can send a payment to any of the other members',
                     style: Styles.whiteSmall,
                   ),
                   SizedBox(
@@ -482,7 +483,7 @@ class _SendMoneyState extends State<SendMoney>
                         width: 12,
                       ),
                       Text(
-                        isStokvelPayment ? 'Stokvel' : 'Member',
+                        isStokvelPayment ? 'Group' : 'Member',
                         style: Styles.blackBoldMedium,
                       ),
                     ],
@@ -533,7 +534,7 @@ class _SendMoneyState extends State<SendMoney>
             ),
             preferredSize: Size.fromHeight(isStokvelPayment? getStokvelSize(): getMemberSize())),
       ),
-      backgroundColor: Colors.brown[100],
+//      backgroundColor: Colors.brown[100],
       body: isBusy
           ? Center(
               child: CircularProgressIndicator(),
@@ -548,7 +549,7 @@ class _SendMoneyState extends State<SendMoney>
     if (pixelRatio > 2) {
       return 360.0;
     } else {
-      return 300;
+      return 320;
     }
 
   }
@@ -556,9 +557,9 @@ class _SendMoneyState extends State<SendMoney>
     var pixelRatio =MediaQuery.of(context).devicePixelRatio;
     print('👽 👽 👽 👽 pixelRatio: $pixelRatio  🍑 ');
     if (pixelRatio > 2) {
-      return 280.0;
+      return 320.0;
     } else {
-      return 240;
+      return 280;
     }
 
   }
@@ -575,7 +576,7 @@ class _SendMoneyState extends State<SendMoney>
               _displayMemberPaymentDialog(_members.elementAt(index));
             },
             child: Padding(
-              padding: const EdgeInsets.only(left:16.0, right: 16, top: 8),
+              padding: const EdgeInsets.only(left:12.0, right: 12, top: 4),
               child: Card(
                 elevation: 2,
                 child: ListTile(
