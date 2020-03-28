@@ -83,7 +83,7 @@ class MemberQRCodeState extends State<MemberQRCode> {
       onWillPop: () => doNothing(),
       child: Scaffold(
           appBar: AppBar(
-            title: Text('Member QR code'),
+            title: Text('Member QR Code', style: Styles.whiteSmall,),
             leading: Container(),
             actions: <Widget>[
               IconButton(
@@ -105,11 +105,12 @@ class MemberQRCodeState extends State<MemberQRCode> {
                     children: <Widget>[
                       Expanded(
                         child: ListView(primary: true, children: <Widget>[
+                          Image.asset('assets/logo.png', height: 48, width: 48,),
                           Padding(
                             padding: const EdgeInsets.all(5),
                           ),
                           Text(
-                            'This is a QR code that identifies you as a member of the Stokkie Network',
+                            'This QR code identifies you as a member of the Stokkie Network',
                             style: TextStyle(fontSize: 15),
                             textAlign: TextAlign.center,
                           ),
@@ -136,7 +137,7 @@ class MemberQRCodeState extends State<MemberQRCode> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                'Member QR code',
+                                'Member QR ode',
                                 style: Styles.blueSmall,
                               ),
                               SizedBox(
@@ -151,8 +152,8 @@ class MemberQRCodeState extends State<MemberQRCode> {
                             padding:
                                 const EdgeInsets.only(left: 20.0, right: 28.0),
                             child: Text(
-                                'Please present this screen to identify yourself for a transaction 🍎 Thanks!',
-                                style: Styles.blackBoldSmall),
+                                'Please present this screen to identify yourself for a transaction',
+                                style: Styles.greyLabelSmall),
                           ),
                           SizedBox(
                             height: 20,

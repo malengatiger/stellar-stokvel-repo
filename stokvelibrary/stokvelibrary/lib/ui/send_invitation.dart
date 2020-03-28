@@ -80,15 +80,15 @@ class _SendInvitationState extends State<SendInvitation>
     return Scaffold(
       key: _key,
       appBar: AppBar(
-        title: Text('Send Invitation'),
+        title: Text('Send Invitation', style: Styles.whiteSmall,),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(340),
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
               children: <Widget>[
                 Text(
-                  'Invite your friends and famility to participate in one or more of your administered stokvels',
+                  'Invite your friends and famility to participate in one or more of your Groups',
                   style: Styles.whiteSmall,
                 ),
                 SizedBox(
@@ -98,7 +98,7 @@ class _SendInvitationState extends State<SendInvitation>
                   children: <Widget>[
                     Text('Invite People Using: '),
                     SizedBox(
-                      width: 12,
+                      width: 4,
                     ),
                     Switch(
                       value: sendByWhatsapp,
@@ -114,22 +114,22 @@ class _SendInvitationState extends State<SendInvitation>
                   ],
                 ),
                 SizedBox(
-                  height: 12,
+                  height: 8,
                 ),
                 _stokvels.isEmpty ? Container() : _getDropDownOrText(),
                 SizedBox(
-                  height: 12,
+                  height: 8,
                 ),
                 isBusy
                     ? Container()
                     : TextField(
-                        style: Styles.blackMedium,
+                        style: Styles.blackSmall,
                         controller: _textController,
                         decoration: InputDecoration(
                             suffix: IconButton(
                               icon: Icon(
                                 Icons.close,
-                                color: Colors.pink,
+                                color: Colors.black,
                               ),
                               onPressed: () {
                                 _dismissKeyboard();
@@ -154,7 +154,7 @@ class _SendInvitationState extends State<SendInvitation>
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      'Scan to Invite',
+                      'Scan to Invite Member to Group',
                       style: Styles.whiteSmall,
                     ),
                   ),
@@ -188,9 +188,9 @@ class _SendInvitationState extends State<SendInvitation>
                         color: getRandomPastelColor(),
                         elevation: 2,
                         child: ListTile(
-                          leading: Icon(Icons.person),
+                          leading: Icon(Icons.person, color: getRandomColor(),),
                           title: Text(
-                              filteredContacts.elementAt(index).displayName),
+                              filteredContacts.elementAt(index).displayName, style: Styles.blackSmall,),
                         ),
                       ),
                     );
@@ -203,7 +203,7 @@ class _SendInvitationState extends State<SendInvitation>
   void _submitInvitation({Contact contact, String email}) async {
     if (selectedStokvel == null) {
       AppSnackBar.showErrorSnackBar(
-          scaffoldKey: _key, message: 'Please select Stokvel');
+          scaffoldKey: _key, message: 'Please select Group');
       return;
     }
     if (email == null) {
@@ -255,7 +255,7 @@ class _SendInvitationState extends State<SendInvitation>
               title: new Text("Enter eMail Address",
                   style: Styles.blackBoldMedium),
               content: Container(
-                height: 200.0,
+                height: 100.0,
                 child: Column(
                   children: <Widget>[
                     TextField(

@@ -3,7 +3,6 @@ import 'package:stokvelibrary/slide_right.dart';
 import 'package:stokvelibrary/ui/member_statement.dart';
 import 'package:stokvelibrary/ui/send_invitation.dart';
 import 'package:stokvelibrary/ui/send_money.dart';
-import 'package:stokvelibrary/ui/statements.dart';
 
 const TYPE_ADMIN = 'admin', TYPE_MEMBER = 'member';
 class StokkieNavBar extends StatelessWidget {
